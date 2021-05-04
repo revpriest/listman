@@ -16458,6 +16458,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16544,10 +16557,10 @@ __webpack_require__.r(__webpack_exports__);
         this.$refs.desc.focus();
       }); // Fill members-list
 
-      console.error('Fetching members of ', this.currentListId);
-      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/members');
+      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/listmembers/' + this.currentListId);
+      console.error('Fetching ' + url);
       const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(url);
-      console.error('got reply', response, response.data);
+      console.error('got reply', response);
       this.currentListMembers = response.data;
     },
 
@@ -16643,7 +16656,22 @@ __webpack_require__.r(__webpack_exports__);
         Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('listman', 'List deleted'));
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('liastman', 'Could not delete the list'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not delete the list'));
+      }
+    },
+
+    /**
+     * Delete a member, remove it from the frontend and show a hint
+     * @param {Object} member Member object
+     */
+    async deleteMember(member) {
+      try {
+        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/member/".concat(member.id)));
+        this.lists.splice(this.members.indexOf(member), 1);
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('listman', 'Member deleted'));
+      } catch (e) {
+        console.error(e);
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not delete the member'));
       }
     }
 
@@ -37013,7 +37041,6 @@ var render = function() {
                     "li",
                     {
                       key: member.id,
-                      class: { active: _vm.currentMemberId === member.id },
                       attrs: {
                         title: member.name
                           ? member.name
@@ -37072,7 +37099,61 @@ var render = function() {
                             _vm.$set(member, "email", $event.target.value)
                           }
                         }
-                      })
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        { staticClass: "listman_memberactions" },
+                        [
+                          member.id === -1
+                            ? _c(
+                                "ActionButton",
+                                {
+                                  staticClass: "listman_memberaction",
+                                  attrs: { icon: "icon-close" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.cancelNewMember(member)
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n\t\t\t\t\t\t\t" +
+                                      _vm._s(
+                                        _vm.t(
+                                          "listman",
+                                          "Cancel member creation"
+                                        )
+                                      ) +
+                                      "\n\t\t\t\t\t\t"
+                                  )
+                                ]
+                              )
+                            : _c(
+                                "ActionButton",
+                                {
+                                  staticClass: "listman_memberaction",
+                                  attrs: { icon: "icon-delete" },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.deleteMember(member)
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v(
+                                    "\n\t\t\t\t\t\t\t" +
+                                      _vm._s(
+                                        _vm.t("listman", "Delete member")
+                                      ) +
+                                      "\n\t\t\t\t\t\t"
+                                  )
+                                ]
+                              )
+                        ],
+                        1
+                      )
                     ]
                   )
                 }),
@@ -46169,4 +46250,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=b90bc2f878d32bceeb7d
+//# sourceMappingURL=listman-main.js.map?v=7f7f4fa269debcba5b5a

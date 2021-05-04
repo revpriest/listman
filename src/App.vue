@@ -48,7 +48,6 @@
 					<li v-for="member in currentListMembers"
 						:key="member.id"
 						:title="member.name ? member.name : t('listman', 'New Member')"
-						:class="{active: currentMemberId === member.id}"
 						@click="openMember(member)">
 						<input ref="name"
 							v-model="member.name"
@@ -60,6 +59,20 @@
 							type="text"
 							class="listman_memberEmail"
 							:disabled="updating">
+						<div class="listman_memberactions">
+							<ActionButton v-if="member.id === -1"
+								icon="icon-close"
+								class="listman_memberaction"
+								@click="cancelNewMember(member)">
+								{{ t('listman', '') }}
+							</ActionButton>
+							<ActionButton v-else
+								icon="icon-delete"
+								class="listman_memberaction"
+								@click="deleteMember(member)">
+								{{ t('listman', '') }}
+							</ActionButton>
+						</div>
 					</li>
 				</ul>
 			</div>
@@ -155,10 +168,10 @@ export default {
 			})
 
 			// Fill members-list
-			console.error('Fetching members of ', this.currentListId)
-			const url = generateUrl('/apps/listman/members')
+			const url = generateUrl('/apps/listman/listmembers/' + this.currentListId)
+			console.error('Fetching ' + url)
 			const response = await axios.get(url)
-			console.error('got reply', response, response.data)
+			console.error('got reply', response)
 			this.currentListMembers = response.data
 		},
 		/**
@@ -242,7 +255,21 @@ export default {
 				showSuccess(t('listman', 'List deleted'))
 			} catch (e) {
 				console.error(e)
-				showError(t('liastman', 'Could not delete the list'))
+				showError(t('listman', 'Could not delete the list'))
+			}
+		},
+		/**
+		 * Delete a member, remove it from the frontend and show a hint
+		 * @param {Object} member Member object
+		 */
+		async deleteMember(member) {
+			try {
+				await axios.delete(generateUrl(`/apps/listman/member/${member.id}`))
+				this.lists.splice(this.members.indexOf(member), 1)
+				showSuccess(t('listman', 'Member deleted'))
+			} catch (e) {
+				console.error(e)
+				showError(t('listman', 'Could not delete the member'))
 			}
 		},
 	},

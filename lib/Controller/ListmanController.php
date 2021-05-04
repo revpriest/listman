@@ -67,4 +67,15 @@ class ListmanController extends Controller {
 			return $this->service->delete($id, $this->userId);
 		});
 	}
+
+	/**
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function listmembers(string $lid): DataResponse {
+		file_put_contents("data/prelog.txt","0)Finding Members for $lid ".$this->userId."\n",FILE_APPEND);
+		return $this->handleNotFound(function () use ($lid) {
+			return $this->service->listmembers(intval($lid), $this->userId);
+		});
+	}
 }

@@ -66,8 +66,13 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
                 'notnull' => true,
                 'default' => 0,
             ]);
+            $table->addColumn('user_id', 'string', [
+                'notnull' => true,
+                'length' => 200,
+            ]);
 
             $table->setPrimaryKey(['id']);
+            $table->addIndex(['user_id'], 'listman_member_user_id_index');
             $table->addIndex(['listId'], 'listman_member_listId_index');
         }
         return $schema;

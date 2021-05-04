@@ -25,19 +25,34 @@ class MemberMapper extends QBMapper {
     }
 
 	/**
-	 * @param string $listId
+	 * @param string $userId
 	 * @return array
 	 */
-    public function findAll(int $listId) {
+    public function findAll(string $userId) {
         $qb = $this->db->getQueryBuilder();
-				file_put_contents("data/prelog.txt","Building a query ".$listId." on ".$this->getTableName()."\n",FILE_APPEND);
         $qb->select('*')
            ->from($this->getTableName())
-           ->where($qb->expr()->eq('listId', $qb->createNamedParameter($listId)));
-				file_put_contents("data/prelog.txt",json_encode($qb)."\n",FILE_APPEND);
+           ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
 				$ret = $this->findEntities($qb);
-				file_put_contents("data/prelog.txt","Done a query on ".$this->getTableName()."\n",FILE_APPEND);
         return $ret;
+    }
+
+	/**
+	 * @param int $listId
+	 * @param string $userId
+	 * @return array
+	 */
+    public function findMembers(int $listId,string $user_id) {
+		  file_put_contents("data/prelog.txt","Finding Members for $listId $user_id\n",FILE_APPEND);
+      $qb = $this->db->getQueryBuilder();
+      $qb->select('*')
+         ->from($this->getTableName())
+         ->where($qb->expr()->andx(
+              ($qb->expr()->eq('listId', $qb->createNamedParameter($listId))),
+              ($qb->expr()->eq('user_id', $qb->createNamedParameter($user_id)))
+           ));
+			$ret = $this->findEntities($qb);
+      return $ret;
     }
 }
 

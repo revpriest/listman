@@ -11,9 +11,7 @@ use OCP\IRequest;
 class MemberController extends Controller {
 	/** @var ListmanService */
 	private $service;
-
-	/** @var integer */
-	private $listId;
+	private $userId;
 
 	use Errors;
 
@@ -22,14 +20,14 @@ class MemberController extends Controller {
 								string $userId) {
 		parent::__construct(Application::APP_ID, $request);
 		$this->service = $service;
-		$this->listId = 3;          //$listId  #How to get this?
+		$this->userId = $userId;
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
 	public function index(): DataResponse {
-		return new DataResponse($this->service->findAllMembers($this->listId));
+		return new DataResponse($this->service->findAllMembers($this->userId));
 	}
 
 	/**
@@ -37,7 +35,7 @@ class MemberController extends Controller {
 	 */
 	public function show(int $id): DataResponse {
 		return $this->handleNotFound(function () use ($id) {
-			return $this->service->findMember($id, $this->listId);
+			return $this->service->findMember($id, $this->userId);
 		});
 	}
 
@@ -45,7 +43,7 @@ class MemberController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function create(string $email, string $name, integer $state): DataResponse {
-		return new DataResponse($this->service->createMember($email, $name, $state, $this->listId));
+		return new DataResponse($this->service->createMember($email, $name, $state, $this->userId));
 	}
 
 	/**
@@ -53,7 +51,7 @@ class MemberController extends Controller {
 	 */
 	public function update(int $id, string $email, string $name, integer $state): DataResponse {
 		return $this->handleNotFound(function () use ($id, $email, $name, $state) {
-			return $this->service->updateMember($id, $email, $name, $state, $this->listId);
+			return $this->service->updateMember($id, $email, $name, $state, $this->userId);
 		});
 	}
 
@@ -62,7 +60,7 @@ class MemberController extends Controller {
 	 */
 	public function destroy(int $id): DataResponse {
 		return $this->handleNotFound(function () use ($id) {
-			return $this->service->deleteMember($id, $this->listId);
+			return $this->service->deleteMember($id, $this->userId);
 		});
 	}
 }

@@ -10,6 +10,7 @@ class Member extends Entity implements JsonSerializable {
     protected $email;
     protected $state;
     protected $listId;
+    protected $userId;
 
     public function __construct() {
         $this->addType('id','integer');
@@ -23,6 +24,7 @@ class Member extends Entity implements JsonSerializable {
             'name' => $this->name,
             'email' => $this->email,
             'state' => $this->state,
+            'user_id' => $this->user_id,
         ];
     }
 }
