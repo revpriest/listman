@@ -1,0 +1,12 @@
+<?php
+
+namespace OCA\Listman\Tests\Unit\Controller;
+
+use OCA\Listman\Controller\ListApiController;
+
+class ListmanApiControllerTest extends ListmanControllerTest {
+	public function setUp(): void {
+		parent::setUp();
+		$this->controller = new ListmanApiController($this->request, $this->service, $this->userId);
+	}
+}

@@ -1,0 +1,236 @@
+<template>
+	<div id="content" class="app-listman">
+		<AppNavigation>
+			<AppNavigationNew v-if="!loading"
+				:text="t('listman', 'New list')"
+				:disabled="false"
+				button-id="new-listman-button"
+				button-class="icon-add"
+				@click="newList" />
+			<ul>
+				<AppNavigationItem v-for="list in lists"
+					:key="list.id"
+					:title="list.title ? list.title : t('listman', 'New list')"
+					:class="{active: currentListId === list.id}"
+					@click="openList(list)">
+					<template slot="actions">
+						<ActionButton v-if="list.id === -1"
+							icon="icon-close"
+							@click="cancelNewList(list)">
+							{{ t('listman', 'Cancel list creation') }}
+						</ActionButton>
+						<ActionButton v-else
+							icon="icon-delete"
+							@click="deleteList(list)">
+							{{ t('listman', 'Delete list') }}
+						</ActionButton>
+					</template>
+				</AppNavigationItem>
+			</ul>
+		</AppNavigation>
+		<AppContent>
+			<div v-if="currentList">
+				<input ref="title"
+					v-model="currentList.title"
+					type="text"
+					:disabled="updating">
+				<textarea ref="desc" v-model="currentList.desc" :disabled="updating" />
+				<input type="button"
+					class="primary"
+					:value="t('listman', 'Save')"
+					:disabled="updating || !savePossible"
+					@click="saveList">
+			</div>
+			<div v-else id="emptydesc">
+				<div class="icon-file" />
+				<h2>{{ t('listman', 'Create a list to get started') }}</h2>
+			</div>
+		</AppContent>
+	</div>
+</template>
+
+<script>
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import AppContent from '@nextcloud/vue/dist/Components/AppContent'
+import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'
+import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
+import AppNavigationNew from '@nextcloud/vue/dist/Components/AppNavigationNew'
+
+import '@nextcloud/dialogs/styles/toast.scss'
+import { generateUrl } from '@nextcloud/router'
+import { showError, showSuccess } from '@nextcloud/dialogs'
+import axios from '@nextcloud/axios'
+
+export default {
+	name: 'App',
+	components: {
+		ActionButton,
+		AppContent,
+		AppNavigation,
+		AppNavigationItem,
+		AppNavigationNew,
+	},
+	data() {
+		return {
+			lists: [],
+			currentListId: null,
+			updating: false,
+			loading: true,
+		}
+	},
+	computed: {
+		/**
+		 * Return the currently selected list object
+		 * @returns {Object|null}
+		 */
+		currentList() {
+			if (this.currentListId === null) {
+				return null
+			}
+			return this.lists.find((list) => list.id === this.currenListeId)
+		},
+
+		/**
+		 * Returns true if a list is selected and its title is not empty
+		 * @returns {Boolean}
+		 */
+		savePossible() {
+			return this.currentList && this.currentList.title !== ''
+		},
+	},
+	/**
+	 * Fetch list of lists when the component is loaded
+	 */
+	async mounted() {
+		try {
+			const response = await axios.get(generateUrl('/apps/listman/lists'))
+			this.lists = response.data
+		} catch (e) {
+			console.error(e)
+			showError(t('listman', 'Could not fetch lists'))
+		}
+		this.loading = false
+	},
+
+	methods: {
+		/**
+		 * Create a new list and focus the list desc field automatically
+		 * @param {Object} list List object
+		 */
+		openList(list) {
+			if (this.updating) {
+				return
+			}
+			this.currentListId = list.id
+			this.$nextTick(() => {
+				this.$refs.desc.focus()
+			})
+		},
+		/**
+		 * Action tiggered when clicking the save button
+		 * create a new list or save
+		 */
+		saveList() {
+			if (this.currentListId === -1) {
+				this.createList(this.currentList)
+			} else {
+				this.updateList(this.currentList)
+			}
+		},
+		/**
+		 * Create a new list and focus the list desc field automatically
+		 * The list is not yet saved, therefore an id of -1 is used until it
+		 * has been persisted in the backend
+		 */
+		newList() {
+			if (this.currentListId !== -1) {
+				this.currentListId = -1
+				this.lists.push({
+					id: -1,
+					title: '',
+					desc: '',
+				})
+				this.$nextTick(() => {
+					this.$refs.title.focus()
+				})
+			}
+		},
+		/**
+		 * Abort creating a new list
+		 */
+		cancelNewList() {
+			this.lists.splice(this.lists.findIndex((list) => list.id === -1), 1)
+			this.currentListId = null
+		},
+		/**
+		 * Create a new list by sending the information to the server
+		 * @param {Object} list List object
+		 */
+		async createList(list) {
+			this.updating = true
+			try {
+				const response = await axios.post(generateUrl('/apps/listman/lists'), list)
+				const index = this.lists.findIndex((match) => match.id === this.currentListId)
+				this.$set(this.lists, index, response.data)
+				this.currentListId = response.data.id
+			} catch (e) {
+				console.error(e)
+				showError(t('listman', 'Could not create the list'))
+			}
+			this.updating = false
+		},
+		/**
+		 * Update an existing list on the server
+		 * @param {Object} list List object
+		 */
+		async updateList(list) {
+			this.updating = true
+			try {
+				await axios.put(generateUrl(`/apps/listman/lists/${list.id}`), list)
+			} catch (e) {
+				console.error(e)
+				showError(t('listman', 'Could not update the list'))
+			}
+			this.updating = false
+		},
+		/**
+		 * Delete a list, remove it from the frontend and show a hint
+		 * @param {Object} list List object
+		 */
+		async deleteList(list) {
+			try {
+				await axios.delete(generateUrl(`/apps/listman/lists/${list.id}`))
+				this.lists.splice(this.lists.indexOf(list), 1)
+				if (this.currentListId === list.id) {
+					this.currentListId = null
+				}
+				showSuccess(t('listman', 'List deleted'))
+			} catch (e) {
+				console.error(e)
+				showError(t('liastman', 'Could not delete the list'))
+			}
+		},
+	},
+}
+alert('Yep, started at least')
+console.error('I AM ALIVE!!!!!!!!!!!!!!!!!!!!!')
+</script>
+<style scoped>
+	#app-content > div {
+		width: 100%;
+		height: 100%;
+		padding: 20px;
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+	}
+
+	input[type='text'] {
+		width: 100%;
+	}
+
+	textarea {
+		flex-grow: 1;
+		width: 100%;
+	}
+</style>
