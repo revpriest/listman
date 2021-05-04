@@ -16434,6 +16434,30 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16457,6 +16481,7 @@ __webpack_require__.r(__webpack_exports__);
     return {
       lists: [],
       currentListId: null,
+      currentListMembers: [],
       updating: false,
       loading: true
     };
@@ -16472,7 +16497,7 @@ __webpack_require__.r(__webpack_exports__);
         return null;
       }
 
-      return this.lists.find(list => list.id === this.currenListeId);
+      return this.lists.find(list => list.id === this.currentListId);
     },
 
     /**
@@ -16490,7 +16515,9 @@ __webpack_require__.r(__webpack_exports__);
    */
   async mounted() {
     try {
+      console.error('Fetching from url ', Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/lists'));
       const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/lists'));
+      console.error('got reply', response, response.data);
       this.lists = response.data;
     } catch (e) {
       console.error(e);
@@ -16505,7 +16532,9 @@ __webpack_require__.r(__webpack_exports__);
      * Create a new list and focus the list desc field automatically
      * @param {Object} list List object
      */
-    openList(list) {
+    async openList(list) {
+      console.error('Opening List');
+
       if (this.updating) {
         return;
       }
@@ -16513,7 +16542,13 @@ __webpack_require__.r(__webpack_exports__);
       this.currentListId = list.id;
       this.$nextTick(() => {
         this.$refs.desc.focus();
-      });
+      }); // Fill members-list
+
+      console.error('Fetching members of ', this.currentListId);
+      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/members');
+      const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(url);
+      console.error('got reply', response, response.data);
+      this.currentListMembers = response.data;
     },
 
     /**
@@ -16614,8 +16649,6 @@ __webpack_require__.r(__webpack_exports__);
 
   }
 });
-alert('Yep, started at least');
-console.error('I AM ALIVE!!!!!!!!!!!!!!!!!!!!!');
 
 /***/ }),
 
@@ -36926,6 +36959,7 @@ var render = function() {
                   }
                 ],
                 ref: "title",
+                staticClass: "listman_listTitle",
                 attrs: { type: "text", disabled: _vm.updating },
                 domProps: { value: _vm.currentList.title },
                 on: {
@@ -36948,6 +36982,7 @@ var render = function() {
                   }
                 ],
                 ref: "desc",
+                staticClass: "listman_listDesc",
                 attrs: { disabled: _vm.updating },
                 domProps: { value: _vm.currentList.desc },
                 on: {
@@ -36968,13 +37003,96 @@ var render = function() {
                   disabled: _vm.updating || !_vm.savePossible
                 },
                 on: { click: _vm.saveList }
-              })
+              }),
+              _vm._v(" "),
+              _c(
+                "ul",
+                { staticClass: "listman_members" },
+                _vm._l(_vm.currentListMembers, function(member) {
+                  return _c(
+                    "li",
+                    {
+                      key: member.id,
+                      class: { active: _vm.currentMemberId === member.id },
+                      attrs: {
+                        title: member.name
+                          ? member.name
+                          : _vm.t("listman", "New Member")
+                      },
+                      on: {
+                        click: function($event) {
+                          return _vm.openMember(member)
+                        }
+                      }
+                    },
+                    [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: member.name,
+                            expression: "member.name"
+                          }
+                        ],
+                        ref: "name",
+                        refInFor: true,
+                        staticClass: "listman_memberName",
+                        attrs: { type: "text", disabled: _vm.updating },
+                        domProps: { value: member.name },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(member, "name", $event.target.value)
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: member.email,
+                            expression: "member.email"
+                          }
+                        ],
+                        ref: "email",
+                        refInFor: true,
+                        staticClass: "listman_memberEmail",
+                        attrs: { type: "text", disabled: _vm.updating },
+                        domProps: { value: member.email },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(member, "email", $event.target.value)
+                          }
+                        }
+                      })
+                    ]
+                  )
+                }),
+                0
+              )
             ])
           : _c("div", { attrs: { id: "emptydesc" } }, [
               _c("div", { staticClass: "icon-file" }),
               _vm._v(" "),
-              _c("h2", [
-                _vm._v(_vm._s(_vm.t("listman", "Create a list to get started")))
+              _c("p", { staticClass: "listman_empty" }, [
+                _vm._v(
+                  "\n\t\t\t\t" +
+                    _vm._s(
+                      _vm.t(
+                        "listman",
+                        "Select or create a list from the menu on the left"
+                      )
+                    ) +
+                    "\n\t\t\t"
+                )
               ])
             ])
       ])
@@ -46051,4 +46169,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=ef318796ec3a351aec9f
+//# sourceMappingURL=listman-main.js.map?v=b90bc2f878d32bceeb7d

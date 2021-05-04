@@ -33,17 +33,41 @@
 				<input ref="title"
 					v-model="currentList.title"
 					type="text"
+					class="listman_listTitle"
 					:disabled="updating">
-				<textarea ref="desc" v-model="currentList.desc" :disabled="updating" />
+				<textarea ref="desc"
+					v-model="currentList.desc"
+					class="listman_listDesc"
+					:disabled="updating" />
 				<input type="button"
 					class="primary"
 					:value="t('listman', 'Save')"
 					:disabled="updating || !savePossible"
 					@click="saveList">
+				<ul class="listman_members">
+					<li v-for="member in currentListMembers"
+						:key="member.id"
+						:title="member.name ? member.name : t('listman', 'New Member')"
+						:class="{active: currentMemberId === member.id}"
+						@click="openMember(member)">
+						<input ref="name"
+							v-model="member.name"
+							type="text"
+							class="listman_memberName"
+							:disabled="updating">
+						<input ref="email"
+							v-model="member.email"
+							type="text"
+							class="listman_memberEmail"
+							:disabled="updating">
+					</li>
+				</ul>
 			</div>
 			<div v-else id="emptydesc">
 				<div class="icon-file" />
-				<h2>{{ t('listman', 'Create a list to get started') }}</h2>
+				<p class="listman_empty">
+					{{ t('listman', 'Select or create a list from the menu on the left') }}
+				</p>
 			</div>
 		</AppContent>
 	</div>
@@ -74,6 +98,7 @@ export default {
 		return {
 			lists: [],
 			currentListId: null,
+			currentListMembers: [],
 			updating: false,
 			loading: true,
 		}
@@ -87,7 +112,7 @@ export default {
 			if (this.currentListId === null) {
 				return null
 			}
-			return this.lists.find((list) => list.id === this.currenListeId)
+			return this.lists.find((list) => list.id === this.currentListId)
 		},
 
 		/**
@@ -103,7 +128,9 @@ export default {
 	 */
 	async mounted() {
 		try {
+			console.error('Fetching from url ', generateUrl('/apps/listman/lists'))
 			const response = await axios.get(generateUrl('/apps/listman/lists'))
+			console.error('got reply', response, response.data)
 			this.lists = response.data
 		} catch (e) {
 			console.error(e)
@@ -117,7 +144,8 @@ export default {
 		 * Create a new list and focus the list desc field automatically
 		 * @param {Object} list List object
 		 */
-		openList(list) {
+		async openList(list) {
+			console.error('Opening List')
 			if (this.updating) {
 				return
 			}
@@ -125,6 +153,13 @@ export default {
 			this.$nextTick(() => {
 				this.$refs.desc.focus()
 			})
+
+			// Fill members-list
+			console.error('Fetching members of ', this.currentListId)
+			const url = generateUrl('/apps/listman/members')
+			const response = await axios.get(url)
+			console.error('got reply', response, response.data)
+			this.currentListMembers = response.data
 		},
 		/**
 		 * Action tiggered when clicking the save button
@@ -212,8 +247,6 @@ export default {
 		},
 	},
 }
-alert('Yep, started at least')
-console.error('I AM ALIVE!!!!!!!!!!!!!!!!!!!!!')
 </script>
 <style scoped>
 	#app-content > div {

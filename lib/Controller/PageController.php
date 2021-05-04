@@ -17,11 +17,14 @@ class PageController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 *
-	 * Render default template
+	 * Render default template.
+   * This is the page which has the web-app code from src/App.vue
+   * It includes the stylesheet from css/style.css
 	 */
 	public function index() {
 		Util::addScript(Application::APP_ID, 'listman-main');
-
+		Util::addStyle($this->appName, 'icons');
+		Util::addStyle($this->appName, 'style');
 		return new TemplateResponse(Application::APP_ID, 'main');
 	}
 }

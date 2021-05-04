@@ -1,34 +1,28 @@
-#app-content-wrapper {
-	height: 100%;
+
+.listman_empty{
+  display: block;
+  font-size: 2em;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 2em;
 }
 
-#editor {
-	height: 100%;
-	width: 100%;
+.listman_listTitle{
+  max-width: 30em;
+  display: block;
 }
 
-#editor .input {
-	height: calc(100% - 51px);
-	width: 100%;
+.listman_listDesc{
+  max-width: 30em;
+  display: block;
 }
 
-#editor .save {
-	height: 50px;
-	width: 100%;
-	text-align: center;
-	border-top: 1px solid #ccc;
-	background-color: #fafafa;
+.listman_members li{
+  display:block;
 }
-
-#editor textarea {
-	height: 100%;
-	width: 100%;
-	border: 0;
-	margin: 0;
-	border-radius: 0;
-	overflow-y: auto;
+.listman_memberName{
+  max-width: 30em;
 }
-
-#editor button {
-	height: 44px;
+.listman_memberEmail{
+  max-width: 30em;
 }

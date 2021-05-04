@@ -51,7 +51,7 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
                 'autoincrement' => true,
                 'notnull' => true,
             ]);
-            $table->addColumn('list_id', 'integer', [
+            $table->addColumn('listId', 'integer', [
                 'notnull' => true,
             ]);
             $table->addColumn('name', 'string', [
@@ -68,7 +68,7 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['list_id'], 'listman_member_list_id_index');
+            $table->addIndex(['listId'], 'listman_member_listId_index');
         }
         return $schema;
     }

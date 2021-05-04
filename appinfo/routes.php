@@ -4,7 +4,6 @@ return [
 	'resources' => [
 		'listman' => ['url' => '/lists'],
 		'member' => ['url' => '/members'],
-		'listman_api' => ['url' => '/api/0.1/listman']
 	],
 	'routes' => [
 		['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
