@@ -38,17 +38,16 @@ class MemberMapper extends QBMapper {
     }
 
 	/**
-	 * @param int $listId
-	 * @param string $userId
+	 * @param int $list_id
+	 * @param string $user_id
 	 * @return array
 	 */
-    public function findMembers(int $listId,string $user_id) {
-		  file_put_contents("data/prelog.txt","Finding Members for $listId $user_id\n",FILE_APPEND);
+    public function findMembers(int $list_id,string $user_id) {
       $qb = $this->db->getQueryBuilder();
       $qb->select('*')
          ->from($this->getTableName())
          ->where($qb->expr()->andx(
-              ($qb->expr()->eq('listId', $qb->createNamedParameter($listId))),
+              ($qb->expr()->eq('list_id', $qb->createNamedParameter($list_id))),
               ($qb->expr()->eq('user_id', $qb->createNamedParameter($user_id)))
            ));
 			$ret = $this->findEntities($qb);

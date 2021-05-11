@@ -42,16 +42,17 @@ class MemberController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function create(string $email, string $name, integer $state): DataResponse {
-		return new DataResponse($this->service->createMember($email, $name, $state, $this->userId));
+	public function create(string $email, string $name, int $state, int $list_id): DataResponse {
+    $state_i = intval($state);
+		return new DataResponse($this->service->createMember($email, $name, $state_i, $list_id, $this->userId));
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
-	public function update(int $id, string $email, string $name, integer $state): DataResponse {
-		return $this->handleNotFound(function () use ($id, $email, $name, $state) {
-			return $this->service->updateMember($id, $email, $name, $state, $this->userId);
+	public function update(int $id, string $email, string $name, string $list_id, string $state): DataResponse {
+		return $this->handleNotFound(function () use ($id, $email, $name, $list_id, $state) {
+			return $this->service->updateMember($id, $email, $name, intval($state), intval($list_id), $this->userId);
 		});
 	}
 

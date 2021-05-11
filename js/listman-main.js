@@ -16481,6 +16481,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16753,6 +16773,8 @@ __webpack_require__.r(__webpack_exports__);
       if (this.currentListId !== -1 && this.currentListMembers != null) {
         this.currentListMembers.push({
           id: -1,
+          list_id: this.currentListId,
+          state: 1,
           name: '',
           email: ''
         });
@@ -37118,7 +37140,7 @@ var render = function() {
                 staticClass: "primary",
                 attrs: {
                   type: "button",
-                  value: _vm.t("listman", "Save"),
+                  value: _vm.t("listman", "Save List Details"),
                   disabled: _vm.updating || !_vm.savePossible
                 },
                 on: { click: _vm.saveList }
@@ -37191,6 +37213,80 @@ var render = function() {
                           }
                         }
                       }),
+                      _vm._v(" "),
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: member.list_id,
+                            expression: "member.list_id"
+                          }
+                        ],
+                        ref: "list_id",
+                        refInFor: true,
+                        staticClass: "listman_memberListId",
+                        attrs: { type: "hidden", disabled: _vm.updating },
+                        domProps: { value: member.list_id },
+                        on: {
+                          input: function($event) {
+                            if ($event.target.composing) {
+                              return
+                            }
+                            _vm.$set(member, "list_id", $event.target.value)
+                          }
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "select",
+                        {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: member.state,
+                              expression: "member.state"
+                            }
+                          ],
+                          ref: "state",
+                          refInFor: true,
+                          staticClass: "listman_memberSelect",
+                          attrs: { type: "text", disabled: _vm.updating },
+                          on: {
+                            change: function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.$set(
+                                member,
+                                "state",
+                                $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              )
+                            }
+                          }
+                        },
+                        [
+                          _c("option", { attrs: { value: "1", default: "" } }, [
+                            _vm._v("\n\t\t\t\t\t\t\tSubscribed\n\t\t\t\t\t\t")
+                          ]),
+                          _vm._v(" "),
+                          _c("option", { attrs: { value: "0" } }, [
+                            _vm._v("\n\t\t\t\t\t\t\tUnsubscribed\n\t\t\t\t\t\t")
+                          ]),
+                          _vm._v(" "),
+                          _c("option", { attrs: { value: "-1" } }, [
+                            _vm._v("\n\t\t\t\t\t\t\tBlocked\n\t\t\t\t\t\t")
+                          ])
+                        ]
+                      ),
                       _vm._v(" "),
                       _c("input", {
                         staticClass: "primary",
@@ -46309,4 +46405,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=b1c869574e1471ce3437
+//# sourceMappingURL=listman-main.js.map?v=eb64ace68966e35bf62f

@@ -46,7 +46,7 @@
 					@click="newMember">
 				<input type="button"
 					class="primary"
-					:value="t('listman', 'Save')"
+					:value="t('listman', 'Save List Details')"
 					:disabled="updating || !savePossible"
 					@click="saveList">
 				<ul class="listman_members">
@@ -64,6 +64,26 @@
 							type="text"
 							class="listman_memberEmail"
 							:disabled="updating">
+						<input ref="list_id"
+							v-model="member.list_id"
+							type="hidden"
+							class="listman_memberListId"
+							:disabled="updating">
+						<select ref="state"
+							v-model="member.state"
+							type="text"
+							class="listman_memberSelect"
+							:disabled="updating">
+							<option value="1" default>
+								Subscribed
+							</option>
+							<option value="0">
+								Unsubscribed
+							</option>
+							<option value="-1">
+								Blocked
+							</option>
+						</select>
 						<input type="button"
 							class="primary"
 							:value="t('listman', 'Save')"
@@ -342,6 +362,8 @@ export default {
 			if ((this.currentListId !== -1) && (this.currentListMembers != null)) {
 			  this.currentListMembers.push({
 					id: -1,
+					list_id: this.currentListId,
+					state: 1,
 					name: '',
 					email: '',
 				})

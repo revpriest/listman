@@ -42,9 +42,9 @@ class ListmanService {
 		return $this->mapper->findAll($userId);
 	}
 
-	public function findAllMembers(int $listId,string $userId): array {
-		file_put_contents("data/prelog.txt","Finding All Members in ".$listId."x".json_encode($userId)."\n",FILE_APPEND);
-		return $this->memberMapper->findMembers($listId,$userId);
+	public function findAllMembers(int $list_id,string $user_id): array {
+		file_put_contents("data/prelog.txt","Finding All Members in ".$list_id."x".json_encode($user_id)."\n",FILE_APPEND);
+		return $this->memberMapper->findMembers($list_id,$user_id);
 	}
 
 	public function find($id, $userId) {
@@ -70,14 +70,14 @@ class ListmanService {
 		$list->setUserId($userId);
 		return $this->mapper->insert($list);
 	}
-	public function createMember($email, $name, $state,$listId,$userId) {
+	public function createMember($email, $name, $state, $list_id, $userId) {
 		$member = new Member();
 		$member->setEmail($email);
 		$member->setName($name);
 		$member->setState($state);
-		$member->setListId($listId);
+		$member->setListId($list_id);
 		$member->setUserId($userId);
-		return $this->mapper->insert($member);
+		return $this->memberMapper->insert($member);
 	}
 
 	public function update($id, $title, $desc, $userId) {
@@ -90,13 +90,13 @@ class ListmanService {
 			$this->handleException($e);
 		}
 	}
-	public function updateMember($id, $email, $name, $state,$listId,$userId) {
+	public function updateMember($id, $email, $name, $state,$list_id,$userId) {
 		try {
 			$member = $this->memberMapper->find($id,$userId);
 			$member->setEmail($email);
 			$member->setName($name);
 			$member->setState($state);
-			$member->setListId($listId);
+			$member->setListId($list_id);
 			return $this->memberMapper->update($member);
 		} catch (Exception $e) {
 			$this->handleException($e);
@@ -123,7 +123,7 @@ class ListmanService {
 	}
 
 	public function listmembers(int $lid, string $userId): array {
-		file_put_contents("data/prelog.txt","a)Finding Members for $listId $userId\n",FILE_APPEND);
+		file_put_contents("data/prelog.txt","a)Finding Members for $lid $userId\n",FILE_APPEND);
 		return $this->memberMapper->findMembers($lid, $userId);
 	}
 }

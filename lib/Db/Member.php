@@ -14,17 +14,15 @@ class Member extends Entity implements JsonSerializable {
 
     public function __construct() {
         $this->addType('id','integer');
-        $this->addType('listId','integer');
     }
 
     public function jsonSerialize() {
         return [
             'id' => $this->id,
-            'listId' => $this->listId,
             'name' => $this->name,
             'email' => $this->email,
             'state' => $this->state,
-            'user_id' => $this->user_id,
+            'list_id' => $this->listId,
         ];
     }
 }
