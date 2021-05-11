@@ -58,7 +58,7 @@ class MemberController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function destroy(int $id): DataResponse {
+	public function destroy(int $id): DataResponse {  
 		return $this->handleNotFound(function () use ($id) {
 			return $this->service->deleteMember($id, $this->userId);
 		});

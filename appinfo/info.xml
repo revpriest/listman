@@ -5,12 +5,12 @@
     <name>List Manager</name>
     <summary>App for managing email-lists</summary>
     <description><![CDATA[This is a simple app for managing mail-lists with the Nextcloud System]]></description>
-    <version>18.0.0</version>
+    <version>19.0.0</version>
     <licence>agpl</licence>
-    <author mail="dev@bernhard-posselt.com" >Bernhard Posselt</author>
+    <author mail="pre@dalliance.net" >Pre</author>
     <namespace>Listman</namespace>
     <category>office</category>
-    <bugs>https://github.com/nextcloud/app-tutorial</bugs>
+    <bugs>https://github.com/revpriest/listman</bugs>
     <dependencies>
         <nextcloud min-version="19" max-version="22"/>
     </dependencies>

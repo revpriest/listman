@@ -114,7 +114,7 @@ class ListmanService {
 	}
 	public function deleteMember($id,$userId) {
 		try {
-			$member = $this->mapper->find($id,$userId);
+			$member = $this->memberMapper->find($id,$userId);
 			$this->memberMapper->delete($member);
 			return $member;
 		} catch (Exception $e) {

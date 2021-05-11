@@ -41,6 +41,11 @@
 					:disabled="updating" />
 				<input type="button"
 					class="primary"
+					:value="t('listman', 'New Member')"
+					:disabled="updating"
+					@click="newMember">
+				<input type="button"
+					class="primary"
 					:value="t('listman', 'Save')"
 					:disabled="updating || !savePossible"
 					@click="saveList">
@@ -59,6 +64,11 @@
 							type="text"
 							class="listman_memberEmail"
 							:disabled="updating">
+						<input type="button"
+							class="primary"
+							:value="t('listman', 'Save')"
+							:disabled="updating || !savePossible"
+							@click="saveMember(member)">
 						<div class="listman_memberactions">
 							<ActionButton v-if="member.id === -1"
 								icon="icon-close"
@@ -264,33 +274,92 @@ export default {
 		 */
 		async deleteMember(member) {
 			try {
-				await axios.delete(generateUrl(`/apps/listman/member/${member.id}`))
-				this.lists.splice(this.members.indexOf(member), 1)
+				const url = generateUrl(`/apps/listman/members/${member.id}`)
+				console.error('opening url to delete member:' + url)
+				await axios.delete(url)
+				this.currentListMembers.splice(this.currentListMembers.indexOf(member), 1)
 				showSuccess(t('listman', 'Member deleted'))
 			} catch (e) {
 				console.error(e)
 				showError(t('listman', 'Could not delete the member'))
 			}
 		},
+		/**
+		 * Abort creating a new member
+		 */
+		cancelNewMember() {
+			this.currentListMembers.splice(this.currentListMembers.findIndex((member) => member.id === -1), 1)
+		},
+		/**
+		 * Action tiggered when clicking the save button
+		 * create a new member or save.
+		 * @param {Object} member Member object
+		 */
+		saveMember(member) {
+			if (member.id === -1) {
+				this.createMember(member)
+			} else {
+				this.updateMember(member)
+			}
+		},
+		/**
+		 * Create a new member by sending the information to the server
+		 * @param {Object} member Member object
+		 */
+		async createMember(member) {
+			this.updating = true
+			try {
+				const response = await axios.post(generateUrl('/apps/listman/members'), member)
+				const index = this.currentListMembers.findIndex((match) => match.id === member.id)
+				this.$set(this.currentListMembers, index, response.data)
+				member.id = response.data.id
+			} catch (e) {
+				console.error(e)
+				showError(t('listman', 'Could not create the member'))
+			}
+			this.updating = false
+		},
+		/**
+		 * Update an existing member on the server
+		 * @param {Object} member Member object
+		 */
+		async updateMember(member) {
+			this.updating = true
+			try {
+				await axios.put(generateUrl(`/apps/listman/members/${member.id}`), member)
+			} catch (e) {
+				console.error(e)
+				showError(t('listman', 'Could not update the member'))
+			}
+			this.updating = false
+		},
+		/**
+		 * Create a new member
+		 * The member is not yet saved, therefore an id of -1 is used until it
+		 * has been persisted in the backend
+		 */
+		newMember() {
+			if ((this.currentListId !== -1) && (this.currentListMembers != null)) {
+			  this.currentListMembers.push({
+					id: -1,
+					name: '',
+					email: '',
+				})
+				this.$nextTick(() => {
+					this.$refs.name.focus()
+				})
+			}
+		},
+		/**
+		 * Create a new list and focus the list desc field automatically
+		 * @param {Object} member Member object
+		 */
+		async openMember(member) {
+			if (this.updating) {
+				return
+			}
+			console.error('Opening Member', member)
+		},
 	},
 }
 </script>
-<style scoped>
-	#app-content > div {
-		width: 100%;
-		height: 100%;
-		padding: 20px;
-		display: flex;
-		flex-direction: column;
-		flex-grow: 1;
-	}
-
-	input[type='text'] {
-		width: 100%;
-	}
-
-	textarea {
-		flex-grow: 1;
-		width: 100%;
-	}
-</style>

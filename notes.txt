@@ -1,0 +1,3 @@
+"State" needs to be in each list:
+* Sending
+* Excluded
