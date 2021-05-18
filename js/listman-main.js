@@ -16510,6 +16510,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16669,7 +16677,8 @@ __webpack_require__.r(__webpack_exports__);
         this.lists.push({
           id: -1,
           title: '',
-          desc: ''
+          desc: '',
+          redir: ''
         });
         this.$nextTick(() => {
           this.$refs.title.focus();
@@ -37146,7 +37155,11 @@ var render = function() {
                 ],
                 ref: "title",
                 staticClass: "listman_listTitle",
-                attrs: { type: "text", disabled: _vm.updating },
+                attrs: {
+                  type: "text",
+                  placeholder: "list title",
+                  disabled: _vm.updating
+                },
                 domProps: { value: _vm.currentList.title },
                 on: {
                   input: function($event) {
@@ -37169,7 +37182,7 @@ var render = function() {
                 ],
                 ref: "desc",
                 staticClass: "listman_listDesc",
-                attrs: { disabled: _vm.updating },
+                attrs: { placeholder: "description", disabled: _vm.updating },
                 domProps: { value: _vm.currentList.desc },
                 on: {
                   input: function($event) {
@@ -37177,6 +37190,34 @@ var render = function() {
                       return
                     }
                     _vm.$set(_vm.currentList, "desc", $event.target.value)
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.currentList.redir,
+                    expression: "currentList.redir"
+                  }
+                ],
+                ref: "redir",
+                staticClass: "listman_listRedir",
+                attrs: {
+                  placeholder:
+                    "url to return to after un/subscribe confirmation",
+                  type: "text",
+                  disabled: _vm.updating
+                },
+                domProps: { value: _vm.currentList.redir },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.$set(_vm.currentList, "redir", $event.target.value)
                   }
                 }
               }),
@@ -46483,4 +46524,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=71ad09bd9b0a8f4e825c
+//# sourceMappingURL=listman-main.js.map?v=4c3d6d0bcc0a1b414752

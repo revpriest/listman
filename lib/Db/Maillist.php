@@ -10,6 +10,7 @@ class Maillist extends Entity implements JsonSerializable {
 	protected $title;
 	protected $desc;
 	protected $randid;
+	protected $redir;
 	protected $userId;
 
 	public function jsonSerialize(): array {
@@ -17,7 +18,8 @@ class Maillist extends Entity implements JsonSerializable {
 			'id' => $this->id,
 			'title' => $this->title,
 			'desc' => $this->desc,
-			'randid' => $this->randid
+			'randid' => $this->randid,
+			'redir' => $this->redir
 		];
 	}
 }

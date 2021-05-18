@@ -171,11 +171,12 @@ class ListmanService {
   /**
   * Create a new list
   */
-	public function create($title, $desc, $userId) {
+	public function create($title, $desc, $redir, $userId) {
 		$randid = $this->randId();
 		$list = new Maillist();
 		$list->setTitle($title);
 		$list->setDesc($desc);
+		$list->setRedir($redir);
 		$list->setRandid($randid);
 		$list->setUserId($userId);
 		return $this->mapper->insert($list);
@@ -312,7 +313,7 @@ class ListmanService {
 		}
 
     $content = $this->getConfirmTemplate($member,$list,$act);
-//    $this->sendEmail($member,$content);
+    $this->sendEmail($member,$content);
 
     if($redir!=null){
 		  return new RedirectResponse($redir);
@@ -354,6 +355,16 @@ class ListmanService {
 		if($act=="unsub"){
 			$member->setState(-1);
 			$this->memberMapper->update($member);
+		}
+
+		if(($list->getRedir()!=null)&&($list->getRedir()!="")){
+      $url = $list->getRedir();
+			$url.= "?membername=".$member->getName();
+			$url.= "&memberemail=".$member->getEmail();
+			$url.= "&memberstate=".$member->getState();
+			$url.= "&listtitle=".$list->getTitle();
+			$url.= "&act=".$act;
+		  return new RedirectResponse($url);
 		}
 
 		return new TemplateResponse( Application::APP_ID, 'confirmed',[

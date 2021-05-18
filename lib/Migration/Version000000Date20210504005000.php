@@ -39,6 +39,9 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
                 'length' => 8,
                 'notnull' => true,
             ]);
+            $table->addColumn('redir', 'string', [
+                'length' => 250,
+            ]);
             $table->addColumn('user_id', 'string', [
                 'notnull' => true,
                 'length' => 200,

@@ -46,8 +46,8 @@ class ListmanController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function create(string $title, string $desc): DataResponse {
-		return new DataResponse($this->service->create($title, $desc,
+	public function create(string $title, string $desc, string $redir): DataResponse {
+		return new DataResponse($this->service->create($title, $desc, $redir, 
 			$this->userId));
 	}
 

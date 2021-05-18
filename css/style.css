@@ -12,6 +12,7 @@
   display: block;
 }
 
+.listman_listRedir, 
 .listman_listDesc{
   max-width: 30em;
   display: block;

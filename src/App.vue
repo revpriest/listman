@@ -33,12 +33,20 @@
 				<input ref="title"
 					v-model="currentList.title"
 					type="text"
+					placeholder="list title"
 					class="listman_listTitle"
 					:disabled="updating">
 				<textarea ref="desc"
 					v-model="currentList.desc"
+					placeholder="description"
 					class="listman_listDesc"
 					:disabled="updating" />
+				<input ref="redir"
+					v-model="currentList.redir"
+					placeholder="url to return to after un/subscribe confirmation (optional)"
+					type="text"
+					class="listman_listRedir"
+					:disabled="updating">
 				<input type="button"
 					class="primary"
 					:value="t('listman', 'New Member')"
@@ -276,6 +284,7 @@ export default {
 					id: -1,
 					title: '',
 					desc: '',
+					redir: '',
 				})
 				this.$nextTick(() => {
 					this.$refs.title.focus()
