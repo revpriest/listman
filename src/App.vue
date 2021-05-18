@@ -251,6 +251,7 @@ export default {
 			formText += '<form method="post" action="' + url + '">' + '\n'
 			formText += '\tName:<input placeholder="name" name="name"><br/>' + '\n'
 			formText += '\tEmail:<input placeholder="email" name="email"><br/>' + '\n'
+			formText += '\t<input type="hidden" name="redir" value="{{Your Return URL}}">' + '\n'
 			formText += '\t<button>Subscribe</button>' + '\n'
 			formText += '</form>' + '\n'
 			return formText

@@ -6,6 +6,8 @@ use OCA\Listman\AppInfo\Application;
 use OCA\Listman\Service\ListmanService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Http\Response;
 use OCP\IRequest;
 
 class ListmanController extends Controller {
@@ -79,27 +81,26 @@ class ListmanController extends Controller {
 	}
 
 	/**
+	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function confirm(string $lid): DataResponse {
-		return $this->handleNotFound(function () use ($lid) {
-      $conf = "c";
-      $act = "a";
-      if(isset($_REQUEST["conf"])){$conf = $_REQUEST['conf'];}
-      if(isset($_REQUEST["act"])){$act = $_REQUEST['act'];}
-			return $this->service->confirm($lid,$conf,$act);
-		});
+	public function confirm(string $lid): Response {
+    $conf = "c";
+    $act = "a";
+    if(isset($_REQUEST["conf"])){$conf = $_REQUEST['conf'];}
+    if(isset($_REQUEST["act"])){$act = $_REQUEST['act'];}
+		return $this->service->confirm($lid,$conf,$act);
   }
 
 	/**
+	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function subscribe(string $lid): DataResponse {
-		return $this->handleNotFound(function () use ($lid) {
-			return $this->service->subscribe($lid);
-		});
+	public function subscribe(string $lid): Response {
+		$response = $this->service->subscribe($lid);
+    return $response;
 	}
 
 

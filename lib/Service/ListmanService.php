@@ -4,9 +4,14 @@ namespace OCA\Listman\Service;
 
 use Exception;
 
+use OCA\Listman\AppInfo\Application;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\IURLGenerator;
+use OCP\Mail\IMailer;
+use OCP\L10N\IFactory;
+use OCP\AppFramework\Http\RedirectResponse;
+use OCP\AppFramework\Http\TemplateResponse;
 
 use OCA\Listman\Db\Maillist;
 use OCA\Listman\Db\MaillistMapper;
@@ -21,26 +26,53 @@ class ListmanService {
 	private $memberMapper;
 	/** @var IURLGenerator */
 	protected $urlGenerator;
+	/** @var IMailer */
+	private $mailer;
+	/** @var IFactory */
+	private $l10nFactory;
 
-	public function __construct(MaillistMapper $mapper, MemberMapper $memberMapper, IURLGenerator $urlGenerator) {
+	public function __construct(MaillistMapper $mapper, MemberMapper $memberMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory) {
 		$this->mapper = $mapper;
 		$this->memberMapper = $memberMapper;
 		$this->urlGenerator = $urlGenerator;
+		$this->mailer = $mailer;
+		$this->l10nFactory = $l10nFactory;
 	}
 
   /**
    * Welcome Message Content.
    */
-  private function getWelcomeContent($member,$list,$act): string {
-    $ret = "Hi ".$member->getName().",\n";
-    $ret = "Someone (hopefully you) asked to be ";
-    $ret.= ($act=="sub"?"subscribed":"unsubscribed");
-    $ret.= " to the email list \"".$list->getTitle()."\"\n";
-    $ret.= "\n";
-    $ret.= "If you want that, then you'll have to confirm by clicking this link:\n";
-    $ret.= $this->getConfirmLink($member,$list,$act)."\n";
-    $ret.= "\n";
-    return $ret;
+  private function getConfirmTemplate($member,$list,$act): object {
+    $subject = $list->getTitle()." subscription";
+
+		$emailTemplate = $this->mailer->createEMailTemplate("listman.confirm", 
+      [
+        'name' => $member->getName(),
+        'email' => $member->getEmail(),
+        'subject' => $subject,
+      ]
+    );
+		$emailTemplate->setSubject($subject);
+		$emailTemplate->addHeading($subject);
+
+    $link = $this->getConfirmLink($member,$list,$act);
+    $actverb = "subscribe";
+    if($act=="unsub"){$actverb = "unsubscribe";}
+
+    $t = "Hi ".$member->getName().",";
+		$emailTemplate->addBodyText(htmlspecialchars($t),$t);
+
+    $t = "Someone (hopefully you) asked to $actverb to the email-list \"".$list->getTitle()."\"";
+		$emailTemplate->addBodyText(htmlspecialchars($t),$t);
+
+    $t = "If you want that, then you'll have to confirm by clicking this link:";
+		$emailTemplate->addBodyText(htmlspecialchars($t),$t);
+
+    $t = "If not you should ignore this email.";
+		$emailTemplate->addBodyText(htmlspecialchars($t),$t);
+
+		$emailTemplate->addBodyButton(htmlspecialchars($actverb),$link,$link);
+    return $emailTemplate;
   }
 
   /**
@@ -56,10 +88,18 @@ class ListmanService {
 	* Send an actual email to an actual member!
   * We'll use SMTP details if we have 'em.
 	*/
-	private function sendEmail($member,$content){
+	private function sendEmail($member,$template){
      //No actual emailing stuff yet, so we just send to log
-    file_put_contents("data/prelog.txt","Emailing ".$member->getEmail()." with:\n".$content,FILE_APPEND);
+    file_put_contents("data/prelog.txt","Emailing ".$member->getEmail(),FILE_APPEND);
+
+		$message = $this->mailer->createMessage();
+		$message->useTemplate($template);
+		$message->setFrom(['pre@dalliance.net'=>'Mailing Lister']);
+		$message->setTo([$member->getEmail()=>$member->getName()]);
+		$this->mailer->send($message);
 	}
+
+
 
 	/**
 	* Create a random ID
@@ -232,11 +272,16 @@ class ListmanService {
   * other sites. We will require a confirmation email.
   * whatever status we are switching to.
   */
-  public function subscribe(string $lrid): array {
+  public function subscribe(string $lrid): object {
     $name  = "John";  if(isset($_POST['name'] )){$name  = $_POST['name'] ;}
     $email = "a@b.c"; if(isset($_POST['email'])){$email = $_POST['email'];}
     $conf  = "xxxx";  if(isset($_POST['conf'] )){$conf  = $_POST['conf'] ;}
     $act   = "sub" ;  if(isset($_POST['act']  )){$act   = $_POST['act']  ;}
+    $redir = null;    if(isset($_POST['redir'])){$redir = $_POST['redir'];}
+
+		if($redir == "{{Your Return URL}}"){		//They didn't bother to fill it in.
+			$redir=null;
+		}
 
     //We have to find the list so we know which Nextcloud user created it.
     $list = null;
@@ -244,7 +289,7 @@ class ListmanService {
       $list = $this->mapper->findByRandId($lrid);
       $lid = $list->getId();
 		} catch (Exception $e) {
-			throw new ListNotFound("Can't find that mailling list");
+			return new TemplateResponse( Application::APP_ID, 'notfound',["message"=>"Bad List ID"],"guest");
     }
 
     $member = null;
@@ -266,28 +311,40 @@ class ListmanService {
 		  $member = $this->memberMapper->insert($member);
 		}
 
-    $this->sendEmail($member,$this->getWelcomeContent($member,$list,$act));
-    print ("$name &lt;$email&gt; is trying to $act on list $lid with confirmation $conf - already exists: $existed");
-    exit;
+    $content = $this->getConfirmTemplate($member,$list,$act);
+//    $this->sendEmail($member,$content);
+
+    if($redir!=null){
+		  return new RedirectResponse($redir);
+    }
+
+		return new TemplateResponse(
+			Application::APP_ID, 'subscribe', [
+        'email'=>$email,
+        'name'=>$name,
+        'act'=>$act,
+        'list'=>$list==null?"No List":$list->getTitle(),
+      ], 'guest'
+		);
   }
 
   /**
   * A confirm action which should only be valid if
   * it has a confirm parameter and an action.
   */
-  public function confirm(string $lrid,string $conf, string $act): array {
+  public function confirm(string $lrid,string $conf, string $act): object {
     $list = null;
     try {
       $list = $this->mapper->findByRandId($lrid);
 		} catch (Exception $e) {
-			throw new ListNotFound("Can't find that mailling list");
+			return new TemplateResponse( Application::APP_ID, 'notfound',["message"=>"Bad List ID"], "guest");
     }
 
     $member = null;
     try {
       $member = $this->memberMapper->findByConf($conf);
 		} catch (Exception $e) {
-			throw new ListNotFound("Can't find you in that list");
+			return new TemplateResponse( Application::APP_ID, 'notfound',["message"=>"No Member"], "guest");
     }
 
 		if($act=="sub"){
@@ -299,8 +356,11 @@ class ListmanService {
 			$this->memberMapper->update($member);
 		}
 
-    print("User with conf $conf has $act on list $lrid");
-    exit;
+		return new TemplateResponse( Application::APP_ID, 'confirmed',[
+			"member"=>$member,
+			"list"=>$list,
+			"act"=>$act,
+		],"guest");
   }
 
 }

@@ -16643,6 +16643,7 @@ __webpack_require__.r(__webpack_exports__);
       formText += '<form method="post" action="' + url + '">' + '\n';
       formText += '\tName:<input placeholder="name" name="name"><br/>' + '\n';
       formText += '\tEmail:<input placeholder="email" name="email"><br/>' + '\n';
+      formText += '\t<input type="hidden" name="redir" value="{{Your Return URL}}">' + '\n';
       formText += '\t<button>Subscribe</button>' + '\n';
       formText += '</form>' + '\n';
       return formText;
@@ -46482,4 +46483,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=49ad73d4b59b2985a627
+//# sourceMappingURL=listman-main.js.map?v=71ad09bd9b0a8f4e825c

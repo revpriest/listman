@@ -1,6 +1,5 @@
-* Confirm needs to redirect / show page
-* Subscribe needs to redirect / show page
-* Actaully send welcom/conf emails
+* Confirm needs a redirect ability somehow?
+
 * Write an email and send it
   * Add unsubscribe link to all emails
 
