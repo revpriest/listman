@@ -35,6 +35,10 @@
 .listman_memberaction{
 }
 
+#app-content-vue {
+  padding-left: 3em;
+  padding-top: 1em;
+}
 
 #app-content > div {
 	width: 100%;
@@ -52,4 +56,18 @@ input[type='text'] {
 textarea {
 	flex-grow: 1;
 	width: 100%;
+}
+
+#subscribeFormText {
+  margin: 0.1em 1em;
+  margin-top: 1em;
+  padding: 0.1em 1em;
+  border: 2px solid #AA0000;
+  border-radius: 1em;
+  width: 80%;
+  margin-left:10%;
+  background: white;
+  color: black;
+  box-shadow: -0.4em 0.4em 0.2em rgba(.5,.0,.0,.8);
+  overflow: hidden;
 }

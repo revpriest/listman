@@ -9,13 +9,15 @@ use OCP\AppFramework\Db\Entity;
 class Maillist extends Entity implements JsonSerializable {
 	protected $title;
 	protected $desc;
+	protected $randid;
 	protected $userId;
 
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,
 			'title' => $this->title,
-			'desc' => $this->desc
+			'desc' => $this->desc,
+			'randid' => $this->randid
 		];
 	}
 }

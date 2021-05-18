@@ -9,6 +9,7 @@ class Member extends Entity implements JsonSerializable {
     protected $name;
     protected $email;
     protected $state;
+    protected $conf;
     protected $listId;
     protected $userId;
 
@@ -22,7 +23,8 @@ class Member extends Entity implements JsonSerializable {
             'name' => $this->name,
             'email' => $this->email,
             'state' => $this->state,
-            'list_id' => $this->listId,
+            'conf' => $this->conf,
+            'list_id' => $this->listId
         ];
     }
 }

@@ -1,3 +1,6 @@
-"State" needs to be in each list:
-* Sending
-* Excluded
+* Confirm needs to redirect / show page
+* Subscribe needs to redirect / show page
+* Actaully send welcom/conf emails
+* Write an email and send it
+  * Add unsubscribe link to all emails
+

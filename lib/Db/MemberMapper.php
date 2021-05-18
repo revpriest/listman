@@ -24,6 +24,22 @@ class MemberMapper extends QBMapper {
         return $this->findEntity($qb);
     }
 
+
+	/**
+	 * @param string $conf
+	 * @return Entity|Member
+	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
+	 * @throws DoesNotExistException
+	 */
+	public function findByConf(string $conf): Member {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from('listman_member')
+			->where($qb->expr()->eq('conf', $qb->createNamedParameter($conf)));
+		return $this->findEntity($qb);
+	}
+
+
 	/**
 	 * @param string $userId
 	 * @return array
@@ -51,6 +67,26 @@ class MemberMapper extends QBMapper {
               ($qb->expr()->eq('user_id', $qb->createNamedParameter($user_id)))
            ));
 			$ret = $this->findEntities($qb);
+      return $ret;
+    }
+
+	/**
+   * Find a member of a list based on their email address.
+   * We return null if it can't be found.
+	 * @param string $list_id
+	 * @param string $email
+	 * @return Entity|Member
+	 * @throws DoesNotExistException
+	 */
+    public function findMemberByEmail(int $list_id,string $email) {
+      $qb = $this->db->getQueryBuilder();
+      $qb->select('*')
+         ->from($this->getTableName())
+         ->where($qb->expr()->andx(
+              ($qb->expr()->eq('list_id', $qb->createNamedParameter($list_id))),
+              ($qb->expr()->eq('email', $qb->createNamedParameter($email)))
+           ));
+      $ret = $this->findEntity($qb);
       return $ret;
     }
 }

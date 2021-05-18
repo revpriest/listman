@@ -16501,6 +16501,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16524,9 +16533,11 @@ __webpack_require__.r(__webpack_exports__);
     return {
       lists: [],
       currentListId: null,
+      currentListRandId: null,
       currentListMembers: [],
       updating: false,
-      loading: true
+      loading: true,
+      subscribeFormText: null
     };
   },
 
@@ -16591,7 +16602,10 @@ __webpack_require__.r(__webpack_exports__);
       console.error('Fetching ' + url);
       const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(url);
       console.error('got reply', response);
-      this.currentListMembers = response.data;
+      this.currentListMembers = response.data.members;
+      this.currentListRandId = response.data.list.randid;
+      console.error('got reply yeah', this.currentListRandId);
+      this.updateSubscribeFormText();
     },
 
     /**
@@ -16603,6 +16617,43 @@ __webpack_require__.r(__webpack_exports__);
         this.createList(this.currentList);
       } else {
         this.updateList(this.currentList);
+      }
+    },
+
+    /**
+    * Action to show a subscribe form. This is a form which
+    * can be embedded into another website to allow a user to
+    * provide their email address and so subscribe to the list.
+    */
+    showForm() {
+      if (this.subscribeFormText == null) {
+        this.subscribeFormText = this.generateSubscribeFormText();
+      } else {
+        this.subscribeFormText = null;
+      }
+    },
+
+    /**
+    * Generate the actual text of a subscribe form
+     * @returns {string}
+    */
+    generateSubscribeFormText() {
+      const url = window.location.protocol + '//' + window.location.host + Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/subscribe/' + this.currentListRandId);
+      let formText = '';
+      formText += '<form method="post" action="' + url + '">' + '\n';
+      formText += '\tName:<input placeholder="name" name="name"><br/>' + '\n';
+      formText += '\tEmail:<input placeholder="email" name="email"><br/>' + '\n';
+      formText += '\t<button>Subscribe</button>' + '\n';
+      formText += '</form>' + '\n';
+      return formText;
+    },
+
+    /**
+    * Update the subscribe form text only if it's visible
+    */
+    updateSubscribeFormText() {
+      if (this.subscribeFormText != null) {
+        this.subscribeFormText = this.generateSubscribeFormText();
       }
     },
 
@@ -16623,6 +16674,8 @@ __webpack_require__.r(__webpack_exports__);
           this.$refs.title.focus();
         });
       }
+
+      this.updateSubscribeFormText();
     },
 
     /**
@@ -16631,6 +16684,7 @@ __webpack_require__.r(__webpack_exports__);
     cancelNewList() {
       this.lists.splice(this.lists.findIndex(list => list.id === -1), 1);
       this.currentListId = null;
+      this.updateSubscribeFormText();
     },
 
     /**
@@ -37140,11 +37194,26 @@ var render = function() {
                 staticClass: "primary",
                 attrs: {
                   type: "button",
-                  value: _vm.t("listman", "Save List Details"),
-                  disabled: _vm.updating || !_vm.savePossible
+                  value: _vm.t("listman", "Save List Details")
                 },
                 on: { click: _vm.saveList }
               }),
+              _vm._v(" "),
+              _c("input", {
+                staticClass: "primary",
+                attrs: {
+                  type: "button",
+                  value: _vm.t("listman", "Show Subscribe Form"),
+                  disabled: _vm.updating || !_vm.savePossible
+                },
+                on: { click: _vm.showForm }
+              }),
+              _vm._v(" "),
+              _vm.subscribeFormText
+                ? _c("div", { attrs: { id: "subscribeFormText" } }, [
+                    _c("pre", [_vm._v(_vm._s(_vm.subscribeFormText))])
+                  ])
+                : _vm._e(),
               _vm._v(" "),
               _c(
                 "ul",
@@ -37178,7 +37247,11 @@ var render = function() {
                         ref: "name",
                         refInFor: true,
                         staticClass: "listman_memberName",
-                        attrs: { type: "text", disabled: _vm.updating },
+                        attrs: {
+                          type: "text",
+                          placeholder: "Name",
+                          disabled: _vm.updating
+                        },
                         domProps: { value: member.name },
                         on: {
                           input: function($event) {
@@ -37202,7 +37275,11 @@ var render = function() {
                         ref: "email",
                         refInFor: true,
                         staticClass: "listman_memberEmail",
-                        attrs: { type: "text", disabled: _vm.updating },
+                        attrs: {
+                          type: "text",
+                          placeholder: "Email",
+                          disabled: _vm.updating
+                        },
                         domProps: { value: member.email },
                         on: {
                           input: function($event) {
@@ -37279,7 +37356,7 @@ var render = function() {
                           ]),
                           _vm._v(" "),
                           _c("option", { attrs: { value: "0" } }, [
-                            _vm._v("\n\t\t\t\t\t\t\tUnsubscribed\n\t\t\t\t\t\t")
+                            _vm._v("\n\t\t\t\t\t\t\tUnconfirmed\n\t\t\t\t\t\t")
                           ]),
                           _vm._v(" "),
                           _c("option", { attrs: { value: "-1" } }, [
@@ -46405,4 +46482,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=eb64ace68966e35bf62f
+//# sourceMappingURL=listman-main.js.map?v=49ad73d4b59b2985a627

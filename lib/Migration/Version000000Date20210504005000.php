@@ -31,13 +31,17 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
                 'notnull' => true,
                 'length' => 200
             ]);
-            $table->addColumn('user_id', 'string', [
-                'notnull' => true,
-                'length' => 200,
-            ]);
             $table->addColumn('desc', 'text', [
                 'notnull' => true,
                 'default' => ''
+            ]);
+            $table->addColumn('randid', 'string', [
+                'length' => 8,
+                'notnull' => true,
+            ]);
+            $table->addColumn('user_id', 'string', [
+                'notnull' => true,
+                'length' => 200,
             ]);
 
             $table->setPrimaryKey(['id']);
@@ -65,6 +69,10 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             $table->addColumn('state', 'integer', [
                 'notnull' => true,
                 'default' => 0,
+            ]);
+            $table->addColumn('conf', 'string', [
+                'length' => 32,
+                'notnull' => true,
             ]);
             $table->addColumn('user_id', 'string', [
                 'notnull' => true,

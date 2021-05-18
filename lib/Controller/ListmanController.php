@@ -73,9 +73,34 @@ class ListmanController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function listmembers(string $lid): DataResponse {
-		file_put_contents("data/prelog.txt","0)Finding Members for $lid ".$this->userId."\n",FILE_APPEND);
 		return $this->handleNotFound(function () use ($lid) {
 			return $this->service->listmembers(intval($lid), $this->userId);
 		});
 	}
+
+	/**
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function confirm(string $lid): DataResponse {
+		return $this->handleNotFound(function () use ($lid) {
+      $conf = "c";
+      $act = "a";
+      if(isset($_REQUEST["conf"])){$conf = $_REQUEST['conf'];}
+      if(isset($_REQUEST["act"])){$act = $_REQUEST['act'];}
+			return $this->service->confirm($lid,$conf,$act);
+		});
+  }
+
+	/**
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function subscribe(string $lid): DataResponse {
+		return $this->handleNotFound(function () use ($lid) {
+			return $this->service->subscribe($lid);
+		});
+	}
+
+
 }

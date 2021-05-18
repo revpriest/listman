@@ -47,8 +47,15 @@
 				<input type="button"
 					class="primary"
 					:value="t('listman', 'Save List Details')"
-					:disabled="updating || !savePossible"
 					@click="saveList">
+				<input type="button"
+					class="primary"
+					:value="t('listman', 'Show Subscribe Form')"
+					:disabled="updating || !savePossible"
+					@click="showForm">
+				<div v-if="subscribeFormText" id="subscribeFormText">
+					<pre>{{ subscribeFormText }}</pre>
+				</div>
 				<ul class="listman_members">
 					<li v-for="member in currentListMembers"
 						:key="member.id"
@@ -57,11 +64,13 @@
 						<input ref="name"
 							v-model="member.name"
 							type="text"
+							placeholder="Name"
 							class="listman_memberName"
 							:disabled="updating">
 						<input ref="email"
 							v-model="member.email"
 							type="text"
+							placeholder="Email"
 							class="listman_memberEmail"
 							:disabled="updating">
 						<input ref="list_id"
@@ -78,7 +87,7 @@
 								Subscribed
 							</option>
 							<option value="0">
-								Unsubscribed
+								Unconfirmed
 							</option>
 							<option value="-1">
 								Blocked
@@ -141,9 +150,11 @@ export default {
 		return {
 			lists: [],
 			currentListId: null,
+			currentListRandId: null,
 			currentListMembers: [],
 			updating: false,
 			loading: true,
+			subscribeFormText: null,
 		}
 	},
 	computed: {
@@ -202,7 +213,10 @@ export default {
 			console.error('Fetching ' + url)
 			const response = await axios.get(url)
 			console.error('got reply', response)
-			this.currentListMembers = response.data
+			this.currentListMembers = response.data.members
+			this.currentListRandId = response.data.list.randid
+			console.error('got reply yeah', this.currentListRandId)
+			this.updateSubscribeFormText()
 		},
 		/**
 		 * Action tiggered when clicking the save button
@@ -213,6 +227,40 @@ export default {
 				this.createList(this.currentList)
 			} else {
 				this.updateList(this.currentList)
+			}
+		},
+		/**
+		* Action to show a subscribe form. This is a form which
+		* can be embedded into another website to allow a user to
+		* provide their email address and so subscribe to the list.
+		*/
+		showForm() {
+			if (this.subscribeFormText == null) {
+				this.subscribeFormText = this.generateSubscribeFormText()
+			} else {
+			  this.subscribeFormText = null
+			}
+		},
+		/**
+		* Generate the actual text of a subscribe form
+		 * @returns {string}
+		*/
+		generateSubscribeFormText() {
+			const url = window.location.protocol + '//' + window.location.host + generateUrl('/apps/listman/subscribe/' + this.currentListRandId)
+			let formText = ''
+			formText += '<form method="post" action="' + url + '">' + '\n'
+			formText += '\tName:<input placeholder="name" name="name"><br/>' + '\n'
+			formText += '\tEmail:<input placeholder="email" name="email"><br/>' + '\n'
+			formText += '\t<button>Subscribe</button>' + '\n'
+			formText += '</form>' + '\n'
+			return formText
+		},
+		/**
+		* Update the subscribe form text only if it's visible
+		*/
+		updateSubscribeFormText() {
+		  if (this.subscribeFormText != null) {
+				this.subscribeFormText = this.generateSubscribeFormText()
 			}
 		},
 		/**
@@ -232,6 +280,7 @@ export default {
 					this.$refs.title.focus()
 				})
 			}
+			this.updateSubscribeFormText()
 		},
 		/**
 		 * Abort creating a new list
@@ -239,6 +288,7 @@ export default {
 		cancelNewList() {
 			this.lists.splice(this.lists.findIndex((list) => list.id === -1), 1)
 			this.currentListId = null
+			this.updateSubscribeFormText()
 		},
 		/**
 		 * Create a new list by sending the information to the server
