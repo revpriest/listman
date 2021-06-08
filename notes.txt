@@ -1,5 +1,7 @@
-* Confirm needs a redirect ability somehow?
-
 * Write an email and send it
-  * Add unsubscribe link to all emails
+  * Database to store emails and who they have been sent to ./
+  * Page to view list of emails sent to the group
+  * Pages to view emails outside the email client on the web
+  * Cron to find emails that haven't been sent that should be and send them.
+    * Add unsubscribe link to all emails
 

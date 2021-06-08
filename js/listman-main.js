@@ -16518,6 +16518,83 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16543,6 +16620,9 @@ __webpack_require__.r(__webpack_exports__);
       currentListId: null,
       currentListRandId: null,
       currentListMembers: [],
+      currentListMessages: [],
+      currentMessageId: null,
+      shownPane: 'details',
       updating: false,
       loading: true,
       subscribeFormText: null
@@ -16560,6 +16640,18 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       return this.lists.find(list => list.id === this.currentListId);
+    },
+
+    /**
+     * Return the currently selected message object
+     * @returns {Object|null}
+     */
+    currentMessage() {
+      if (this.currentMessageId === null) {
+        return null;
+      }
+
+      return this.currentListMessages.find(message => message.id === this.currentMessageId);
     },
 
     /**
@@ -16606,12 +16698,20 @@ __webpack_require__.r(__webpack_exports__);
         this.$refs.desc.focus();
       }); // Fill members-list
 
-      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/listmembers/' + this.currentListId);
+      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/listdetails/' + this.currentListId);
       console.error('Fetching ' + url);
       const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(url);
       console.error('got reply', response);
       this.currentListMembers = response.data.members;
+      this.currentListMessages = response.data.messages;
       this.currentListRandId = response.data.list.randid;
+
+      if (response.data.messages != null && response.data.messages.length > 0) {
+        this.currentMessageId = response.data.messages[response.data.messages.length - 1].id;
+      } else {
+        this.currentMessageId = null;
+      }
+
       console.error('got reply yeah', this.currentListRandId);
       this.updateSubscribeFormText();
     },
@@ -16629,15 +16729,26 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     /**
-    * Action to show a subscribe form. This is a form which
-    * can be embedded into another website to allow a user to
-    * provide their email address and so subscribe to the list.
+    * Action to signal the server to begin sending a
+    * new email.
     */
-    showForm() {
-      if (this.subscribeFormText == null) {
-        this.subscribeFormText = this.generateSubscribeFormText();
+    saveMessage() {
+      if (this.currentMessageId === -1) {
+        this.createMessage(this.currentMessage);
       } else {
-        this.subscribeFormText = null;
+        this.updateMessage(this.currentMessage);
+      }
+    },
+
+    /**
+    * Pick which pane to show
+    * @param {String} panename Name of pane to show
+    */
+    showPane(panename) {
+      this.shownPane = panename;
+
+      if (panename === 'form') {
+        this.subscribeFormText = this.generateSubscribeFormText();
       }
     },
 
@@ -16718,6 +16829,27 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     /**
+     * Create a new message by sending the information to the server
+     * @param {Object} message Message object
+     */
+    async createMessage(message) {
+      this.updating = true;
+
+      try {
+        const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/messages'), message);
+        const index = this.currentListMessages.findIndex(match => match.id === this.currentMessageId);
+        this.$set(this.currentListMessages, index, response.data);
+        this.currentMessageId = response.data.id;
+        message.id = response.data.id;
+      } catch (e) {
+        console.error(e);
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not create the message'));
+      }
+
+      this.updating = false;
+    },
+
+    /**
      * Update an existing list on the server
      * @param {Object} list List object
      */
@@ -16729,6 +16861,23 @@ __webpack_require__.r(__webpack_exports__);
       } catch (e) {
         console.error(e);
         Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not update the list'));
+      }
+
+      this.updating = false;
+    },
+
+    /**
+     * Update an existing message on the server
+     * @param {Object} message Message object
+     */
+    async updateMessage(message) {
+      this.updating = true;
+
+      try {
+        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/messages/".concat(message.id)), message);
+      } catch (e) {
+        console.error(e);
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not update the message'));
       }
 
       this.updating = false;
@@ -16772,10 +16921,34 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     /**
+     * Delete a message, remove it from the frontend and show a hint
+     * @param {Object} message Message object
+     */
+    async deleteMessage(message) {
+      try {
+        const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/messages/".concat(message.id));
+        console.error('opening url to delete message:' + url);
+        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(url);
+        this.currentListMessages.splice(this.currentListMessages.indexOf(message), 1);
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('listman', 'Message deleted'));
+      } catch (e) {
+        console.error(e);
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not delete the message'));
+      }
+    },
+
+    /**
      * Abort creating a new member
      */
     cancelNewMember() {
       this.currentListMembers.splice(this.currentListMembers.findIndex(member => member.id === -1), 1);
+    },
+
+    /**
+     * Abort creating a new message
+     */
+    cancelNewMessage() {
+      this.currentListMessages.splice(this.currentListMessages.findIndex(message => message.id === -1), 1);
     },
 
     /**
@@ -16849,6 +17022,26 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     /**
+     * Create a new message
+     * The message is not yet saved, therefore an id of -1 is used until it
+     * has been persisted in the backend
+     */
+    newMessage() {
+      if (this.currentMessageId !== -1 && this.currentListMessages != null) {
+        this.currentListMessages.push({
+          id: -1,
+          subject: '',
+          body: '',
+          list_id: this.currentListId
+        });
+        this.$nextTick(() => {
+          this.$refs.subject.focus();
+        });
+        this.currentMessageId = -1;
+      }
+    },
+
+    /**
      * Create a new list and focus the list desc field automatically
      * @param {Object} member Member object
      */
@@ -16858,6 +17051,20 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       console.error('Opening Member', member);
+    },
+
+    /**
+     * Select a particular message and make the compose form show
+     * the contents of that message.
+     * @param {Object} message Message object
+     */
+    async selectMessage(message) {
+      if (this.updating) {
+        return;
+      }
+
+      this.currentMessageId = message.id;
+      console.error('Opening Message', message);
     }
 
   }
@@ -37144,334 +37351,615 @@ var render = function() {
       _c("AppContent", [
         _vm.currentList
           ? _c("div", [
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.currentList.title,
-                    expression: "currentList.title"
-                  }
-                ],
-                ref: "title",
-                staticClass: "listman_listTitle",
-                attrs: {
-                  type: "text",
-                  placeholder: "list title",
-                  disabled: _vm.updating
-                },
-                domProps: { value: _vm.currentList.title },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
+              _c("div", { attrs: { id: "selectview" } }, [
+                _c("input", {
+                  staticClass: "primary",
+                  attrs: {
+                    type: "button",
+                    value: _vm.t("listman", "Show Details"),
+                    disabled: _vm.updating || !_vm.savePossible
+                  },
+                  on: {
+                    click: function($event) {
+                      return _vm.showPane("details")
                     }
-                    _vm.$set(_vm.currentList, "title", $event.target.value)
                   }
-                }
-              }),
-              _vm._v(" "),
-              _c("textarea", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.currentList.desc,
-                    expression: "currentList.desc"
-                  }
-                ],
-                ref: "desc",
-                staticClass: "listman_listDesc",
-                attrs: { placeholder: "description", disabled: _vm.updating },
-                domProps: { value: _vm.currentList.desc },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
+                }),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "primary",
+                  attrs: {
+                    type: "button",
+                    value: _vm.t("listman", "Show Members"),
+                    disabled: _vm.updating || !_vm.savePossible
+                  },
+                  on: {
+                    click: function($event) {
+                      return _vm.showPane("members")
                     }
-                    _vm.$set(_vm.currentList, "desc", $event.target.value)
                   }
-                }
-              }),
-              _vm._v(" "),
-              _c("input", {
-                directives: [
-                  {
-                    name: "model",
-                    rawName: "v-model",
-                    value: _vm.currentList.redir,
-                    expression: "currentList.redir"
-                  }
-                ],
-                ref: "redir",
-                staticClass: "listman_listRedir",
-                attrs: {
-                  placeholder:
-                    "url to return to after un/subscribe confirmation",
-                  type: "text",
-                  disabled: _vm.updating
-                },
-                domProps: { value: _vm.currentList.redir },
-                on: {
-                  input: function($event) {
-                    if ($event.target.composing) {
-                      return
+                }),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "primary",
+                  attrs: {
+                    type: "button",
+                    value: _vm.t("listman", "Show Messages"),
+                    disabled: _vm.updating || !_vm.savePossible
+                  },
+                  on: {
+                    click: function($event) {
+                      return _vm.showPane("messages")
                     }
-                    _vm.$set(_vm.currentList, "redir", $event.target.value)
                   }
-                }
-              }),
+                }),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "primary",
+                  attrs: {
+                    type: "button",
+                    value: _vm.t("listman", "Show Subscribe Form"),
+                    disabled: _vm.updating || !_vm.savePossible
+                  },
+                  on: {
+                    click: function($event) {
+                      return _vm.showPane("form")
+                    }
+                  }
+                })
+              ]),
               _vm._v(" "),
-              _c("input", {
-                staticClass: "primary",
-                attrs: {
-                  type: "button",
-                  value: _vm.t("listman", "New Member"),
-                  disabled: _vm.updating
-                },
-                on: { click: _vm.newMember }
-              }),
-              _vm._v(" "),
-              _c("input", {
-                staticClass: "primary",
-                attrs: {
-                  type: "button",
-                  value: _vm.t("listman", "Save List Details")
-                },
-                on: { click: _vm.saveList }
-              }),
-              _vm._v(" "),
-              _c("input", {
-                staticClass: "primary",
-                attrs: {
-                  type: "button",
-                  value: _vm.t("listman", "Show Subscribe Form"),
-                  disabled: _vm.updating || !_vm.savePossible
-                },
-                on: { click: _vm.showForm }
-              }),
-              _vm._v(" "),
-              _vm.subscribeFormText
-                ? _c("div", { attrs: { id: "subscribeFormText" } }, [
-                    _c("pre", [_vm._v(_vm._s(_vm.subscribeFormText))])
+              _vm.shownPane == "details"
+                ? _c("div", { attrs: { id: "shownPane" } }, [
+                    _c("h2", [
+                      _vm._v(
+                        _vm._s(_vm.currentList.title) +
+                          " - " +
+                          _vm._s(_vm.t("listman", "List Details:"))
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.currentList.title,
+                          expression: "currentList.title"
+                        }
+                      ],
+                      ref: "title",
+                      staticClass: "listman_listTitle",
+                      attrs: {
+                        type: "text",
+                        placeholder: "list title",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.title },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.currentList,
+                            "title",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("textarea", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.currentList.desc,
+                          expression: "currentList.desc"
+                        }
+                      ],
+                      ref: "desc",
+                      staticClass: "listman_listDesc",
+                      attrs: {
+                        placeholder: "description",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.desc },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(_vm.currentList, "desc", $event.target.value)
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.currentList.redir,
+                          expression: "currentList.redir"
+                        }
+                      ],
+                      ref: "redir",
+                      staticClass: "listman_listRedir",
+                      attrs: {
+                        placeholder:
+                          "url to return to after un/subscribe confirmation (optional)",
+                        type: "text",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.redir },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.currentList,
+                            "redir",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("input", {
+                      staticClass: "primary",
+                      attrs: {
+                        type: "button",
+                        value: _vm.t("listman", "Save List Details")
+                      },
+                      on: { click: _vm.saveList }
+                    })
                   ])
                 : _vm._e(),
               _vm._v(" "),
-              _c(
-                "ul",
-                { staticClass: "listman_members" },
-                _vm._l(_vm.currentListMembers, function(member) {
-                  return _c(
-                    "li",
-                    {
-                      key: member.id,
-                      attrs: {
-                        title: member.name
-                          ? member.name
-                          : _vm.t("listman", "New Member")
-                      },
-                      on: {
-                        click: function($event) {
-                          return _vm.openMember(member)
-                        }
-                      }
-                    },
-                    [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: member.name,
-                            expression: "member.name"
-                          }
-                        ],
-                        ref: "name",
-                        refInFor: true,
-                        staticClass: "listman_memberName",
-                        attrs: {
-                          type: "text",
-                          placeholder: "Name",
-                          disabled: _vm.updating
-                        },
-                        domProps: { value: member.name },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.$set(member, "name", $event.target.value)
-                          }
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: member.email,
-                            expression: "member.email"
-                          }
-                        ],
-                        ref: "email",
-                        refInFor: true,
-                        staticClass: "listman_memberEmail",
-                        attrs: {
-                          type: "text",
-                          placeholder: "Email",
-                          disabled: _vm.updating
-                        },
-                        domProps: { value: member.email },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.$set(member, "email", $event.target.value)
-                          }
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: member.list_id,
-                            expression: "member.list_id"
-                          }
-                        ],
-                        ref: "list_id",
-                        refInFor: true,
-                        staticClass: "listman_memberListId",
-                        attrs: { type: "hidden", disabled: _vm.updating },
-                        domProps: { value: member.list_id },
-                        on: {
-                          input: function($event) {
-                            if ($event.target.composing) {
-                              return
-                            }
-                            _vm.$set(member, "list_id", $event.target.value)
-                          }
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c(
-                        "select",
-                        {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: member.state,
-                              expression: "member.state"
-                            }
-                          ],
-                          ref: "state",
-                          refInFor: true,
-                          staticClass: "listman_memberSelect",
-                          attrs: { type: "text", disabled: _vm.updating },
-                          on: {
-                            change: function($event) {
-                              var $$selectedVal = Array.prototype.filter
-                                .call($event.target.options, function(o) {
-                                  return o.selected
-                                })
-                                .map(function(o) {
-                                  var val = "_value" in o ? o._value : o.value
-                                  return val
-                                })
-                              _vm.$set(
-                                member,
-                                "state",
-                                $event.target.multiple
-                                  ? $$selectedVal
-                                  : $$selectedVal[0]
-                              )
-                            }
-                          }
-                        },
-                        [
-                          _c("option", { attrs: { value: "1", default: "" } }, [
-                            _vm._v("\n\t\t\t\t\t\t\tSubscribed\n\t\t\t\t\t\t")
-                          ]),
-                          _vm._v(" "),
-                          _c("option", { attrs: { value: "0" } }, [
-                            _vm._v("\n\t\t\t\t\t\t\tUnconfirmed\n\t\t\t\t\t\t")
-                          ]),
-                          _vm._v(" "),
-                          _c("option", { attrs: { value: "-1" } }, [
-                            _vm._v("\n\t\t\t\t\t\t\tBlocked\n\t\t\t\t\t\t")
-                          ])
-                        ]
-                      ),
-                      _vm._v(" "),
-                      _c("input", {
-                        staticClass: "primary",
-                        attrs: {
-                          type: "button",
-                          value: _vm.t("listman", "Save"),
-                          disabled: _vm.updating || !_vm.savePossible
-                        },
-                        on: {
-                          click: function($event) {
-                            return _vm.saveMember(member)
-                          }
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c(
-                        "div",
-                        { staticClass: "listman_memberactions" },
-                        [
-                          member.id === -1
-                            ? _c(
-                                "ActionButton",
-                                {
-                                  staticClass: "listman_memberaction",
-                                  attrs: { icon: "icon-close" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.cancelNewMember(member)
-                                    }
-                                  }
-                                },
-                                [
-                                  _vm._v(
-                                    "\n\t\t\t\t\t\t\t" +
-                                      _vm._s(_vm.t("listman", "")) +
-                                      "\n\t\t\t\t\t\t"
-                                  )
-                                ]
-                              )
-                            : _c(
-                                "ActionButton",
-                                {
-                                  staticClass: "listman_memberaction",
-                                  attrs: { icon: "icon-delete" },
-                                  on: {
-                                    click: function($event) {
-                                      return _vm.deleteMember(member)
-                                    }
-                                  }
-                                },
-                                [
-                                  _vm._v(
-                                    "\n\t\t\t\t\t\t\t" +
-                                      _vm._s(_vm.t("listman", "")) +
-                                      "\n\t\t\t\t\t\t"
-                                  )
-                                ]
-                              )
-                        ],
-                        1
+              _vm.shownPane == "members"
+                ? _c("div", { attrs: { id: "shownPane" } }, [
+                    _c("h2", [
+                      _vm._v(
+                        _vm._s(_vm.currentList.title) +
+                          " - " +
+                          _vm._s(_vm.t("listman", "List Of Members"))
                       )
-                    ]
-                  )
-                }),
-                0
-              )
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "ul",
+                      { staticClass: "listman_members" },
+                      _vm._l(_vm.currentListMembers, function(member) {
+                        return _c(
+                          "li",
+                          { key: member.id, staticClass: "memberline" },
+                          [
+                            _c(
+                              "div",
+                              { staticClass: "listman_memberlinecontent" },
+                              [
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: member.name,
+                                      expression: "member.name"
+                                    }
+                                  ],
+                                  ref: "name",
+                                  refInFor: true,
+                                  staticClass: "listman_memberName",
+                                  attrs: {
+                                    type: "text",
+                                    placeholder: "Name",
+                                    disabled: _vm.updating
+                                  },
+                                  domProps: { value: member.name },
+                                  on: {
+                                    input: function($event) {
+                                      if ($event.target.composing) {
+                                        return
+                                      }
+                                      _vm.$set(
+                                        member,
+                                        "name",
+                                        $event.target.value
+                                      )
+                                    }
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: member.email,
+                                      expression: "member.email"
+                                    }
+                                  ],
+                                  ref: "email",
+                                  refInFor: true,
+                                  staticClass: "listman_memberEmail",
+                                  attrs: {
+                                    type: "text",
+                                    placeholder: "Email",
+                                    disabled: _vm.updating
+                                  },
+                                  domProps: { value: member.email },
+                                  on: {
+                                    input: function($event) {
+                                      if ($event.target.composing) {
+                                        return
+                                      }
+                                      _vm.$set(
+                                        member,
+                                        "email",
+                                        $event.target.value
+                                      )
+                                    }
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: member.list_id,
+                                      expression: "member.list_id"
+                                    }
+                                  ],
+                                  ref: "list_id",
+                                  refInFor: true,
+                                  staticClass: "listman_memberListId",
+                                  attrs: {
+                                    type: "hidden",
+                                    disabled: _vm.updating
+                                  },
+                                  domProps: { value: member.list_id },
+                                  on: {
+                                    input: function($event) {
+                                      if ($event.target.composing) {
+                                        return
+                                      }
+                                      _vm.$set(
+                                        member,
+                                        "list_id",
+                                        $event.target.value
+                                      )
+                                    }
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c(
+                                  "select",
+                                  {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: member.state,
+                                        expression: "member.state"
+                                      }
+                                    ],
+                                    ref: "state",
+                                    refInFor: true,
+                                    staticClass: "listman_memberSelect",
+                                    attrs: {
+                                      type: "text",
+                                      disabled: _vm.updating
+                                    },
+                                    on: {
+                                      change: function($event) {
+                                        var $$selectedVal = Array.prototype.filter
+                                          .call($event.target.options, function(
+                                            o
+                                          ) {
+                                            return o.selected
+                                          })
+                                          .map(function(o) {
+                                            var val =
+                                              "_value" in o ? o._value : o.value
+                                            return val
+                                          })
+                                        _vm.$set(
+                                          member,
+                                          "state",
+                                          $event.target.multiple
+                                            ? $$selectedVal
+                                            : $$selectedVal[0]
+                                        )
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _c(
+                                      "option",
+                                      { attrs: { value: "1", default: "" } },
+                                      [
+                                        _vm._v(
+                                          "\n\t\t\t\t\t\t\t\t\tSubscribed\n\t\t\t\t\t\t\t\t"
+                                        )
+                                      ]
+                                    ),
+                                    _vm._v(" "),
+                                    _c("option", { attrs: { value: "0" } }, [
+                                      _vm._v(
+                                        "\n\t\t\t\t\t\t\t\t\tUnconfirmed\n\t\t\t\t\t\t\t\t"
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("option", { attrs: { value: "-1" } }, [
+                                      _vm._v(
+                                        "\n\t\t\t\t\t\t\t\t\tBlocked\n\t\t\t\t\t\t\t\t"
+                                      )
+                                    ])
+                                  ]
+                                ),
+                                _vm._v(" "),
+                                _c("input", {
+                                  staticClass: "primary",
+                                  attrs: {
+                                    type: "button",
+                                    value: _vm.t("listman", "Save"),
+                                    disabled: _vm.updating || !_vm.savePossible
+                                  },
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.saveMember(member)
+                                    }
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c(
+                                  "div",
+                                  { staticClass: "listman_memberactions" },
+                                  [
+                                    member.id === -1
+                                      ? _c(
+                                          "ActionButton",
+                                          {
+                                            staticClass: "listman_memberaction",
+                                            attrs: { icon: "icon-close" },
+                                            on: {
+                                              click: function($event) {
+                                                return _vm.cancelNewMember(
+                                                  member
+                                                )
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n\t\t\t\t\t\t\t\t\t" +
+                                                _vm._s(_vm.t("listman", "")) +
+                                                "\n\t\t\t\t\t\t\t\t"
+                                            )
+                                          ]
+                                        )
+                                      : _c(
+                                          "ActionButton",
+                                          {
+                                            staticClass: "listman_memberaction",
+                                            attrs: { icon: "icon-delete" },
+                                            on: {
+                                              click: function($event) {
+                                                return _vm.deleteMember(member)
+                                              }
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n\t\t\t\t\t\t\t\t\t" +
+                                                _vm._s(_vm.t("listman", "")) +
+                                                "\n\t\t\t\t\t\t\t\t"
+                                            )
+                                          ]
+                                        )
+                                  ],
+                                  1
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      }),
+                      0
+                    ),
+                    _vm._v(" "),
+                    _c("input", {
+                      staticClass: "primary",
+                      attrs: {
+                        type: "button",
+                        value: _vm.t("listman", "New Member"),
+                        disabled: _vm.updating
+                      },
+                      on: { click: _vm.newMember }
+                    })
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.shownPane == "messages"
+                ? _c("div", { attrs: { id: "shownPane" } }, [
+                    _c("h2", [
+                      _vm._v(
+                        _vm._s(_vm.currentList.title) +
+                          " - " +
+                          _vm._s(_vm.t("listman", "List Of Messages"))
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _vm.currentMessage != null
+                      ? _c("div", { attrs: { id: "listman_messagedetails" } }, [
+                          _c("p", [
+                            _vm._v(
+                              _vm._s(
+                                _vm.t("listman", "Selected Message Details:")
+                              )
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.currentMessage.subject,
+                                expression: "currentMessage.subject"
+                              }
+                            ],
+                            ref: "subject",
+                            staticClass: "listman_listTitle",
+                            attrs: {
+                              type: "text",
+                              placeholder: "subject",
+                              disabled: _vm.updating
+                            },
+                            domProps: { value: _vm.currentMessage.subject },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  _vm.currentMessage,
+                                  "subject",
+                                  $event.target.value
+                                )
+                              }
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("textarea", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.currentMessage.body,
+                                expression: "currentMessage.body"
+                              }
+                            ],
+                            ref: "body",
+                            staticClass: "composeTextarea",
+                            attrs: {
+                              placeholder: "message body",
+                              name: "composeText"
+                            },
+                            domProps: { value: _vm.currentMessage.body },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  _vm.currentMessage,
+                                  "body",
+                                  $event.target.value
+                                )
+                              }
+                            }
+                          }),
+                          _vm._v(" "),
+                          _c("input", {
+                            staticClass: "primary",
+                            attrs: {
+                              type: "button",
+                              value: _vm.t("listman", "Save"),
+                              disabled: _vm.updating || !_vm.savePossible
+                            },
+                            on: { click: _vm.saveMessage }
+                          })
+                        ])
+                      : _vm._e(),
+                    _vm._v(" "),
+                    _c(
+                      "ul",
+                      { staticClass: "listman_messages" },
+                      _vm._l(_vm.currentListMessages, function(message) {
+                        return _c(
+                          "li",
+                          {
+                            key: message.id,
+                            staticClass: "messageline",
+                            on: {
+                              click: function($event) {
+                                return _vm.selectMessage(message)
+                              }
+                            }
+                          },
+                          [
+                            _c("p", { staticClass: "listman_textline" }, [
+                              _vm._v(
+                                "\n\t\t\t\t\t\t\t" +
+                                  _vm._s(message.subject) +
+                                  "\n\t\t\t\t\t\t"
+                              )
+                            ]),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "listman_messageactions" },
+                              [
+                                message.id === -1
+                                  ? _c("ActionButton", {
+                                      staticClass: "listman_messageaction",
+                                      attrs: { icon: "icon-close" },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.cancelNewMessage(message)
+                                        }
+                                      }
+                                    })
+                                  : _c("ActionButton", {
+                                      staticClass: "listman_messageaction",
+                                      attrs: { icon: "icon-delete" },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.deleteMessage(message)
+                                        }
+                                      }
+                                    })
+                              ],
+                              1
+                            )
+                          ]
+                        )
+                      }),
+                      0
+                    ),
+                    _vm._v(" "),
+                    _c("input", {
+                      staticClass: "primary",
+                      attrs: {
+                        type: "button",
+                        value: _vm.t("listman", "New Message"),
+                        disabled: _vm.updating
+                      },
+                      on: { click: _vm.newMessage }
+                    })
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.shownPane == "form"
+                ? _c("div", { attrs: { id: "shownPane" } }, [
+                    _c("h2", [
+                      _vm._v(
+                        _vm._s(_vm.currentList.title) +
+                          " - " +
+                          _vm._s(_vm.t("listman", "Subscribe-form code."))
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("pre", { attrs: { id: "subscribeFormText" } }, [
+                      _vm._v(_vm._s(_vm.subscribeFormText))
+                    ])
+                  ])
+                : _vm._e()
             ])
           : _c("div", { attrs: { id: "emptydesc" } }, [
               _c("div", { staticClass: "icon-file" }),
@@ -46524,4 +47012,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=4c3d6d0bcc0a1b414752
+//# sourceMappingURL=listman-main.js.map?v=25ed0a4f14aa5482a81c

@@ -60,15 +60,61 @@ textarea {
 }
 
 #subscribeFormText {
+  margin: 1em 1em;
+  padding: 0.1em 1em;
+  border: 2px solid #00aa00;
+  border-radius: 1em;
+  width: 90%;
+  margin-left:5%;
+  background: white;
+  color: black;
+  box-shadow: 0em 0em 0.4em rgba(.5,.0,.0,.8);
+  overflow: hidden;
+}
+#shownPane{
   margin: 0.1em 1em;
   margin-top: 1em;
   padding: 0.1em 1em;
   border: 2px solid #AA0000;
   border-radius: 1em;
-  width: 80%;
-  margin-left:10%;
-  background: white;
-  color: black;
-  box-shadow: -0.4em 0.4em 0.2em rgba(.5,.0,.0,.8);
+  box-shadow: 0em 0em 0.4em rgba(.5,.0,.0,.8);
   overflow: hidden;
+}
+.memberline,
+.messageline{
+  border-radius: 1em;
+  padding: 0em 1em;
+  box-shadow: 0em 0em 0.4em rgba(.0,.0,.0,.8);
+  margin-bottom: 0.5em;
+  background: rgba(0,0,0,0.3);
+}
+.listman_messageactions{
+  position: relative;
+  display:inline-block;
+}
+.listman_textline{
+  position: relative;
+  top: -1em;
+  display:inline-block;
+}
+.listman_memberline{
+  position: relative;
+  top: -1em;
+  display:inline-block;
+}
+.listman_memberlinecontent{
+  position: relative;
+  top: -0.8em;
+  display:block;
+}
+#listman_messagedetails{
+  margin: 1em 1em;
+  padding: 0.1em 1em;
+  border: 2px solid #00aa00;
+  border-radius: 1em;
+  width: 90%;
+  margin-left:5%;
+  box-shadow: 0em 0em 0.4em rgba(.5,.0,.0,.8);
+  overflow: hidden;
+  background: rgba(0,0,0,0.2);
 }

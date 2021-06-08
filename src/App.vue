@@ -30,98 +30,175 @@
 		</AppNavigation>
 		<AppContent>
 			<div v-if="currentList">
-				<input ref="title"
-					v-model="currentList.title"
-					type="text"
-					placeholder="list title"
-					class="listman_listTitle"
-					:disabled="updating">
-				<textarea ref="desc"
-					v-model="currentList.desc"
-					placeholder="description"
-					class="listman_listDesc"
-					:disabled="updating" />
-				<input ref="redir"
-					v-model="currentList.redir"
-					placeholder="url to return to after un/subscribe confirmation (optional)"
-					type="text"
-					class="listman_listRedir"
-					:disabled="updating">
-				<input type="button"
-					class="primary"
-					:value="t('listman', 'New Member')"
-					:disabled="updating"
-					@click="newMember">
-				<input type="button"
-					class="primary"
-					:value="t('listman', 'Save List Details')"
-					@click="saveList">
-				<input type="button"
-					class="primary"
-					:value="t('listman', 'Show Subscribe Form')"
-					:disabled="updating || !savePossible"
-					@click="showForm">
-				<div v-if="subscribeFormText" id="subscribeFormText">
-					<pre>{{ subscribeFormText }}</pre>
+				<div id="selectview">
+					<input type="button"
+						class="primary"
+						:value="t('listman', 'Show Details')"
+						:disabled="updating || !savePossible"
+						@click="showPane('details')">
+					<input type="button"
+						class="primary"
+						:value="t('listman', 'Show Members')"
+						:disabled="updating || !savePossible"
+						@click="showPane('members')">
+					<input type="button"
+						class="primary"
+						:value="t('listman', 'Show Messages')"
+						:disabled="updating || !savePossible"
+						@click="showPane('messages')">
+					<input type="button"
+						class="primary"
+						:value="t('listman', 'Show Subscribe Form')"
+						:disabled="updating || !savePossible"
+						@click="showPane('form')">
 				</div>
-				<ul class="listman_members">
-					<li v-for="member in currentListMembers"
-						:key="member.id"
-						:title="member.name ? member.name : t('listman', 'New Member')"
-						@click="openMember(member)">
-						<input ref="name"
-							v-model="member.name"
+				<!-- Show Details Pane -->
+				<div v-if="shownPane=='details'" id="shownPane">
+					<h2>{{ currentList.title }} - {{ t('listman', 'List Details:') }}</h2>
+					<input ref="title"
+						v-model="currentList.title"
+						type="text"
+						placeholder="list title"
+						class="listman_listTitle"
+						:disabled="updating">
+					<textarea ref="desc"
+						v-model="currentList.desc"
+						placeholder="description"
+						class="listman_listDesc"
+						:disabled="updating" />
+					<input ref="redir"
+						v-model="currentList.redir"
+						placeholder="url to return to after un/subscribe confirmation (optional)"
+						type="text"
+						class="listman_listRedir"
+						:disabled="updating">
+					<input type="button"
+						class="primary"
+						:value="t('listman', 'Save List Details')"
+						@click="saveList">
+				</div>
+				<!-- Show Member List -->
+				<div v-if="shownPane=='members'" id="shownPane">
+					<h2>{{ currentList.title }} - {{ t('listman', 'List Of Members') }}</h2>
+					<ul class="listman_members">
+						<li v-for="member in currentListMembers"
+							:key="member.id"
+							class="memberline">
+							<div class="listman_memberlinecontent">
+								<input ref="name"
+									v-model="member.name"
+									type="text"
+									placeholder="Name"
+									class="listman_memberName"
+									:disabled="updating">
+								<input ref="email"
+									v-model="member.email"
+									type="text"
+									placeholder="Email"
+									class="listman_memberEmail"
+									:disabled="updating">
+								<input ref="list_id"
+									v-model="member.list_id"
+									type="hidden"
+									class="listman_memberListId"
+									:disabled="updating">
+								<select ref="state"
+									v-model="member.state"
+									type="text"
+									class="listman_memberSelect"
+									:disabled="updating">
+									<option value="1" default>
+										Subscribed
+									</option>
+									<option value="0">
+										Unconfirmed
+									</option>
+									<option value="-1">
+										Blocked
+									</option>
+								</select>
+								<input type="button"
+									class="primary"
+									:value="t('listman', 'Save')"
+									:disabled="updating || !savePossible"
+									@click="saveMember(member)">
+								<div class="listman_memberactions">
+									<ActionButton v-if="member.id === -1"
+										icon="icon-close"
+										class="listman_memberaction"
+										@click="cancelNewMember(member)">
+										{{ t('listman', '') }}
+									</ActionButton>
+									<ActionButton v-else
+										icon="icon-delete"
+										class="listman_memberaction"
+										@click="deleteMember(member)">
+										{{ t('listman', '') }}
+									</ActionButton>
+								</div>
+							</div>
+						</li>
+					</ul>
+					<input type="button"
+						class="primary"
+						:value="t('listman', 'New Member')"
+						:disabled="updating"
+						@click="newMember">
+				</div>
+				<!-- Show Message List -->
+				<div v-if="shownPane=='messages'" id="shownPane">
+					<h2>{{ currentList.title }} - {{ t('listman', 'List Of Messages') }}</h2>
+					<div v-if="currentMessage!=null"
+						id="listman_messagedetails">
+						<p>{{ t('listman', 'Selected Message Details:') }}</p>
+						<input ref="subject"
+							v-model="currentMessage.subject"
 							type="text"
-							placeholder="Name"
-							class="listman_memberName"
+							placeholder="subject"
+							class="listman_listTitle"
 							:disabled="updating">
-						<input ref="email"
-							v-model="member.email"
-							type="text"
-							placeholder="Email"
-							class="listman_memberEmail"
-							:disabled="updating">
-						<input ref="list_id"
-							v-model="member.list_id"
-							type="hidden"
-							class="listman_memberListId"
-							:disabled="updating">
-						<select ref="state"
-							v-model="member.state"
-							type="text"
-							class="listman_memberSelect"
-							:disabled="updating">
-							<option value="1" default>
-								Subscribed
-							</option>
-							<option value="0">
-								Unconfirmed
-							</option>
-							<option value="-1">
-								Blocked
-							</option>
-						</select>
+						<textarea ref="body"
+							v-model="currentMessage.body"
+							placeholder="message body"
+							class="composeTextarea"
+							name="composeText" />
 						<input type="button"
 							class="primary"
 							:value="t('listman', 'Save')"
 							:disabled="updating || !savePossible"
-							@click="saveMember(member)">
-						<div class="listman_memberactions">
-							<ActionButton v-if="member.id === -1"
-								icon="icon-close"
-								class="listman_memberaction"
-								@click="cancelNewMember(member)">
-								{{ t('listman', '') }}
-							</ActionButton>
-							<ActionButton v-else
-								icon="icon-delete"
-								class="listman_memberaction"
-								@click="deleteMember(member)">
-								{{ t('listman', '') }}
-							</ActionButton>
-						</div>
-					</li>
-				</ul>
+							@click="saveMessage">
+					</div>
+					<ul class="listman_messages">
+						<li v-for="message in currentListMessages"
+							:key="message.id"
+							class="messageline"
+							@click="selectMessage(message)">
+							<p class="listman_textline">
+								{{ message.subject }}
+							</p>
+							<div class="listman_messageactions">
+								<ActionButton v-if="message.id === -1"
+									icon="icon-close"
+									class="listman_messageaction"
+									@click="cancelNewMessage(message)" />
+								<ActionButton v-else
+									icon="icon-delete"
+									class="listman_messageaction"
+									@click="deleteMessage(message)" />
+							</div>
+						</li>
+					</ul>
+					<input type="button"
+						class="primary"
+						:value="t('listman', 'New Message')"
+						:disabled="updating"
+						@click="newMessage">
+				</div>
+				<!-- Show Subscribe Form -->
+				<div v-if="shownPane=='form'" id="shownPane">
+					<h2>{{ currentList.title }} - {{ t('listman', 'Subscribe-form code.') }}</h2>
+					<pre id="subscribeFormText">{{ subscribeFormText }}</pre>
+				</div>
 			</div>
 			<div v-else id="emptydesc">
 				<div class="icon-file" />
@@ -160,6 +237,9 @@ export default {
 			currentListId: null,
 			currentListRandId: null,
 			currentListMembers: [],
+			currentListMessages: [],
+			currentMessageId: null,
+			shownPane: 'details',
 			updating: false,
 			loading: true,
 			subscribeFormText: null,
@@ -175,6 +255,16 @@ export default {
 				return null
 			}
 			return this.lists.find((list) => list.id === this.currentListId)
+		},
+		/**
+		 * Return the currently selected message object
+		 * @returns {Object|null}
+		 */
+		currentMessage() {
+			if (this.currentMessageId === null) {
+				return null
+			}
+			return this.currentListMessages.find((message) => message.id === this.currentMessageId)
 		},
 
 		/**
@@ -217,12 +307,18 @@ export default {
 			})
 
 			// Fill members-list
-			const url = generateUrl('/apps/listman/listmembers/' + this.currentListId)
+			const url = generateUrl('/apps/listman/listdetails/' + this.currentListId)
 			console.error('Fetching ' + url)
 			const response = await axios.get(url)
 			console.error('got reply', response)
 			this.currentListMembers = response.data.members
+			this.currentListMessages = response.data.messages
 			this.currentListRandId = response.data.list.randid
+			if ((response.data.messages != null) && (response.data.messages.length > 0)) {
+			  this.currentMessageId = response.data.messages[response.data.messages.length - 1].id
+			} else {
+			  this.currentMessageId = null
+			}
 			console.error('got reply yeah', this.currentListRandId)
 			this.updateSubscribeFormText()
 		},
@@ -238,15 +334,24 @@ export default {
 			}
 		},
 		/**
-		* Action to show a subscribe form. This is a form which
-		* can be embedded into another website to allow a user to
-		* provide their email address and so subscribe to the list.
+		* Action to signal the server to begin sending a
+		* new email.
 		*/
-		showForm() {
-			if (this.subscribeFormText == null) {
-				this.subscribeFormText = this.generateSubscribeFormText()
+		saveMessage() {
+			if (this.currentMessageId === -1) {
+				this.createMessage(this.currentMessage)
 			} else {
-			  this.subscribeFormText = null
+				this.updateMessage(this.currentMessage)
+			}
+		},
+		/**
+		* Pick which pane to show
+		* @param {String} panename Name of pane to show
+		*/
+		showPane(panename) {
+			this.shownPane = panename
+			if (panename === 'form') {
+				this.subscribeFormText = this.generateSubscribeFormText()
 			}
 		},
 		/**
@@ -318,6 +423,24 @@ export default {
 			this.updating = false
 		},
 		/**
+		 * Create a new message by sending the information to the server
+		 * @param {Object} message Message object
+		 */
+		async createMessage(message) {
+			this.updating = true
+			try {
+				const response = await axios.post(generateUrl('/apps/listman/messages'), message)
+				const index = this.currentListMessages.findIndex((match) => match.id === this.currentMessageId)
+				this.$set(this.currentListMessages, index, response.data)
+				this.currentMessageId = response.data.id
+				message.id = response.data.id
+			} catch (e) {
+				console.error(e)
+				showError(t('listman', 'Could not create the message'))
+			}
+			this.updating = false
+		},
+		/**
 		 * Update an existing list on the server
 		 * @param {Object} list List object
 		 */
@@ -328,6 +451,20 @@ export default {
 			} catch (e) {
 				console.error(e)
 				showError(t('listman', 'Could not update the list'))
+			}
+			this.updating = false
+		},
+		/**
+		 * Update an existing message on the server
+		 * @param {Object} message Message object
+		 */
+		async updateMessage(message) {
+			this.updating = true
+			try {
+				await axios.put(generateUrl(`/apps/listman/messages/${message.id}`), message)
+			} catch (e) {
+				console.error(e)
+				showError(t('listman', 'Could not update the message'))
 			}
 			this.updating = false
 		},
@@ -365,10 +502,32 @@ export default {
 			}
 		},
 		/**
+		 * Delete a message, remove it from the frontend and show a hint
+		 * @param {Object} message Message object
+		 */
+		async deleteMessage(message) {
+			try {
+				const url = generateUrl(`/apps/listman/messages/${message.id}`)
+				console.error('opening url to delete message:' + url)
+				await axios.delete(url)
+				this.currentListMessages.splice(this.currentListMessages.indexOf(message), 1)
+				showSuccess(t('listman', 'Message deleted'))
+			} catch (e) {
+				console.error(e)
+				showError(t('listman', 'Could not delete the message'))
+			}
+		},
+		/**
 		 * Abort creating a new member
 		 */
 		cancelNewMember() {
 			this.currentListMembers.splice(this.currentListMembers.findIndex((member) => member.id === -1), 1)
+		},
+		/**
+		 * Abort creating a new message
+		 */
+		cancelNewMessage() {
+			this.currentListMessages.splice(this.currentListMessages.findIndex((message) => message.id === -1), 1)
 		},
 		/**
 		 * Action tiggered when clicking the save button
@@ -433,6 +592,25 @@ export default {
 			}
 		},
 		/**
+		 * Create a new message
+		 * The message is not yet saved, therefore an id of -1 is used until it
+		 * has been persisted in the backend
+		 */
+		newMessage() {
+			if ((this.currentMessageId !== -1) && (this.currentListMessages != null)) {
+			  this.currentListMessages.push({
+					id: -1,
+					subject: '',
+					body: '',
+					list_id: this.currentListId,
+				})
+				this.$nextTick(() => {
+					this.$refs.subject.focus()
+				})
+			  this.currentMessageId = -1
+			}
+		},
+		/**
 		 * Create a new list and focus the list desc field automatically
 		 * @param {Object} member Member object
 		 */
@@ -441,6 +619,18 @@ export default {
 				return
 			}
 			console.error('Opening Member', member)
+		},
+		/**
+		 * Select a particular message and make the compose form show
+		 * the contents of that message.
+		 * @param {Object} message Message object
+		 */
+		async selectMessage(message) {
+			if (this.updating) {
+				return
+			}
+			this.currentMessageId = message.id
+			console.error('Opening Message', message)
 		},
 	},
 }

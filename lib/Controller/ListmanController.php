@@ -81,6 +81,17 @@ class ListmanController extends Controller {
 	}
 
 	/**
+   * Want all the members and all the messages too
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function listdetails(string $lid): DataResponse {
+		return $this->handleNotFound(function () use ($lid) {
+			return $this->service->listdetails(intval($lid), $this->userId);
+		});
+	}
+
+	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired

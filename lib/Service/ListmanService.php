@@ -16,7 +16,9 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCA\Listman\Db\Maillist;
 use OCA\Listman\Db\MaillistMapper;
 use OCA\Listman\Db\Member;
+use OCA\Listman\Db\Message;
 use OCA\Listman\Db\MemberMapper;
+use OCA\Listman\Db\MessageMapper;
 
 class ListmanService {
 
@@ -24,6 +26,8 @@ class ListmanService {
 	private $mapper;
 	/** @var MemberMapper */
 	private $memberMapper;
+	/** @var MessageMapper */
+	private $messageMapper;
 	/** @var IURLGenerator */
 	protected $urlGenerator;
 	/** @var IMailer */
@@ -31,9 +35,10 @@ class ListmanService {
 	/** @var IFactory */
 	private $l10nFactory;
 
-	public function __construct(MaillistMapper $mapper, MemberMapper $memberMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory) {
+	public function __construct(MaillistMapper $mapper, MessageMapper $messageMapper, MemberMapper $memberMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory) {
 		$this->mapper = $mapper;
 		$this->memberMapper = $memberMapper;
+		$this->messageMapper = $messageMapper;
 		$this->urlGenerator = $urlGenerator;
 		$this->mailer = $mailer;
 		$this->l10nFactory = $l10nFactory;
@@ -144,6 +149,13 @@ class ListmanService {
 		return $this->memberMapper->findMembers($list_id,$user_id);
 	}
 
+  /**
+  * Find all the messages in a list
+  */
+	public function findAllMessages(int $list_id,string $user_id): array {
+		return $this->messageMapper->findMessages($list_id,$user_id);
+	}
+
 
   /**
   * Find a particular list
@@ -163,6 +175,17 @@ class ListmanService {
 	public function findMember($id,$userId) {
 		try {
 			return $this->memberMapper->find($id,$userId);
+		} catch (Exception $e) {
+			$this->handleException($e);
+		}
+	}
+
+  /**
+  * Find a particular message
+  */
+	public function findMessage($id,$userId) {
+		try {
+			return $this->messageMapper->find($id,$userId);
 		} catch (Exception $e) {
 			$this->handleException($e);
 		}
@@ -195,6 +218,17 @@ class ListmanService {
 		$member->setConf($conf);
 		return $this->memberMapper->insert($member);
 	}
+  /**
+  * Create a new message
+  */
+	public function createMessage($subject, $body, $list_id, $userId) {
+		$message = new Message();
+		$message->setSubject($subject);
+		$message->setBody($body);
+		$message->setListId($list_id);
+		$message->setUserId($userId);
+		return $this->messageMapper->insert($message);
+	}
 
   /**
   * Update existing list
@@ -224,6 +258,21 @@ class ListmanService {
 			$this->handleException($e);
 		}
 	}
+  /**
+  * Update existing message
+  */
+	public function updateMessage($id, $subject, $body,$list_id,$userId) {
+		try {
+			$message = $this->messageMapper->find($id,$userId);
+			$message->setSubject($subject);
+			$message->setBody($body);
+			$message->setListId($list_id);
+			$message->setUserId($userId);
+			return $this->messageMapper->update($message);
+		} catch (Exception $e) {
+			$this->handleException($e);
+		}
+	}
 
   /**
   * Delete existing list
@@ -249,8 +298,20 @@ class ListmanService {
 			$this->handleException($e);
 		}
 	}
-
   /**
+  * Delete existing message
+  */
+	public function deleteMessage($id,$userId) {
+		try {
+			$message = $this->messageMapper->find($id,$userId);
+			$this->messageMapper->delete($member);
+			return $message;
+		} catch (Exception $e) {
+			$this->handleException($e);
+		}
+	}
+
+  /*
   * List the members of a list
   * We return the list's info too, mostly so the caller
   * can generate a link with the randid
@@ -264,6 +325,25 @@ class ListmanService {
     }
 		return [
       'members'=>$this->memberMapper->findMembers($lid, $userId),
+      'list'=>$list
+    ];
+	}
+
+  /**
+  * List the details of a list. Messages and members.
+  * We return the list's info too, mostly so the caller
+  * can generate a link with the randid
+  */
+	public function listdetails(int $lid, string $userId): array {
+    $list = null;
+    try {
+      $list = $this->mapper->findAnyones($lid);
+		} catch (Exception $e) {
+			throw new ListNotFound("Can't find that mailling list");
+    }
+		return [
+      'members'=>$this->memberMapper->findMembers($lid, $userId),
+      'messages'=>$this->messageMapper->findMessages($lid, $userId),
       'list'=>$list
     ];
 	}

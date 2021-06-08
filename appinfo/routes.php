@@ -4,8 +4,10 @@ return [
 	'resources' => [
 		'listman' => ['url' => '/lists'],
 		'member' => ['url' => '/members'],
+		'message' => ['url' => '/messages'],
 	],
 	'routes' => [
+		['name' => 'listman#listdetails', 'url' => '/listdetails/{lid}', 'verb' => 'GET'],
 		['name' => 'listman#listmembers', 'url' => '/listmembers/{lid}', 'verb' => 'GET'],
 		['name' => 'listman#subscribe', 'url' => '/subscribe/{lid}', 'verb' => 'POST'],
 		['name' => 'listman#confirm', 'url' => '/confirm/{lid}', 'verb' => 'GET'],
