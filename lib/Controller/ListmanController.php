@@ -92,6 +92,29 @@ class ListmanController extends Controller {
 	}
 
 	/**
+   * Want to mark that a message should be sent to everyone
+   * currently on the list who hasn't already had it.
+	 * @NoAdminRequired
+	 */
+	public function messagesend(string $mid): DataResponse {
+		return $this->handleNotFound(function () use ($mid) {
+			return $this->service->messagesend(intval($mid), $this->userId);
+		});
+	}
+
+	/**
+   * Want to fetch how many users have been sent a message,
+   * and how many are still in the queue.
+	 * @NoAdminRequired
+	 */
+	public function messagesent(string $mid): DataResponse {
+		return $this->handleNotFound(function () use ($mid) {
+			return $this->service->messagesent(intval($mid), $this->userId);
+		});
+	}
+
+
+	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired

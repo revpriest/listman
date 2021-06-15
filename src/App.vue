@@ -148,26 +148,13 @@
 				<!-- Show Message List -->
 				<div v-if="shownPane=='messages'" id="shownPane">
 					<h2>{{ currentList.title }} - {{ t('listman', 'List Of Messages') }}</h2>
-					<div v-if="currentMessage!=null"
-						id="listman_messagedetails">
-						<p>{{ t('listman', 'Selected Message Details:') }}</p>
-						<input ref="subject"
-							v-model="currentMessage.subject"
-							type="text"
-							placeholder="subject"
-							class="listman_listTitle"
-							:disabled="updating">
-						<textarea ref="body"
-							v-model="currentMessage.body"
-							placeholder="message body"
-							class="composeTextarea"
-							name="composeText" />
-						<input type="button"
-							class="primary"
-							:value="t('listman', 'Save')"
-							:disabled="updating || !savePossible"
-							@click="saveMessage">
-					</div>
+					<input
+						id="listman_newmessagebutton"
+						type="button"
+						class="primary"
+						:value="t('listman', 'New Message')"
+						:disabled="updating"
+						@click="newMessage">
 					<ul class="listman_messages">
 						<li v-for="message in currentListMessages"
 							:key="message.id"
@@ -186,13 +173,55 @@
 									class="listman_messageaction"
 									@click="deleteMessage(message)" />
 							</div>
+							<div v-if="currentMessageId==message.id"
+								id="listman_messagedetails">
+								<p>{{ t('listman', 'Selected Message Details:') }}</p>
+								<input ref="subject"
+									v-model="message.subject"
+									type="text"
+									placeholder="subject"
+									class="listman_listTitle"
+									:disabled="updating">
+								<textarea ref="body"
+									v-model="message.body"
+									placeholder="message body"
+									class="composeTextarea"
+									name="composeText" />
+								<input
+									id="listman_savemessage"
+									type="button"
+									class="primary"
+									:value="t('listman', 'Save')"
+									:disabled="updating || !savePossible"
+									@click="saveMessage(message)">
+								<span id="listman_numsent">
+									<span
+										id="listman_numsent_sent"
+										:title="t('listman', 'sent')">
+										{{ currentMessageSentDetails.sent }}
+									</span> /
+									<span
+										id="listman_numsent_queued"
+										:title="t('listman', 'queued')">
+										{{ currentMessageSentDetails.queued }}
+									</span> /
+									<span
+										id="listman_numsent_total"
+										:title="t('listman', 'in-list')">
+										{{ currentMessageSentDetails.total }}
+									</span>
+									{{ t('listman', 'sent') }}
+								</span>
+								<input
+									id="listman_sendtoall"
+									type="button"
+									class="primary"
+									:value="t('listman', 'Send To All')"
+									:disabled="updating || !savePossible"
+									@click="sendToAll(message)">
+							</div>
 						</li>
 					</ul>
-					<input type="button"
-						class="primary"
-						:value="t('listman', 'New Message')"
-						:disabled="updating"
-						@click="newMessage">
 				</div>
 				<!-- Show Subscribe Form -->
 				<div v-if="shownPane=='form'" id="shownPane">
@@ -239,6 +268,11 @@ export default {
 			currentListMembers: [],
 			currentListMessages: [],
 			currentMessageId: null,
+			currentMessageSentDetails: {
+				sent: '?',
+				queued: '?',
+				total: '?',
+			},
 			shownPane: 'details',
 			updating: false,
 			loading: true,
@@ -280,9 +314,7 @@ export default {
 	 */
 	async mounted() {
 		try {
-			console.error('Fetching from url ', generateUrl('/apps/listman/lists'))
 			const response = await axios.get(generateUrl('/apps/listman/lists'))
-			console.error('got reply', response, response.data)
 			this.lists = response.data
 		} catch (e) {
 			console.error(e)
@@ -308,18 +340,11 @@ export default {
 
 			// Fill members-list
 			const url = generateUrl('/apps/listman/listdetails/' + this.currentListId)
-			console.error('Fetching ' + url)
 			const response = await axios.get(url)
-			console.error('got reply', response)
 			this.currentListMembers = response.data.members
 			this.currentListMessages = response.data.messages
 			this.currentListRandId = response.data.list.randid
-			if ((response.data.messages != null) && (response.data.messages.length > 0)) {
-			  this.currentMessageId = response.data.messages[response.data.messages.length - 1].id
-			} else {
-			  this.currentMessageId = null
-			}
-			console.error('got reply yeah', this.currentListRandId)
+			this.currentMessageId = null
 			this.updateSubscribeFormText()
 		},
 		/**
@@ -336,12 +361,37 @@ export default {
 		/**
 		* Action to signal the server to begin sending a
 		* new email.
+		* @param {Object} message Message object
 		*/
-		saveMessage() {
-			if (this.currentMessageId === -1) {
-				this.createMessage(this.currentMessage)
+		saveMessage(message) {
+			if (message.id === -1) {
+				this.createMessage(message)
 			} else {
-				this.updateMessage(this.currentMessage)
+				this.updateMessage(message)
+			}
+		},
+		/**
+		* Send the current message to everyone. That's basically
+		* done on the server so we just send the server a message.
+		* new email.
+		* @param {Object} message Message object
+		*/
+		async sendToAll(message) {
+			if (message.id === -1) {
+				alert('Save it first')
+			} else {
+				this.updating = true
+				try {
+					const url = generateUrl(`/apps/listman/message-send/${message.id}`)
+					await axios.post(url)
+					const url2 = generateUrl(`/apps/listman/message-sent/${message.id}`)
+					const sentDetails = await axios.post(url2)
+					this.setSentDetails(sentDetails.data)
+				} catch (e) {
+					console.error(e)
+					showError(t('listman', 'Could not signal to send the message') + e)
+				}
+				this.updating = false
 			}
 		},
 		/**
@@ -611,7 +661,7 @@ export default {
 			}
 		},
 		/**
-		 * Create a new list and focus the list desc field automatically
+		 * Open a member doesn't really do anything right now
 		 * @param {Object} member Member object
 		 */
 		async openMember(member) {
@@ -621,8 +671,18 @@ export default {
 			console.error('Opening Member', member)
 		},
 		/**
+		* Set the sent details, the counts of messages-queued etc.
+		 * @param {Object} det Details
+		*/
+		async setSentDetails(det) {
+			console.warn('setting sent details', det)
+		  this.currentMessageSentDetails.sent = det.sent
+		  this.currentMessageSentDetails.queued = det.queued
+		  this.currentMessageSentDetails.total = this.currentListMembers.length
+		},
+		/**
 		 * Select a particular message and make the compose form show
-		 * the contents of that message.
+		 * the contents of that message, also fetch the sent-indicators
 		 * @param {Object} message Message object
 		 */
 		async selectMessage(message) {
@@ -630,7 +690,10 @@ export default {
 				return
 			}
 			this.currentMessageId = message.id
-			console.error('Opening Message', message)
+			this.setSentDetails({ sent: '*', queued: '*' })
+			const url = generateUrl(`/apps/listman/message-sent/${message.id}`)
+			const sentDetails = await axios.post(url)
+			this.setSentDetails(sentDetails.data)
 		},
 	},
 }

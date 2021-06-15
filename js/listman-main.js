@@ -16595,6 +16595,35 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16622,6 +16651,11 @@ __webpack_require__.r(__webpack_exports__);
       currentListMembers: [],
       currentListMessages: [],
       currentMessageId: null,
+      currentMessageSentDetails: {
+        sent: '?',
+        queued: '?',
+        total: '?'
+      },
       shownPane: 'details',
       updating: false,
       loading: true,
@@ -16669,9 +16703,7 @@ __webpack_require__.r(__webpack_exports__);
    */
   async mounted() {
     try {
-      console.error('Fetching from url ', Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/lists'));
       const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/lists'));
-      console.error('got reply', response, response.data);
       this.lists = response.data;
     } catch (e) {
       console.error(e);
@@ -16699,20 +16731,11 @@ __webpack_require__.r(__webpack_exports__);
       }); // Fill members-list
 
       const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/listdetails/' + this.currentListId);
-      console.error('Fetching ' + url);
       const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(url);
-      console.error('got reply', response);
       this.currentListMembers = response.data.members;
       this.currentListMessages = response.data.messages;
       this.currentListRandId = response.data.list.randid;
-
-      if (response.data.messages != null && response.data.messages.length > 0) {
-        this.currentMessageId = response.data.messages[response.data.messages.length - 1].id;
-      } else {
-        this.currentMessageId = null;
-      }
-
-      console.error('got reply yeah', this.currentListRandId);
+      this.currentMessageId = null;
       this.updateSubscribeFormText();
     },
 
@@ -16731,12 +16754,40 @@ __webpack_require__.r(__webpack_exports__);
     /**
     * Action to signal the server to begin sending a
     * new email.
+    * @param {Object} message Message object
     */
-    saveMessage() {
-      if (this.currentMessageId === -1) {
-        this.createMessage(this.currentMessage);
+    saveMessage(message) {
+      if (message.id === -1) {
+        this.createMessage(message);
       } else {
-        this.updateMessage(this.currentMessage);
+        this.updateMessage(message);
+      }
+    },
+
+    /**
+    * Send the current message to everyone. That's basically
+    * done on the server so we just send the server a message.
+    * new email.
+    * @param {Object} message Message object
+    */
+    async sendToAll(message) {
+      if (message.id === -1) {
+        alert('Save it first');
+      } else {
+        this.updating = true;
+
+        try {
+          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-send/".concat(message.id));
+          await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url);
+          const url2 = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-sent/".concat(message.id));
+          const sentDetails = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url2);
+          this.setSentDetails(sentDetails.data);
+        } catch (e) {
+          console.error(e);
+          Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not signal to send the message') + e);
+        }
+
+        this.updating = false;
       }
     },
 
@@ -17042,7 +17093,7 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     /**
-     * Create a new list and focus the list desc field automatically
+     * Open a member doesn't really do anything right now
      * @param {Object} member Member object
      */
     async openMember(member) {
@@ -17054,8 +17105,19 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     /**
+    * Set the sent details, the counts of messages-queued etc.
+     * @param {Object} det Details
+    */
+    async setSentDetails(det) {
+      console.warn('setting sent details', det);
+      this.currentMessageSentDetails.sent = det.sent;
+      this.currentMessageSentDetails.queued = det.queued;
+      this.currentMessageSentDetails.total = this.currentListMembers.length;
+    },
+
+    /**
      * Select a particular message and make the compose form show
-     * the contents of that message.
+     * the contents of that message, also fetch the sent-indicators
      * @param {Object} message Message object
      */
     async selectMessage(message) {
@@ -17064,7 +17126,13 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       this.currentMessageId = message.id;
-      console.error('Opening Message', message);
+      this.setSentDetails({
+        sent: '*',
+        queued: '*'
+      });
+      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-sent/".concat(message.id));
+      const sentDetails = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url);
+      this.setSentDetails(sentDetails.data);
     }
 
   }
@@ -37794,88 +37862,16 @@ var render = function() {
                       )
                     ]),
                     _vm._v(" "),
-                    _vm.currentMessage != null
-                      ? _c("div", { attrs: { id: "listman_messagedetails" } }, [
-                          _c("p", [
-                            _vm._v(
-                              _vm._s(
-                                _vm.t("listman", "Selected Message Details:")
-                              )
-                            )
-                          ]),
-                          _vm._v(" "),
-                          _c("input", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.currentMessage.subject,
-                                expression: "currentMessage.subject"
-                              }
-                            ],
-                            ref: "subject",
-                            staticClass: "listman_listTitle",
-                            attrs: {
-                              type: "text",
-                              placeholder: "subject",
-                              disabled: _vm.updating
-                            },
-                            domProps: { value: _vm.currentMessage.subject },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(
-                                  _vm.currentMessage,
-                                  "subject",
-                                  $event.target.value
-                                )
-                              }
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("textarea", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.currentMessage.body,
-                                expression: "currentMessage.body"
-                              }
-                            ],
-                            ref: "body",
-                            staticClass: "composeTextarea",
-                            attrs: {
-                              placeholder: "message body",
-                              name: "composeText"
-                            },
-                            domProps: { value: _vm.currentMessage.body },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(
-                                  _vm.currentMessage,
-                                  "body",
-                                  $event.target.value
-                                )
-                              }
-                            }
-                          }),
-                          _vm._v(" "),
-                          _c("input", {
-                            staticClass: "primary",
-                            attrs: {
-                              type: "button",
-                              value: _vm.t("listman", "Save"),
-                              disabled: _vm.updating || !_vm.savePossible
-                            },
-                            on: { click: _vm.saveMessage }
-                          })
-                        ])
-                      : _vm._e(),
+                    _c("input", {
+                      staticClass: "primary",
+                      attrs: {
+                        id: "listman_newmessagebutton",
+                        type: "button",
+                        value: _vm.t("listman", "New Message"),
+                        disabled: _vm.updating
+                      },
+                      on: { click: _vm.newMessage }
+                    }),
                     _vm._v(" "),
                     _c(
                       "ul",
@@ -37926,22 +37922,197 @@ var render = function() {
                                     })
                               ],
                               1
-                            )
+                            ),
+                            _vm._v(" "),
+                            _vm.currentMessageId == message.id
+                              ? _c(
+                                  "div",
+                                  { attrs: { id: "listman_messagedetails" } },
+                                  [
+                                    _c("p", [
+                                      _vm._v(
+                                        _vm._s(
+                                          _vm.t(
+                                            "listman",
+                                            "Selected Message Details:"
+                                          )
+                                        )
+                                      )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("input", {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: message.subject,
+                                          expression: "message.subject"
+                                        }
+                                      ],
+                                      ref: "subject",
+                                      refInFor: true,
+                                      staticClass: "listman_listTitle",
+                                      attrs: {
+                                        type: "text",
+                                        placeholder: "subject",
+                                        disabled: _vm.updating
+                                      },
+                                      domProps: { value: message.subject },
+                                      on: {
+                                        input: function($event) {
+                                          if ($event.target.composing) {
+                                            return
+                                          }
+                                          _vm.$set(
+                                            message,
+                                            "subject",
+                                            $event.target.value
+                                          )
+                                        }
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("textarea", {
+                                      directives: [
+                                        {
+                                          name: "model",
+                                          rawName: "v-model",
+                                          value: message.body,
+                                          expression: "message.body"
+                                        }
+                                      ],
+                                      ref: "body",
+                                      refInFor: true,
+                                      staticClass: "composeTextarea",
+                                      attrs: {
+                                        placeholder: "message body",
+                                        name: "composeText"
+                                      },
+                                      domProps: { value: message.body },
+                                      on: {
+                                        input: function($event) {
+                                          if ($event.target.composing) {
+                                            return
+                                          }
+                                          _vm.$set(
+                                            message,
+                                            "body",
+                                            $event.target.value
+                                          )
+                                        }
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("input", {
+                                      staticClass: "primary",
+                                      attrs: {
+                                        id: "listman_savemessage",
+                                        type: "button",
+                                        value: _vm.t("listman", "Save"),
+                                        disabled:
+                                          _vm.updating || !_vm.savePossible
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.saveMessage(message)
+                                        }
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c(
+                                      "span",
+                                      { attrs: { id: "listman_numsent" } },
+                                      [
+                                        _c(
+                                          "span",
+                                          {
+                                            attrs: {
+                                              id: "listman_numsent_sent",
+                                              title: _vm.t("listman", "sent")
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n\t\t\t\t\t\t\t\t\t" +
+                                                _vm._s(
+                                                  _vm.currentMessageSentDetails
+                                                    .sent
+                                                ) +
+                                                "\n\t\t\t\t\t\t\t\t"
+                                            )
+                                          ]
+                                        ),
+                                        _vm._v(" /\n\t\t\t\t\t\t\t\t"),
+                                        _c(
+                                          "span",
+                                          {
+                                            attrs: {
+                                              id: "listman_numsent_queued",
+                                              title: _vm.t("listman", "queued")
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n\t\t\t\t\t\t\t\t\t" +
+                                                _vm._s(
+                                                  _vm.currentMessageSentDetails
+                                                    .queued
+                                                ) +
+                                                "\n\t\t\t\t\t\t\t\t"
+                                            )
+                                          ]
+                                        ),
+                                        _vm._v(" /\n\t\t\t\t\t\t\t\t"),
+                                        _c(
+                                          "span",
+                                          {
+                                            attrs: {
+                                              id: "listman_numsent_total",
+                                              title: _vm.t("listman", "in-list")
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n\t\t\t\t\t\t\t\t\t" +
+                                                _vm._s(
+                                                  _vm.currentMessageSentDetails
+                                                    .total
+                                                ) +
+                                                "\n\t\t\t\t\t\t\t\t"
+                                            )
+                                          ]
+                                        ),
+                                        _vm._v(
+                                          "\n\t\t\t\t\t\t\t\t" +
+                                            _vm._s(_vm.t("listman", "sent")) +
+                                            "\n\t\t\t\t\t\t\t"
+                                        )
+                                      ]
+                                    ),
+                                    _vm._v(" "),
+                                    _c("input", {
+                                      staticClass: "primary",
+                                      attrs: {
+                                        id: "listman_sendtoall",
+                                        type: "button",
+                                        value: _vm.t("listman", "Send To All"),
+                                        disabled:
+                                          _vm.updating || !_vm.savePossible
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.sendToAll(message)
+                                        }
+                                      }
+                                    })
+                                  ]
+                                )
+                              : _vm._e()
                           ]
                         )
                       }),
                       0
-                    ),
-                    _vm._v(" "),
-                    _c("input", {
-                      staticClass: "primary",
-                      attrs: {
-                        type: "button",
-                        value: _vm.t("listman", "New Message"),
-                        disabled: _vm.updating
-                      },
-                      on: { click: _vm.newMessage }
-                    })
+                    )
                   ])
                 : _vm._e(),
               _vm._v(" "),
@@ -47012,4 +47183,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=25ed0a4f14aa5482a81c
+//# sourceMappingURL=listman-main.js.map?v=0b94a357bc3e588bc821

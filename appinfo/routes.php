@@ -7,6 +7,8 @@ return [
 		'message' => ['url' => '/messages'],
 	],
 	'routes' => [
+		['name' => 'listman#messagesent', 'url' => '/message-sent/{mid}', 'verb' => 'POST'],
+		['name' => 'listman#messagesend', 'url' => '/message-send/{mid}', 'verb' => 'POST'],
 		['name' => 'listman#listdetails', 'url' => '/listdetails/{lid}', 'verb' => 'GET'],
 		['name' => 'listman#listmembers', 'url' => '/listmembers/{lid}', 'verb' => 'GET'],
 		['name' => 'listman#subscribe', 'url' => '/subscribe/{lid}', 'verb' => 'POST'],

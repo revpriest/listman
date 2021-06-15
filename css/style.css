@@ -24,6 +24,14 @@
 .listman_memberName{
   max-width: 20em;
 }
+.listman_messagedetails{
+  border:2px solid purple;
+}
+.listman_textline{
+  position: relative;
+  top: -1em;
+  display:inline-block;
+}
 .listman_memberEmail{
   max-width: 20em;
 }
@@ -92,11 +100,6 @@ textarea {
   position: relative;
   display:inline-block;
 }
-.listman_textline{
-  position: relative;
-  top: -1em;
-  display:inline-block;
-}
 .listman_memberline{
   position: relative;
   top: -1em;
@@ -117,4 +120,17 @@ textarea {
   box-shadow: 0em 0em 0.4em rgba(.5,.0,.0,.8);
   overflow: hidden;
   background: rgba(0,0,0,0.2);
+}
+.listman_messages{
+  display: flex;
+  flex-direction: column-reverse;
+}
+#listman_newmessagebutton{
+  margin-bottom:1.0em;
+}
+#listman_numsent{
+  float:right;
+}
+#listman_sendtoall{
+  float:right;
 }

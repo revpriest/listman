@@ -17,8 +17,10 @@ use OCA\Listman\Db\Maillist;
 use OCA\Listman\Db\MaillistMapper;
 use OCA\Listman\Db\Member;
 use OCA\Listman\Db\Message;
+use OCA\Listman\Db\Sendjob;
 use OCA\Listman\Db\MemberMapper;
 use OCA\Listman\Db\MessageMapper;
+use OCA\Listman\Db\SendjobMapper;
 
 class ListmanService {
 
@@ -28,6 +30,8 @@ class ListmanService {
 	private $memberMapper;
 	/** @var MessageMapper */
 	private $messageMapper;
+	/** @var SendjobMapper */
+	private $sendjobMapper;
 	/** @var IURLGenerator */
 	protected $urlGenerator;
 	/** @var IMailer */
@@ -35,10 +39,11 @@ class ListmanService {
 	/** @var IFactory */
 	private $l10nFactory;
 
-	public function __construct(MaillistMapper $mapper, MessageMapper $messageMapper, MemberMapper $memberMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory) {
+	public function __construct(MaillistMapper $mapper, MessageMapper $messageMapper, MemberMapper $memberMapper, SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory) {
 		$this->mapper = $mapper;
 		$this->memberMapper = $memberMapper;
 		$this->messageMapper = $messageMapper;
+		$this->sendjobMapper = $sendjobMapper;
 		$this->urlGenerator = $urlGenerator;
 		$this->mailer = $mailer;
 		$this->l10nFactory = $l10nFactory;
@@ -328,6 +333,66 @@ class ListmanService {
       'list'=>$list
     ];
 	}
+
+  /**
+  * Get the details on how sent a message is.
+  * Who has it already? Who is it still to go to?
+  */
+	public function messagesent(int $mid, string $userId): array {
+    return $this->sendjobMapper->getMessageSentData($mid);
+  }
+
+  /**
+  * Send the message to everyone on the list.
+  * We just mark it as ready for the cron to send
+  * here really.
+  */
+	public function messagesend(int $mid, string $userId): array {
+    $message = null;
+    $newlyAdded = 0;
+    $alreadyAdded = 0;
+    $alreadySent = 0;
+    try {
+      $message = $this->messageMapper->find($mid);
+		} catch (Exception $e) {
+			throw new MessageNotFound("Can't find that message");
+    }
+    try {
+      $list = $this->mapper->find($message->getListId(),$userId);
+		} catch (Exception $e) {
+			throw new ListNotFound("Can't find the list that message was made for");
+    }
+    try {
+      $members = $this->memberMapper->findMembers($list->getId(),$userId);
+		} catch (Exception $e) {
+			throw new ListNotFound("Can't find the list that message was made for");
+    }
+    foreach($members as $member){
+      file_put_contents("data/prelog.txt","Doing Member ".$member->getId()."\n",FILE_APPEND);
+      try{
+        $sendJob = $this->sendjobMapper->find($message->getId(),$member->getId());
+        if($sendJob->getState()==1){
+          $alreadySent+=1;
+        }
+        $alreadyAdded+=1;
+		  } catch (Exception $e) {
+        $newlyAdded+=1;
+        $sendJob = new Sendjob();
+        $sendJob->setMemberId($member->getId());
+        $sendJob->setMessageId($message->getId());
+        $sendJob->setState(0);
+        $this->sendjobMapper->insert($sendJob);
+      }
+    }
+		return [
+      'message'=>$message,
+      'new'=>$newlyAdded,
+      'old'=>$alreadyAdded,
+      'sent'=>$alreadySent,
+      'total'=>$newlyAdded+$alreadyAdded,
+    ];
+	}
+
 
   /**
   * List the details of a list. Messages and members.
