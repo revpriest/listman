@@ -235,8 +235,10 @@ class ListmanService {
   * Create a new message
   */
 	public function createMessage($subject, $body, $list_id, $userId) {
+		$now = new \DateTime();
 		$message = new Message();
 		$message->setSubject($subject);
+		$message->setCreatedAt($now->format("Y-m-d H:i:s"));
 		$message->setBody($body);
 		$message->setListId($list_id);
 		$message->setUserId($userId);
@@ -274,10 +276,11 @@ class ListmanService {
   /**
   * Update existing message
   */
-	public function updateMessage($id, $subject, $body,$list_id,$userId) {
+	public function updateMessage($id, $subject, $created_at, $body,$list_id,$userId) {
 		try {
 			$message = $this->messageMapper->find($id,$userId);
 			$message->setSubject($subject);
+			$message->setCreatedAt($created_at);
 			$message->setBody($body);
 			$message->setListId($list_id);
 			$message->setUserId($userId);

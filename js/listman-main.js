@@ -37892,6 +37892,8 @@ var render = function() {
                             _c("p", { staticClass: "listman_textline" }, [
                               _vm._v(
                                 "\n\t\t\t\t\t\t\t" +
+                                  _vm._s(message.created_at) +
+                                  " - " +
                                   _vm._s(message.subject) +
                                   "\n\t\t\t\t\t\t"
                               )
@@ -47183,4 +47185,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=0b94a357bc3e588bc821
+//# sourceMappingURL=listman-main.js.map?v=afecf3961c321a514f91

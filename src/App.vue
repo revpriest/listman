@@ -161,7 +161,7 @@
 							class="messageline"
 							@click="selectMessage(message)">
 							<p class="listman_textline">
-								{{ message.subject }}
+								{{ message.created_at }} - {{ message.subject }}
 							</p>
 							<div class="listman_messageactions">
 								<ActionButton v-if="message.id === -1"

@@ -97,7 +97,7 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
         }
 
 				// -- message --
-				// A message has an ID, subject, a body, a list_ID.
+				// A message has an ID, created_at, subject, a body, a list_ID.
         if (!$schema->hasTable('listman_message')) {
             $table = $schema->createTable('listman_message');
             $table->addColumn('id', 'integer', [
@@ -105,6 +105,9 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
                 'notnull' => true,
             ]);
             $table->addColumn('list_id', 'integer', [
+                'notnull' => true,
+            ]);
+            $table->addColumn('created_at', 'datetime', [
                 'notnull' => true,
             ]);
             $table->addColumn('subject', 'string', [

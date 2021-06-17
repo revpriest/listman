@@ -2,9 +2,9 @@
   * Database to store emails and who they have been sent to  ./
   * Page to view list of emails sent to the group						 ./
 	* Allow creating of send-jobs jobs											 	 ./
-	* Dates on emails - Show in title on List Messages
+	* Dates on emails - Show in title on List Messages				 ./
   * Pages to view emails outside the email client on the web
-  * Cron to find emails that haven't been sent and send them.
+  * Cron to find emails that haven't been sent and send them. 
     * Add unsubscribe link to all emails
     * Add "View In Web" link to all emails
   * Show queued and settings
