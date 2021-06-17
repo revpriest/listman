@@ -13,6 +13,9 @@ use OCP\L10N\IFactory;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 
+use \OCP\BackgroundJob\Job;
+use \OCP\BackgroundJob\IJobList;
+
 use OCA\Listman\Db\Maillist;
 use OCA\Listman\Db\MaillistMapper;
 use OCA\Listman\Db\Member;
@@ -21,6 +24,7 @@ use OCA\Listman\Db\Sendjob;
 use OCA\Listman\Db\MemberMapper;
 use OCA\Listman\Db\MessageMapper;
 use OCA\Listman\Db\SendjobMapper;
+use OCA\Listman\Cron\ListmanSend;
 
 class ListmanService {
 
@@ -36,16 +40,20 @@ class ListmanService {
 	protected $urlGenerator;
 	/** @var IMailer */
 	private $mailer;
+  /** @var IJobList **/
+  private $jobList;
 	/** @var IFactory */
 	private $l10nFactory;
 
-	public function __construct(MaillistMapper $mapper, MessageMapper $messageMapper, MemberMapper $memberMapper, SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory) {
+
+	public function __construct(MaillistMapper $mapper, MessageMapper $messageMapper, MemberMapper $memberMapper, SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory, IJobList  $jobList) {
 		$this->mapper = $mapper;
 		$this->memberMapper = $memberMapper;
 		$this->messageMapper = $messageMapper;
 		$this->sendjobMapper = $sendjobMapper;
 		$this->urlGenerator = $urlGenerator;
 		$this->mailer = $mailer;
+		$this->jobList = $jobList;
 		$this->l10nFactory = $l10nFactory;
 	}
 
@@ -368,7 +376,6 @@ class ListmanService {
 			throw new ListNotFound("Can't find the list that message was made for");
     }
     foreach($members as $member){
-      file_put_contents("data/prelog.txt","Doing Member ".$member->getId()."\n",FILE_APPEND);
       try{
         $sendJob = $this->sendjobMapper->find($message->getId(),$member->getId());
         if($sendJob->getState()==1){
@@ -377,6 +384,7 @@ class ListmanService {
         $alreadyAdded+=1;
 		  } catch (Exception $e) {
         $newlyAdded+=1;
+        file_put_contents("data/prelog.txt","Adding Member ".$member->getId()."\n",FILE_APPEND);
         $sendJob = new Sendjob();
         $sendJob->setMemberId($member->getId());
         $sendJob->setMessageId($message->getId());
@@ -384,6 +392,10 @@ class ListmanService {
         $this->sendjobMapper->insert($sendJob);
       }
     }
+	  file_put_contents("data/prelog.txt","Starting Cron ".microtime(true)."\n",FILE_APPEND);
+    $this->jobList->remove(ListmanSend::class);
+    $this->jobList->add(ListmanSend::class);
+	  file_put_contents("data/prelog.txt","Started Cron ".microtime(true)."\n",FILE_APPEND);
 		return [
       'message'=>$message,
       'new'=>$newlyAdded,
@@ -517,6 +529,45 @@ class ListmanService {
 			"list"=>$list,
 			"act"=>$act,
 		],"guest");
+  }
+
+
+
+	/**
+	* Do a single send-job. We send a particular email to
+	* a particular user as defiend by a sendjob object
+	*/
+	public function sendEmailToMember($sendJob){
+		$member = $this->memberMapper->find($sendJob->getMemberId());
+		$message = $this->messageMapper->find($sendJob->getMessageId());
+    file_put_contents("/var/www-nextcloud/data/prelog.txt","Emailing ".$member->getEmail()." with message ".$message->getSubject()."\n",FILE_APPEND);
+		return 1;
+	}
+
+  /**
+  * RunCron. Every five minutes or so, when there are messages
+  * to send, we should get called here. We return true if there
+  * is more work to do, and false to let the caller know the
+  * jobs are all done and the cron can be cancelled until further
+  * user action.
+  */
+  public function runCron(){
+    $maxToTry= 1;
+    $tried = 0;
+
+    while($tried < $maxToTry){
+      try{
+        $nextToSend = $this->sendjobMapper->getNextToSend();
+				$state = $this->sendEmailToMember($nextToSend);
+        $nextToSend->setState($state);
+			  $this->sendjobMapper->update($nextToSend);
+    
+      }catch(Exception $e){
+        return false;
+      }
+      $tried++;
+    }
+    return true;
   }
 
 }

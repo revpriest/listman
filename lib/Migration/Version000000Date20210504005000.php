@@ -130,6 +130,10 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
 				// state: 0-unsent, 1=sent, 2=bounced...
         if (!$schema->hasTable('listman_sendjob')) {
             $table = $schema->createTable('listman_sendjob');
+            $table->addColumn('id', 'integer', [
+                'autoincrement' => true,
+                'notnull' => true,
+            ]);
             $table->addColumn('message_id', 'integer', [
                 'notnull' => true,
             ]);
@@ -140,7 +144,8 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
                 'notnull' => true,
                 'default' => 0,
             ]);
-            $table->setPrimaryKey(['message_id','member_id']);
+            $table->setPrimaryKey(['id']);
+            $table->addIndex(['message_id','member_id']);
             $table->addIndex(['message_id'], 'listman_sjmessid_index');
             $table->addIndex(['member_id'], 'listman_sjmemid_index');
         }

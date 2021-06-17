@@ -27,6 +27,20 @@ class SendjobMapper extends QBMapper {
 
 
 	/**
+	 * @return Entity|Sendjob
+	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
+	 * @throws DoesNotExistException
+	 */
+   public function getNextToSend() {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select('*')
+           ->from($this->getTableName())
+           ->where($qb->expr()->eq('state', $qb->createNamedParameter(0)))
+           ->setMaxResults(1);
+        return $this->findEntity($qb);
+   }
+
+	/**
 	 * @param string $userId
 	 * @return array
 	 */
