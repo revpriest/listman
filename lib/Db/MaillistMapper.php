@@ -25,8 +25,10 @@ class MaillistMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from('listman_list')
-			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
-			->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)));
+    if(($userId!=null)&&($userId!="")){
+			$qb->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
+    }
 		return $this->findEntity($qb);
 	}
 

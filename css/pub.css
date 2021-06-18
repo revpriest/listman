@@ -1,0 +1,38 @@
+.messageText{
+  max-width: 100em;
+  width: 80%;
+  margin: auto;
+  margin-top: 1em;
+  background: #eee;
+  display: block;
+  border:2px solid black;
+  color: black;
+  padding: 2em;
+}
+.messageBody{
+  margin-top: 1em;
+  padding-top: 1em;
+  border-top: 2px solid #666;
+}
+h1{
+  font-size: 2em;
+  margin:0.01em;
+  padding: 0.01em;
+  font-weight: bold;
+}
+h2{
+  margin:0.01em;
+  font-size: 1.2em;
+  color: black;
+  padding: 0.01em;
+  font-weight: bold;
+}
+
+.messageForm{
+  margin: auto;
+  margin-top: 1em;
+  display:block;
+}
+td {
+  padding: 0.1em 1em;
+}

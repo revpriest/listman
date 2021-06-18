@@ -213,6 +213,13 @@
 									{{ t('listman', 'sent') }}
 								</span>
 								<input
+									id="listman_view"
+									type="button"
+									class="primary"
+									:value="t('listman', 'Web View')"
+									:disabled="updating || !savePossible"
+									@click="webView(message)">
+								<input
 									id="listman_sendtoall"
 									type="button"
 									class="primary"
@@ -368,6 +375,23 @@ export default {
 				this.createMessage(message)
 			} else {
 				this.updateMessage(message)
+			}
+		},
+		/**
+		* Open a new window/tab with the web-view of the message.
+		* @param {Object} message Message object
+		*/
+		async webView(message) {
+			if (message.id === -1) {
+				alert('Save it first')
+			} else {
+				try {
+					const url = generateUrl(`/apps/listman/message-view/${message.id}`)
+					window.open(url, '_blank')
+				} catch (e) {
+					console.error(e)
+					showError(t('listman', 'Could not signal to send the message') + e)
+				}
 			}
 		},
 		/**

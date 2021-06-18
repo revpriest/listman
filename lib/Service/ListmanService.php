@@ -12,6 +12,7 @@ use OCP\Mail\IMailer;
 use OCP\L10N\IFactory;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Http\Template\PublicTemplateResponse;
 
 use \OCP\BackgroundJob\Job;
 use \OCP\BackgroundJob\IJobList;
@@ -205,19 +206,6 @@ class ListmanService {
 	}
 
   /**
-  * Create a new list
-  */
-	public function create($title, $desc, $redir, $userId) {
-		$randid = $this->randId();
-		$list = new Maillist();
-		$list->setTitle($title);
-		$list->setDesc($desc);
-		$list->setRedir($redir);
-		$list->setRandid($randid);
-		$list->setUserId($userId);
-		return $this->mapper->insert($list);
-	}
-  /**
   * Create a new member
   */
 	public function createMember($email, $name, $state, $list_id, $userId) {
@@ -246,13 +234,28 @@ class ListmanService {
 	}
 
   /**
+  * Create a new list
+  */
+	public function create($title, $desc, $redir, $userId) {
+		$randid = $this->randId();
+		$list = new Maillist();
+		$list->setTitle($title);
+		$list->setDesc($desc);
+		$list->setRedir($redir);
+		$list->setRandid($randid);
+		$list->setUserId($userId);
+		return $this->mapper->insert($list);
+	}
+
+  /**
   * Update existing list
   */
-	public function update($id, $title, $desc, $userId) {
+	public function update($id, $title, $desc, $redir, $userId) {
 		try {
 			$list = $this->mapper->find($id, $userId);
 			$list->setTitle($title);
 			$list->setDesc($desc);
+			$list->setRedir($redir);
 			return $this->mapper->update($list);
 		} catch (Exception $e) {
 			$this->handleException($e);
@@ -354,6 +357,20 @@ class ListmanService {
   }
 
   /**
+  * Return a message object
+  */
+	public function getMessageEntity(int $mid): object{
+    return $this->messageMapper->find($mid);
+  }
+
+  /**
+  * Return a List object
+  */
+	public function getListEntity(int $lid, string $userId): object{
+    return $this->mapper->find($lid, $userId);
+  }
+
+  /**
   * Send the message to everyone on the list.
   * We just mark it as ready for the cron to send
   * here really.
@@ -428,15 +445,24 @@ class ListmanService {
     ];
 	}
 
+  public function formValid($email,$name){
+      if($email==null) return false;
+      if($email=="") return false;
+      if($name=="") return false;
+      if($name==null) return false;
+      //todo: At least check for an @ ?
+      return true;
+  }
+
   /**
   * A subscribe action to be used from forms from
   * other sites. We will require a confirmation email.
   * whatever status we are switching to.
   */
   public function subscribe(string $lrid): object {
-    $name  = "John";  if(isset($_POST['name'] )){$name  = $_POST['name'] ;}
-    $email = "a@b.c"; if(isset($_POST['email'])){$email = $_POST['email'];}
-    $conf  = "xxxx";  if(isset($_POST['conf'] )){$conf  = $_POST['conf'] ;}
+    $name  = "";  if(isset($_POST['name'] )){$name  = $_POST['name'] ;}
+    $email = ""; if(isset($_POST['email'])){$email = $_POST['email'];}
+    $conf  = "";  if(isset($_POST['conf'] )){$conf  = $_POST['conf'] ;}
     $act   = "sub" ;  if(isset($_POST['act']  )){$act   = $_POST['act']  ;}
     $redir = null;    if(isset($_POST['redir'])){$redir = $_POST['redir'];}
 
@@ -449,8 +475,16 @@ class ListmanService {
     try {
       $list = $this->mapper->findByRandId($lrid);
       $lid = $list->getId();
+      $t = $list->getRedir();
+      if(($t!=null)&&($t!="")){
+        $redir = $t;
+      }
 		} catch (Exception $e) {
-			return new TemplateResponse( Application::APP_ID, 'notfound',["message"=>"Bad List ID"],"guest");
+      $response = new PublicTemplateResponse(Application::APP_ID, 'notfound', ['messge'=>"Can't find list"]);
+		  \OCP\Util::addStyle(Application::APP_ID, 'pub');
+      $response->setHeaderTitle('Not Found');
+      $response->setHeaderDetails('Dunno what that list is');
+      return $response;
     }
 
     $member = null;
@@ -461,32 +495,57 @@ class ListmanService {
       $existed = "yes";
 		} catch (Exception $e) {
       //Doesn't yet exist so just create it
-      $member = new Member();
-      $member->setEmail($email);
-      $member->setName($name);
-      $state = 0;
-      $member->setState($state);       #Unconfirmed
-      $member->setListId($lid);
-      $member->setConf($this->randId(32));
-      $member->setUserId($list->getUserId());
-		  $member = $this->memberMapper->insert($member);
+      if($this->formValid($email,$name)){
+        $member = new Member();
+        $member->setEmail($email);
+        $member->setName($name);
+        $state = 0;
+        $member->setState($state);       #Unconfirmed
+        $member->setListId($lid);
+        $member->setConf($this->randId(32));
+        $member->setUserId($list->getUserId());
+        $member = $this->memberMapper->insert($member);
+      }
 		}
 
-    $content = $this->getConfirmTemplate($member,$list,$act);
-    $this->sendEmail($member,$content);
+    if($this->formValid($email,$name)){
+      $content = $this->getConfirmTemplate($member,$list,$act);
+      //$this->sendEmail($member,$content);
 
-    if($redir!=null){
-		  return new RedirectResponse($redir);
-    }
+      //All good, so we redirect to owner's URL?
+      if($redir!=null){
+        print("Redirecting");exit;
+        return new RedirectResponse($redir);
+      }
 
-		return new TemplateResponse(
-			Application::APP_ID, 'subscribe', [
+      //Thanks, that's it.
+      $response = new PublicTemplateResponse(Application::APP_ID, 'thanks', [
         'email'=>$email,
         'name'=>$name,
         'act'=>$act,
-        'list'=>$list==null?"No List":$list->getTitle(),
-      ], 'guest'
-		);
+        'url'=>$act,
+        'redir'=>$redir,
+        'list'=>$list,
+      ]);
+      $response->setHeaderTitle('Thanks');
+      $response->setHeaderDetails('Aw, its like you care!');
+		  \OCP\Util::addStyle(Application::APP_ID, 'pub');
+      return $response;
+    }
+
+    //Show the subscribe form
+    $response = new PublicTemplateResponse(Application::APP_ID, 'subscribe', [
+      'email'=>$email,
+      'name'=>$name,
+      'act'=>$act,
+      'url'=>$act,
+      'redir'=>$redir,
+      'list'=>$list,
+    ]);
+    $response->setHeaderTitle($list->getTitle().' - subscribe');
+    $response->setHeaderDetails('Tell me your details.');
+		\OCP\Util::addStyle(Application::APP_ID, 'pub');
+    return $response;
   }
 
   /**
@@ -527,11 +586,17 @@ class ListmanService {
 		  return new RedirectResponse($url);
 		}
 
-		return new TemplateResponse( Application::APP_ID, 'confirmed',[
-			"member"=>$member,
-			"list"=>$list,
-			"act"=>$act,
-		],"guest");
+    //Show the confirmation page
+    $response = new PublicTemplateResponse(Application::APP_ID, 'confirmed', [
+      'member'=>$member,
+      'list'=>$list,
+      'act'=>$act,
+      'redir'=>$redir,
+    ]);
+    $response->setHeaderTitle($list->getTitle().' - confirmed');
+    $response->setHeaderDetails('Thanks, the '.$act.' is conformed.');
+		\OCP\Util::addStyle(Application::APP_ID, 'pub');
+    return $response;
   }
 
 

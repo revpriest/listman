@@ -1,5 +1,22 @@
-<div style="background:white;text:black;border:1px solid blue;border-radius:1em">
-<h1>Thanks</h1>
-<p>Thanks for subscribing, we have sent a confirmation email to <?php echo "$name &lt;$email&gt" ?></p>
+<div class="messageForm">
+<h1><?php echo $list->getTitle(); ?></h1>
+<p><?php echo $list->getDesc(); ?></p>
+<form method="post" action="<?php echo $url; ?>">
+<table>
+  <tr>
+    <td>Name:</td>
+    <td><input placeholder="name" name="name"></td>
+  </tr>
+  <tr>
+    <td>Email:</td>
+    <td><input placeholder="email" name="email"></td>
+  </tr>
+  <tr colspan="2">
+    <td>
+      <input type="hidden" name="redir" value="<?php $redir ?>">
+      <button>Subscribe</button>
+    </td>
+  </tr>
+</table>
+</form>
 </div>
-

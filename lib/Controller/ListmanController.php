@@ -7,8 +7,12 @@ use OCA\Listman\Service\ListmanService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\IURLGenerator;
+use OCP\AppFramework\Http\Template\SimpleMenuAction;
+use OCP\AppFramework\Http\Template\PublicTemplateResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\IRequest;
+use OCP\Util;
 
 class ListmanController extends Controller {
 	/** @var ListmanService */
@@ -17,14 +21,19 @@ class ListmanController extends Controller {
 	/** @var string */
 	private $userId;
 
+	/** @var IURLGenerator */
+	protected $urlGenerator;
+
 	use Errors;
 
 	public function __construct(IRequest $request,
 								ListmanService $service,
+							  IURLGenerator $urlGenerator,
 								$userId) {
 		parent::__construct(Application::APP_ID, $request);
 		$this->service = $service;
 		$this->userId = $userId;
+		$this->urlGenerator = $urlGenerator;
 	}
 
 	/**
@@ -55,9 +64,9 @@ class ListmanController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function update(int $id, string $title,
-						   string $desc): DataResponse {
-		return $this->handleNotFound(function () use ($id, $title, $desc) {
-			return $this->service->update($id, $title, $desc, $this->userId);
+						   string $desc, string $redir): DataResponse {
+		return $this->handleNotFound(function () use ($id, $title, $desc,$redir) {
+			return $this->service->update($id, $title, $desc, $redir, $this->userId);
 		});
 	}
 
@@ -113,6 +122,26 @@ class ListmanController extends Controller {
 		});
 	}
 
+	/**
+   * Web view of the message.
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function messageview(string $mid) {
+		Util::addStyle($this->appName, 'pub');
+		$message = 	$this->service->getMessageEntity(intval($mid));
+		$list = $this->service->getListEntity(intval($message->getListId()),"");
+    $subscribe = $this->urlGenerator->linkToRouteAbsolute('listman.listman.subscribe', ['lid'=>$list->getRandid()]);
+
+    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe]);
+    $response->setHeaderTitle('Email sent');
+    $response->setHeaderDetails('To all subscribers');
+    $response->setHeaderActions([
+        new SimpleMenuAction($subscribe, 'subscribe', 'icon-css-class1', $subscribe, 0),
+    ]);
+    return $response;
+	}
 
 	/**
 	 * @PublicPage
@@ -127,6 +156,14 @@ class ListmanController extends Controller {
 		return $this->service->confirm($lid,$conf,$act);
   }
 
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function subscribePost(string $lid): Response {
+		return $this->subscribe($lid);
+	}
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired

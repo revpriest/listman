@@ -1,26 +1,18 @@
-<div style="background:white;text:black;border:1px solid blue;border-radius:1em">
-<h1>Success</h1>
-<style>
-  td{
-   border: 1px solid black;
-    padding: 0.3em 1em;
-  }
-  table{
-    margin: auto;
-    padding: 0.3em 1em;
-  }
-</style>
-<table>
-  <tr><td>Name:</td><td><?php echo $member->getName(); ?></td></tr>
-  <tr><td>Email:</td><td><?php echo $member->getEmail(); ?></td></tr>
-  <tr><td>Subscription:</td><td><?php 
-    switch($member->getState()){
-      case -1: echo "blocked";break;
-      case 0: echo "unconfirmed";break;
-      case 1: echo "subscribed";break;
-    }
-  ?></td></tr>
-</table>
+<div class="messageForm">
+	<h1><?php echo $list->getTitle(); ?></h1>
+	<h3>Success</h3>
+	<hr/>
+	<table>
+		<tr><th>Name:</th><td><?php echo $member->getName(); ?></td></tr>
+		<tr><th>Email:</th><td><?php echo $member->getEmail(); ?></td></tr>
+		<tr><th>Subscription: </th><td> <?php 
+			switch($member->getState()){
+				case -1: echo "blocked";break;
+				case 0: echo "unconfirmed";break;
+				case 1: echo "subscribed";break;
+			}
+		?></td></tr>
+	</table>
 </div>
 
 

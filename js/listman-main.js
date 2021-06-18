@@ -16624,6 +16624,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16761,6 +16768,24 @@ __webpack_require__.r(__webpack_exports__);
         this.createMessage(message);
       } else {
         this.updateMessage(message);
+      }
+    },
+
+    /**
+    * Open a new window/tab with the web-view of the message.
+    * @param {Object} message Message object
+    */
+    async webView(message) {
+      if (message.id === -1) {
+        alert('Save it first');
+      } else {
+        try {
+          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-view/".concat(message.id));
+          window.open(url, '_blank');
+        } catch (e) {
+          console.error(e);
+          Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not signal to send the message') + e);
+        }
       }
     },
 
@@ -38095,6 +38120,22 @@ var render = function() {
                                     _c("input", {
                                       staticClass: "primary",
                                       attrs: {
+                                        id: "listman_view",
+                                        type: "button",
+                                        value: _vm.t("listman", "Web View"),
+                                        disabled:
+                                          _vm.updating || !_vm.savePossible
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.webView(message)
+                                        }
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("input", {
+                                      staticClass: "primary",
+                                      attrs: {
                                         id: "listman_sendtoall",
                                         type: "button",
                                         value: _vm.t("listman", "Send To All"),
@@ -47185,4 +47226,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=afecf3961c321a514f91
+//# sourceMappingURL=listman-main.js.map?v=ad45e9dafb7a82b62a53
