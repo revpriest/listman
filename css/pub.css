@@ -42,6 +42,24 @@ h5{
   border:2px solid black;
   color: black;
   padding: 2em;
+  display:block;
+}
+.react{
+  display:block;
+  margin: auto;
+  background: #eee;
+}
+.react ul{
+}
+.react li{
+	float left;
+  color: white;
+  font-size:1.3em;
+	display: inline-block;
+  padding: 3px 8px;
+  border-radius: 1em;
+	background: rgb(28,24,96);
+	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(20,41,69,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
 }
 a{
  color: #00b;

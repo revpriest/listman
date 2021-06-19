@@ -22,9 +22,11 @@ use OCA\Listman\Db\MaillistMapper;
 use OCA\Listman\Db\Member;
 use OCA\Listman\Db\Message;
 use OCA\Listman\Db\Sendjob;
+use OCA\Listman\Db\React;
 use OCA\Listman\Db\MemberMapper;
 use OCA\Listman\Db\MessageMapper;
 use OCA\Listman\Db\SendjobMapper;
+use OCA\Listman\Db\ReactMapper;
 use OCA\Listman\Cron\ListmanSend;
 
 class ListmanService {
@@ -37,6 +39,8 @@ class ListmanService {
 	private $messageMapper;
 	/** @var SendjobMapper */
 	private $sendjobMapper;
+	/** @var ReactMapper */
+	private $reactMapper;
 	/** @var IURLGenerator */
 	protected $urlGenerator;
 	/** @var IMailer */
@@ -47,15 +51,23 @@ class ListmanService {
 	private $l10nFactory;
 
 
-	public function __construct(MaillistMapper $mapper, MessageMapper $messageMapper, MemberMapper $memberMapper, SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory, IJobList  $jobList) {
+	public function __construct(MaillistMapper $mapper, MessageMapper $messageMapper, MemberMapper $memberMapper, ReactMapper $reactMapper,  SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory, IJobList  $jobList) {
 		$this->mapper = $mapper;
 		$this->memberMapper = $memberMapper;
 		$this->messageMapper = $messageMapper;
 		$this->sendjobMapper = $sendjobMapper;
+		$this->reactMapper = $reactMapper;
 		$this->urlGenerator = $urlGenerator;
 		$this->mailer = $mailer;
 		$this->jobList = $jobList;
 		$this->l10nFactory = $l10nFactory;
+	}
+
+	/**
+	* Get the reacts to a message
+	*/
+	public function getReactsForMessage($message_id){
+		return $this->reactMapper->findAllForMessage($message_id);
 	}
 
 	/**
@@ -66,6 +78,15 @@ class ListmanService {
     $share = $this->getLink("view",$message->getId());
     $reply = "mailto:pre@dalliance.net";
     $html = "";
+		$html.="<p class=\"ar\">Anonymous React:</p>";
+		$html.="<ul class=\"ebtns\">";
+		$html.="<li><a href=\"$share?r=❤\" class=\"ebtn\">❤</a></li>";
+		$html.="<li><a href=\"$share?r=👍\" class=\"ebtn\">👍</a></li>";
+		$html.="<li><a href=\"$share?r=👎\" class=\"ebtn\">👎</a></li>";
+		$html.="<li><a href=\"$share?r=🤣\" class=\"ebtn\">🤣</a></li>";
+		$html.="<li><a href=\"$share?r=😢\" class=\"ebtn\">😢</a></li>";
+		$html.="<li><a href=\"$share?r=😮\" class=\"ebtn\">😮</a></li>";
+		$html.="</ul>";
 		$html.="<ul class=\"btns\">";
 		$html.="<li><a href=\"$subscribe\" class=\"btn\">Un/Subscribe</a></li>";
 		$html.="<li><a href=\"$share\" class=\"btn\">Share</a></li>";
@@ -112,33 +133,75 @@ p{
 	margin-bottom: 1em;
 }
 .inlineimg{
-  max-width: 20em;
+  width: 20em;
+  max-width: 100%;
   padding: 0px;
   margin: 0px;
 	display: inline-block;
 	box-shadow: 0em 0em 0.4em rgba(.0,.0,.0,.8);
 }
+.ebtns,
 .btns{
-	width: 100%;
+	display: block;
+  text-align: center;
 	list-style-type: none;
 	margin: auto;
+  padding: 0.1em;
 }
+.ebtns li,
 .btns li{
 	float left;
 	display: inline-block;
 	margin: 0px;
 	padding: 2px;
+  margin-bottom: 0.5em;
+  line-height: 3.3em;
+}
+.ebtns li{
+  font-size: 2em;
+  line-height: 1.3em;
 }
 .btn{
-	background:#888;
+	background: rgb(28,24,96);
+	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(20,41,69,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
+	border: 2px solid black;
+	border-radius: 1.3em;
+	font-size: 1.5em;
+	color: #fc3;
+	text-decoration: none;
+	padding: 0.3em 1.2em;
+	box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8);
+	text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8);
+}
+.ebtn{
+	background: rgb(28,24,96);
+	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(20,41,69,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
+	text-decoration: none;
+	margin: 0.1px 0.1em;
+	padding: 0.1px 0.2em;
 	border: 2px solid black;
 	border-radius: 1em;
-	padding: 0.5em 2em;
-	color: white;
 	text-decoration: none;
+	box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8);
+	text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8);
 }
-.btn :hover{
-	background:#8f8;
+.ar{
+  text-align: center;
+  padding: 0.3em;
+  margin: 0.1em;
+  font-size: 0.8em;
+}
+.ebtn:hover,
+.btn:hover{
+	background: rgb(28,96,24);
+	background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(20,69,41,1) 8%, rgba(41,125,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
+  color: black;
+}
+.ebtn:active,
+.btn:active{
+	background: rgb(96,28,24);
+	background: linear-gradient(171deg, rgba(96,28,24,1) 0%, rgba(69,20,41,1) 8%, rgba(125,41,77,1) 23%, rgba(116,33,49,1) 52%, rgba(88,22,28,1) 100%);
+  color: black;
 }
 </style>";
 		return $ret;
@@ -198,7 +261,7 @@ p{
 							$dsc = implode(" ",$params);
 							if($dsc==""){$dsc = "Link";}
 							$dsc_h = htmlspecialchars($dsc);
-							$bhtml.="<a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a>";
+							$bhtml.=" <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a> ";
 							$bplain.=" ($dsc)[ $lnk ]";
 							break;
 
@@ -254,9 +317,6 @@ p{
 		$both = $this->getEmailButtons($message,$list);
 		$html.=$both['html'];
 		$plain.=$both['plain'];
-
-		$html.="<p>Sharing is caring</p>";
-		$plain.="Sharing is caring";
 
 		$emailTemplate->setPlainBody($plain);
 		$emailTemplate->setHtmlBody($html);
@@ -871,6 +931,39 @@ p{
     }
     return true;
   }
+
+
+	/**
+	* Register a reaction, which may include a simple
+	* page-load
+	*/
+	public function registerReaction($message,$r){
+		//Only valid reactions
+    switch($r){
+      case "❤":
+      case "👍":
+      case "👎":
+      case "🤣":
+      case "😢":
+      case "😮":
+        break;
+      default:
+    	  $r = "📃";
+		    break;
+    }
+		try{
+		  $react = $this->reactMapper->findByMessageAndSymbol($message->getId(),$r);
+		}catch(Exception $e){
+			$react = new React();
+			$react->setSymbol($r);
+			$react->setCount(0);
+			$react->setMessageId($message->getId());
+		  $react = $this->reactMapper->insert($react);
+		}
+		$count = $react->getCount();
+		$react->setCount($count+1);
+	  return $this->reactMapper->update($react);
+	}
 
 }
 

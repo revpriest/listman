@@ -153,6 +153,32 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             $table->addIndex(['member_id'], 'listman_sjmemid_index');
         }
 
+				// -- react --
+				// We keep track of counts of react-emojii. They are not
+				// limited. If a person clicks a hundred times, we just
+				// increment the number a hundred times. No tracking who
+			  // clicked what.
+        if (!$schema->hasTable('listman_react')) {
+            $table = $schema->createTable('listman_react');
+            $table->addColumn('id', 'integer', [
+                'autoincrement' => true,
+                'notnull' => true,
+            ]);
+            $table->addColumn('message_id', 'integer', [
+                'notnull' => true,
+            ]);
+            $table->addColumn('symbol', 'string', [
+                'notnull' => true,
+            ]);
+            $table->addColumn('count', 'integer', [
+                'notnull' => true,
+                'default' => 0,
+            ]);
+            $table->setPrimaryKey(['id']);
+            $table->addIndex(['message_id'], 'listman_react_index');
+        }
+
+
         return $schema;
     }
 }
