@@ -1,8 +1,11 @@
 <div class="messageText">
-  <h2>From: <?php print $list->getTitle(); ?></h2>
-  <h2>To: All Subscribers</h2>
-  <h1>Subject: <?php print $message->getSubject(); ?></h1>
+	<?php echo $style; ?>
+  <h1><?php print $message->getSubject(); ?></h1>
+  <h2><b>From:</b> <?php print $list->getTitle(); ?></h2>
+  <h2><b>To:</b> All Subscribers</h2>
+  <h2><b>Date:</b> <?php print $message->getCreatedAt(); ?></h2>
   <div class="messageBody">
-    <?php print $message->getBody(); ?>
+    <?php print $body; ?>
+    <?php print $buttons; ?>
   </div>
 </div>

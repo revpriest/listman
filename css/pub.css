@@ -1,3 +1,37 @@
+p, h1, h2, h3, h4, h5, h6{
+  color: black;
+}
+h1{
+  font-size: 2em;
+}
+h2{
+  font-size: 1.6em;
+}
+h3{
+  font-size: 1.4em;
+}
+h4{
+  font-size: 1.3em;
+}
+h4{
+  font-size: 1.2em;
+}
+h4{
+  font-size: 1.1em;
+}
+h5{
+  font-size: 1.05em;
+}
+.messageForm p, 
+.messageForm h1, 
+.messageForm h2, 
+.messageForm h3, 
+.messageForm h4, 
+.messageForm h5, 
+.messageForm h6{
+  color: white;
+  text-align: center;
+}
 .messageText{
   max-width: 100em;
   width: 80%;
@@ -9,25 +43,16 @@
   color: black;
   padding: 2em;
 }
+a{
+ color: #00b;
+ text-decoration: underline;
+}
 .messageBody{
   margin-top: 1em;
   padding-top: 1em;
   border-top: 2px solid #666;
-}
-h1{
-  font-size: 2em;
-  margin:0.01em;
-  padding: 0.01em;
-  font-weight: bold;
-}
-h2{
-  margin:0.01em;
-  font-size: 1.2em;
   color: black;
-  padding: 0.01em;
-  font-weight: bold;
 }
-
 .messageForm{
   margin: auto;
   margin-top: 1em;
@@ -35,4 +60,9 @@ h2{
 }
 td {
   padding: 0.1em 1em;
+  text-align: center;
+}
+table{
+  margin:auto;
+  margin-top: 1em;
 }

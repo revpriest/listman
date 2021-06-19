@@ -58,6 +58,213 @@ class ListmanService {
 		$this->l10nFactory = $l10nFactory;
 	}
 
+	/**
+	* The buttons that go on a message
+	*/
+	public function getEmailButtons($message,$list){
+    $subscribe = $this->getLink("subscribe",$list->getRandid());
+    $share = $this->getLink("view",$message->getId());
+    $reply = "mailto:pre@dalliance.net";
+    $html = "";
+		$html.="<ul class=\"btns\">";
+		$html.="<li><a href=\"$subscribe\" class=\"btn\">Un/Subscribe</a></li>";
+		$html.="<li><a href=\"$share\" class=\"btn\">Share</a></li>";
+		$html.="<li><a href=\"$reply\" class=\"btn\">Chat</a></li>";
+		$html.="</ul>";
+
+		$plain.="---\n";
+    $plain.="  * Un/Subscribe: $subscribe\n";
+		$plain.=" * Share: $share\n";
+		$plain.=" * Chat: $reply\n";
+		$plain.="---\n\n";
+		return ['html'=>$html,'plain'=>$plain]; 
+  }
+
+	/**
+	* A Style-sheet for the emails
+	*/
+	public function getEmailStylesheet(){
+		$ret = "<style>
+h1, h2, h3, h4, h5, h6{
+  text-align:left;
+  margin:0.01em;
+  padding: 0.01em;
+  font-weight: normal;
+  margin-bottom: 0.1em;
+  font-size: 1.0em;
+}
+h1{
+  font-size: 2em;
+}
+h2{
+  font-size: 1.6em;
+}
+h3{
+  font-size: 1.4em;
+}
+h4{
+  font-size: 1.2em;
+}
+h5{
+  font-size: 1.1em;
+}
+p{
+	margin-bottom: 1em;
+}
+.inlineimg{
+  max-width: 20em;
+  padding: 0px;
+  margin: 0px;
+	display: inline-block;
+	box-shadow: 0em 0em 0.4em rgba(.0,.0,.0,.8);
+}
+.btns{
+	width: 100%;
+	list-style-type: none;
+	margin: auto;
+}
+.btns li{
+	float left;
+	display: inline-block;
+	margin: 0px;
+	padding: 2px;
+}
+.btn{
+	background:#888;
+	border: 2px solid black;
+	border-radius: 1em;
+	padding: 0.5em 2em;
+	color: white;
+	text-decoration: none;
+}
+.btn :hover{
+	background:#8f8;
+}
+</style>";
+		return $ret;
+	}
+
+
+	/**
+	* Convert a message into plain and HTML,
+	* interpreting the link commands and stuff
+	*/
+  function messageBodyToPlainAndHtml($message){
+		$bhtml = "<p>";
+		$bplain = "";
+    $body = $message->getBody();
+		$lines = explode("\n",$body);
+
+		foreach($lines as $p){
+			if($p==""){
+			  $bhtml.="</p><p>";
+			  $bplain.="\n\n";
+			}else{
+				$params = [""];
+				if($p[0]=="/"){
+					$params = explode(" ",$p);
+				}
+				switch($params[0]){
+						case "/h1":
+						case "/h2":
+						case "/h3":
+						case "/h4":
+							$cmd = array_shift($params);
+							$num = $cmd[2];
+							$dat = implode(" ",$params);
+							$dat_h = htmlspecialchars($dat);
+							if($dat!=""){
+								$bhtml.="</p><h$num>$dat_h</h$num>\n<p>";
+								$indent = "";
+								for($n=0;$n<intval($num);$n++){
+									$indent.="#";
+								}
+								$bplain.="\n$indent $dat\n\n";
+							}
+							break;
+
+						case "/img":
+							$cmd = array_shift($params);
+							$img = array_shift($params);
+							$alt = implode(" ",$params);
+							$alt_h = htmlspecialchars($alt);
+							$bhtml.="</p><a href=\"$img\"><img class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a>\n<p>";
+							$bplain.="\n * $img ($alt)\n";
+							break;
+
+						case "/link":
+							$cmd = array_shift($params);
+							$lnk = array_shift($params);
+							$dsc = implode(" ",$params);
+							if($dsc==""){$dsc = "Link";}
+							$dsc_h = htmlspecialchars($dsc);
+							$bhtml.="<a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a>";
+							$bplain.=" ($dsc)[ $lnk ]";
+							break;
+
+						default:
+							$bhtml.=htmlspecialchars($p);
+							$bplain.=$p;
+							break;
+				}
+			}
+		}
+		$bhtml.= "</p>";
+		return ["html"=>$bhtml,"plain"=>$bplain];
+	}
+
+  /**
+   * Send Message Template
+   */
+  private function getMessageTemplate($member,$message,$list): object {
+    $subject = $message->getSubject();
+
+		$emailTemplate = $this->mailer->createMessage(); 
+		$emailTemplate->setSubject($subject." [".$list->getTitle()."]");
+		$emailTemplate->setFrom(["pre@dalliance.net"=>"Pre fixthis"]);
+		$emailTemplate->setTo([$member->getEmail()=>$member->getname()]);
+
+		$html=$this->getEmailStylesheet();; 
+    $plain="";
+
+		$html.='<div class="messageText">';
+		$html.="<h1>".$subject."</h1>";
+		$html.="<h2>From:".$list->getTitle()."</h2>";
+		$html.="<h2>To: All Subscribers</h2>";
+		$html.="<h2>Date: ".$message->getCreatedAt()."</h2>";
+		$html.="<hr/>";
+
+		$plain.="# $subject\n";
+		$plain.="## From: ".$list->getTitle()."\n";
+		$plain.="## To: All Subscribers\n";
+		$plain.="## Date:x".$message->getCreatedAt()."x\n";
+		$plain.="---\n";
+
+		//The Message!
+		$both = $this->messageBodyToPlainAndHtml($message);
+		$bhtml = $both['html'];
+		$bplain= $both['plain'];
+
+		$html.=$bhtml;
+		$plain.=$bplain;
+
+    //Three calls to action at the bottom of each mail.
+    //Subscribe/Unsubscribe - Public Link remember, shareable. 
+
+		$both = $this->getEmailButtons($message,$list);
+		$html.=$both['html'];
+		$plain.=$both['plain'];
+
+		$html.="<p>Sharing is caring</p>";
+		$plain.="Sharing is caring";
+
+		$emailTemplate->setPlainBody($plain);
+		$emailTemplate->setHtmlBody($html);
+
+    return $emailTemplate;
+  }
+
+
   /**
    * Welcome Message Content.
    */
@@ -95,7 +302,9 @@ class ListmanService {
   }
 
   /**
-  * Generate a link to a confirmation page
+  * Generate a link to a confirmation page.
+  * THESE SHOULD NOT BE INCLUDED IN A GENERAL MESSAGE
+  * These are SECRET CODE links
   */
   private function getConfirmLink($member,$list,$act): string{
     $base = $this->urlGenerator->linkToRouteAbsolute('listman.listman.confirm', ['lid'=>$list->getRandid()]);
@@ -103,12 +312,27 @@ class ListmanService {
 		return  $base.$params;
   }
 
+  /**
+  * Generate a link to a public page, no identifying information
+  * or random-ids.
+  */
+  private function getLink($page,$param):string {
+    switch($page){
+      case "subscribe":
+        $base = $this->urlGenerator->linkToRouteAbsolute('listman.listman.subscribe', ['lid'=>$param]);
+        break;
+      case "view":
+        $base = $this->urlGenerator->linkToRouteAbsolute('listman.listman.messageview', ['mid'=>$param]);
+      default:
+        break;
+    }
+		return  $base;
+  }
+
 	/**
 	* Send an actual email to an actual member!
-  * We'll use SMTP details if we have 'em.
 	*/
 	private function sendEmail($member,$template){
-     //No actual emailing stuff yet, so we just send to log
     file_put_contents("data/prelog.txt","Emailing ".$member->getEmail(),FILE_APPEND);
 
 		$message = $this->mailer->createMessage();
@@ -279,11 +503,10 @@ class ListmanService {
   /**
   * Update existing message
   */
-	public function updateMessage($id, $subject, $created_at, $body,$list_id,$userId) {
+	public function updateMessage($id, $subject, $body,$list_id,$userId) {
 		try {
 			$message = $this->messageMapper->find($id,$userId);
 			$message->setSubject($subject);
-			$message->setCreatedAt($created_at);
 			$message->setBody($body);
 			$message->setListId($list_id);
 			$message->setUserId($userId);
@@ -510,11 +733,10 @@ class ListmanService {
 
     if($this->formValid($email,$name)){
       $content = $this->getConfirmTemplate($member,$list,$act);
-      //$this->sendEmail($member,$content);
+      $this->sendEmail($member,$content);
 
       //All good, so we redirect to owner's URL?
       if($redir!=null){
-        print("Redirecting");exit;
         return new RedirectResponse($redir);
       }
 
@@ -538,7 +760,7 @@ class ListmanService {
       'email'=>$email,
       'name'=>$name,
       'act'=>$act,
-      'url'=>$act,
+      'url'=>$url,
       'redir'=>$redir,
       'list'=>$list,
     ]);
@@ -604,12 +826,24 @@ class ListmanService {
 	/**
 	* Do a single send-job. We send a particular email to
 	* a particular user as defiend by a sendjob object
+  *
+  * We return the new state, so:
+  * 0 - Job not done, should still be attempted
+  * 1 - Job complete
+  * < 0 - Errors
 	*/
 	public function sendEmailToMember($sendJob){
 		$member = $this->memberMapper->find($sendJob->getMemberId());
 		$message = $this->messageMapper->find($sendJob->getMessageId());
+		$list = $this->mapper->find($message->getListId(),"");
+
     file_put_contents("/var/www-nextcloud/data/prelog.txt","Emailing ".$member->getEmail()." with message ".$message->getSubject()."\n",FILE_APPEND);
-		return 1;
+     
+    $email = $this->getMessageTemplate($member,$message,$list);
+		$this->mailer->send($email);
+
+    file_put_contents("/var/www-nextcloud/data/prelog.txt","Emailed ".$member->getEmail()." with message ".$message->getSubject()."\n",FILE_APPEND);
+		return 1;   
 	}
 
   /**

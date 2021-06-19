@@ -2,6 +2,7 @@
 
 namespace OCA\Listman\Controller;
 
+use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCA\Listman\AppInfo\Application;
 use OCA\Listman\Service\ListmanService;
 use OCP\AppFramework\Controller;
@@ -128,18 +129,42 @@ class ListmanController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function messageview(string $mid) {
+	public function messagetext(string $mid) {
+    return $this->messageview($mid,"plain");
+  }
+
+
+	/**
+   * Web view of the message.
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function messageview(string $mid,$ttype="html") {
 		Util::addStyle($this->appName, 'pub');
 		$message = 	$this->service->getMessageEntity(intval($mid));
 		$list = $this->service->getListEntity(intval($message->getListId()),"");
     $subscribe = $this->urlGenerator->linkToRouteAbsolute('listman.listman.subscribe', ['lid'=>$list->getRandid()]);
 
-    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe]);
-    $response->setHeaderTitle('Email sent');
-    $response->setHeaderDetails('To all subscribers');
+    $both = $this->service->messageBodyToPlainAndHtml($message);
+		$style = $this->service->getEmailStylesheet();; 
+		$buttons = $this->service->getEmailButtons($message,$list);; 
+    if($ttype=="plain"){
+      $both['plain'] = "<pre>".$both['plain']."</pre>";
+      $buttons['plain'] = "<pre>".$buttons['plain']."</pre>";
+    }
+
+    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"body"=>$both[$ttype],"style"=>$style,"buttons"=>$buttons[$ttype]]);
+    $response->setHeaderTitle($list->getTitle().' - message sent');
+    $response->setHeaderDetails($message->getSubject()." - ".$message->getCreatedAt());
     $response->setHeaderActions([
         new SimpleMenuAction($subscribe, 'subscribe', 'icon-css-class1', $subscribe, 0),
     ]);
+		$policy = new ContentSecurityPolicy();
+		$policy->addAllowedImageDomain('*');
+		// Needed for the ES5 compatible build of PDF.js
+		$policy->allowEvalScript(true);
+		$response->setContentSecurityPolicy($policy);
     return $response;
 	}
 

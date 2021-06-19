@@ -4,10 +4,20 @@
 	* Allow creating of send-jobs jobs											 	 ./
 	* Dates on emails - Show in title on List Messages				 ./
   * Pages to view emails outside the email client on the web ./
-  * Cron to find emails that haven't been sent and send them. 
-		* Format email
-    * Add unsubscribe link to all emails
-    * Add "View In Web" link to all emails
-  * Show queued and settings
-	* Allow setting SMTP service
+  * Cron to find emails that haven't been sent and send them.  ./
+		* Format email																						./
+    * Add unsubscribe link to all emails											./
+    * Add "View In Web" link to all emails										./
+  * Share-buttons on view-in-web page for:
+		* Twitter
+		* Facebook
+		* Linked-In
+		* Email
+		* Reddit
+  * Emoji-react buttons
+		* Add to email-footer
+  * Send emails at accelerating rate
+  * Show queue size in oft-updated div
+  * settings
+		* Allow setting SMTP service
 
