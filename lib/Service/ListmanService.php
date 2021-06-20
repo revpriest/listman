@@ -11,7 +11,6 @@ use OCP\IURLGenerator;
 use OCP\Mail\IMailer;
 use OCP\L10N\IFactory;
 use OCP\AppFramework\Http\RedirectResponse;
-use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\Template\PublicTemplateResponse;
 
 use \OCP\BackgroundJob\Job;
@@ -848,9 +847,13 @@ p{
     } catch (Exception $e) {
       //Doesn't yet exist so just create it
       if($this->formValid($email,$name)){
+        $conf = $this->randId(32);
+        $now = new \Datetime(); 
         $member = new Member();
         $member->setEmail($email);
         $member->setName($name);
+        $member->setConf($conf);
+        $member->setConfExpire($now->format("Y-m-d H:i:s"));
         $state = 0;
         $member->setState($state);       #Unconfirmed
         $member->setListId($lid);
@@ -908,14 +911,31 @@ p{
     try {
       $list = $this->mapper->findByRandId($lrid);
     } catch (Exception $e) {
-      return new TemplateResponse( Application::APP_ID, 'notfound',["message"=>"Bad List ID"], "guest");
+      $response = new PublicTemplateResponse(Application::APP_ID, 'badconfirm', [
+        'list'=>null,
+        'sub'=>null,
+        'message'=>"Can't find that list",
+      ]);
+      $response->setHeaderTitle('Uknown list - error');
+      $response->setHeaderDetails('Uhho, trouble.');
+      \OCP\Util::addStyle(Application::APP_ID, 'pub');
+      return $response;
     }
+    $sub = $this->getLink("subscribe",$list->getRandid());
 
     $member = null;
     try {
       $member = $this->memberMapper->findByConf($conf);
     } catch (Exception $e) {
-      return new TemplateResponse( Application::APP_ID, 'notfound',["message"=>"No Member"], "guest");
+      $response = new PublicTemplateResponse(Application::APP_ID, 'badconfirm', [
+        'list'=>$list,
+        'sub'=>$sub,
+        'message'=>"Confirmation link expired?",
+      ]);
+      $response->setHeaderTitle($list->getTitle().' - error');
+      $response->setHeaderDetails('Uhho, trouble.');
+      \OCP\Util::addStyle(Application::APP_ID, 'pub');
+      return $response;
     }
 
     if($act=="sub"){

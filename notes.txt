@@ -1,7 +1,14 @@
+
+* From-addresses
+  * Can't use arbitrary ones.  Should trap the error
+	  from failing to send and ensure it's seen and fixed.
 * SMTP settings
   * Sendgrid, whatever they need.
+
 * Member's can't currently edit their names
+
 * Deleting is WAY too easy. Just Gone. No undo. No confirm.
+
 * Display which mails have gone to which users, ideally also when.
   That'd need a new column in the Member-list when a message is selected
   that shows the job-status for that user.

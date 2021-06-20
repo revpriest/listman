@@ -39,7 +39,7 @@ class MemberMapper extends QBMapper {
 		$qb->select('*')
 			->from('listman_member')
 			->where($qb->expr()->eq('conf', $qb->createNamedParameter($conf)))
-			->andWhere($qb->expr()->gt('confExpire', $qb->createNamedParameter($expire)));
+			->andWhere($qb->expr()->gt('conf_expire', $qb->createNamedParameter($expire->format("Y-m-d H:i:s"))));
 		return $this->findEntity($qb);
 	}
 

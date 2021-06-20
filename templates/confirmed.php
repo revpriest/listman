@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="messageForm">
-		<h1><?php echo $list->getTitle(); ?></h1>
+		<h1><?php echo $list==null?"Unknown List":$list->getTitle(); ?></h1>
 		<h3>Success</h3>
 		<hr/>
 		<table>
