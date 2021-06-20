@@ -11,6 +11,21 @@ class MessageMapper extends QBMapper {
     }
 
 	/**
+	 * @param string $id
+	 * @return Entity|Message
+	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
+	 * @throws DoesNotExistException
+	 */
+   public function findByRandid(string $rid) {
+        $qb = $this->db->getQueryBuilder();
+        $qb->select('*')
+           ->from($this->getTableName())
+           ->where($qb->expr()->eq('randid', $qb->createNamedParameter($rid)));
+        return $this->findEntity($qb);
+   }
+
+
+	/**
 	 * @param int $id
 	 * @return Entity|Message
 	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
@@ -54,6 +69,31 @@ class MessageMapper extends QBMapper {
 				$ret = $this->findEntities($qb);
         return $ret;
    }
+
+   /**
+    * List all the messages that have sendrate > 0
+    */
+   public function findRunningMessages(){
+      $qb = $this->db->getQueryBuilder();
+      $qb->select('*')
+         ->from("listman_message")
+         ->where($qb->expr()->gt('sendrate', $qb->createNamedParameter(0)));
+      $messages = $this->findEntities($qb);
+      return $messages;
+   }
+
+	/**
+   * Count all the queued messages to be sent
+	 * @return int
+	 */
+    public function getSumSendRate() {
+      $qb = $this->db->getQueryBuilder();
+      $qb->select($qb->func()->sum('sendrate'))
+         ->from($this->getTableName())
+         ->where($qb->expr()->gt('sendrate',$qb->createNamedParameter(0)));
+			$rate = $qb->execute()->fetchOne();
+      return $rate;
+    }
 }
 
 

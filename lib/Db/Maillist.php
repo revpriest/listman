@@ -9,6 +9,11 @@ use OCP\AppFramework\Db\Entity;
 class Maillist extends Entity implements JsonSerializable {
 	protected $title;
 	protected $desc;
+  protected $fromname;
+  protected $fromemail;
+  protected $buttontext;
+  protected $buttonlink;
+  protected $footer;
 	protected $randid;
 	protected $redir;
 	protected $userId;
@@ -18,8 +23,14 @@ class Maillist extends Entity implements JsonSerializable {
 			'id' => $this->id,
 			'title' => $this->title,
 			'desc' => $this->desc,
+      'fromname' => $this->fromname,
+      'fromemail' => $this->fromemail,
+      'buttontext' => $this->buttontext,
+      'buttonlink' => $this->buttonlink,
+      'footer' => $this->footer,
 			'randid' => $this->randid,
-			'redir' => $this->redir
+			'redir' => $this->redir,
+			'userId' => $this->userId,
 		];
 	}
 }

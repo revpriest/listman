@@ -1,10 +1,10 @@
-* Proper "from" and stuff.
-* Send emails at accelerating rate
-  * Per mail? Yeah. Has to be really.
-   * So find each email with sending
-		* Then pick the next X
-			* INcrement X, or zero it
-	* Display: Sum of all rates for all active mails
-
 * SMTP settings
+  * Sendgrid, whatever they need.
+* Member's can't currently edit their names
+* Deleting is WAY too easy. Just Gone. No undo. No confirm.
+* Display which mails have gone to which users, ideally also when.
+  That'd need a new column in the Member-list when a message is selected
+  that shows the job-status for that user.
+
+
 

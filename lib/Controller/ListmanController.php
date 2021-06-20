@@ -56,18 +56,16 @@ class ListmanController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function create(string $title, string $desc, string $redir): DataResponse {
-		return new DataResponse($this->service->create($title, $desc, $redir, 
-			$this->userId));
+	public function create(string $title, string $desc, string $redir, string $fromname, string $fromemail, string $buttontext, string $buttonlink, string $footer): DataResponse {
+		return new DataResponse($this->service->create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $this->userId));
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
-	public function update(int $id, string $title,
-						   string $desc, string $redir): DataResponse {
-		return $this->handleNotFound(function () use ($id, $title, $desc,$redir) {
-			return $this->service->update($id, $title, $desc, $redir, $this->userId);
+	public function update(int $id, string $title, string $desc, string $redir, string $fromname, string $fromemail, string $buttontext, string $buttonlink, string $footer): DataResponse {
+		return $this->handleNotFound(function () use ($id, $title, $desc,$redir,$fromname,$fromemail,$buttontext,$buttonlink,$footer) {
+			return $this->service->update($id, $title, $desc, $redir, $fromname,$fromemail,$buttontext,$buttonlink,$footer,$this->userId);
 		});
 	}
 
@@ -129,8 +127,8 @@ class ListmanController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function messagetext(string $mid) {
-    return $this->messageview($mid,"plain");
+	public function messagetext(string $rid) {
+    return $this->messageview($rid,"plain");
   }
 
 
@@ -140,10 +138,10 @@ class ListmanController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function messageview(string $mid,$ttype="html") {
+	public function messageview(string $rid,$ttype="html") {
 		Util::addStyle($this->appName, 'pub');
 		Util::addScript($this->appName, 'listman-bonus');
-		$message = 	$this->service->getMessageEntity(intval($mid));
+		$message = 	$this->service->getMessageEntityByRandId($rid);
 		$list = $this->service->getListEntity(intval($message->getListId()),"");
     $subscribe = $this->urlGenerator->linkToRouteAbsolute('listman.listman.subscribe', ['lid'=>$list->getRandid()]);
 
@@ -156,14 +154,15 @@ class ListmanController extends Controller {
     $both = $this->service->messageBodyToPlainAndHtml($message);
 		$style = $this->service->getEmailStylesheet();
 		$buttons = $this->service->getEmailButtons($message,$list);;
-		$url = $this->service->getShareUrl($message->getId()); 
+		$url = $this->service->getShareUrl($message->getRandid()); 
 		$reacts = $this->service->getReactsForMessage($message->getId()); 
     if($ttype=="plain"){
       $both['plain'] = "<pre>".$both['plain']."</pre>";
       $buttons['plain'] = "<pre>".$buttons['plain']."</pre>";
     }
+    $footer = $this->service->emailFooter($message,$list);
 
-    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"url"=>$url,"react"=>$reacts,"body"=>$both[$ttype],"style"=>$style,"buttons"=>$buttons[$ttype]]);
+    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"url"=>$url,"react"=>$reacts,"body"=>$both[$ttype],"style"=>$style,"buttons"=>$buttons[$ttype],"footer"=>$footer[$ttype]]);
     $response->setHeaderTitle($list->getTitle().' - message sent');
     $response->setHeaderDetails($message->getSubject()." - ".$message->getCreatedAt());
     $response->setHeaderActions([

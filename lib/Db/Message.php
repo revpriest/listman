@@ -11,6 +11,7 @@ class Message extends Entity implements JsonSerializable {
     protected $listId;
     protected $createdAt;
     protected $userId;
+    protected $randid;
     protected $sendrate;
 
     public function __construct() {
@@ -25,6 +26,7 @@ class Message extends Entity implements JsonSerializable {
             'created_at' => $this->createdAt,
             'subject' => $this->subject,
             'body' => $this->body,
+            'randid' => $this->randid,
             'user_id' => $this->userId,
             'sendrate' => $this->sendrate,
         ];

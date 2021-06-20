@@ -3,11 +3,17 @@ namespace OCA\Listman\Db;
 
 use OCP\IDBConnection;
 use OCP\AppFramework\Db\QBMapper;
+use OCA\Listman\Db\Message;
+use OCA\Listman\Db\MessageMapper;
 
 class SendjobMapper extends QBMapper {
+    /** @var MessageMapper */
+    private $messageMapper;
+    private $maxSendrate=20;
 
-    public function __construct(IDBConnection $db) {
+    public function __construct(IDBConnection $db,MessageMapper $messageMapper) {
         parent::__construct($db, 'listman_sendjob', Sendjob::class);
+		    $this->messageMapper = $messageMapper;
     }
 
 	/**
@@ -27,17 +33,42 @@ class SendjobMapper extends QBMapper {
 
 
 	/**
+   * List of jobs. Well we need to find messages which are
+   * sending. They have a sendrate>=1. We can then look for
+   * sendjobs with that messageid and state=0, limit by the
+   * sendrate. We then increment the sendrate and update. 
 	 * @return Entity|Sendjob
 	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
 	 * @throws DoesNotExistException
 	 */
-   public function getNextToSend() {
-        $qb = $this->db->getQueryBuilder();
-        $qb->select('*')
-           ->from($this->getTableName())
-           ->where($qb->expr()->eq('state', $qb->createNamedParameter(0)))
-           ->setMaxResults(1);
-        return $this->findEntity($qb);
+   public function getListToSend() {
+        $ret = [];
+        $messages = $this->messageMapper->findRunningMessages();
+
+        foreach($messages as $message){
+          $sr = $message->getSendrate();
+          $qb = $this->db->getQueryBuilder();
+          $qb->select('*')
+             ->from($this->getTableName())
+             ->where($qb->expr()->eq('state', $qb->createNamedParameter(0)))
+             ->andWhere($qb->expr()->eq('message_id', $qb->createNamedParameter($message->getId())))
+             ->orderBy('member_id')
+             ->setMaxResults($sr);
+          $jobs = $this->findEntities($qb);
+          if(sizeof($jobs)<=0){
+            $message->setSendrate(0);
+            $this->messageMapper->update($message);
+          }else{
+            foreach($jobs as $job){
+              $ret[] = $job;
+            }
+            if($sr<$this->maxSendrate){
+              $message->setSendrate($sr+1);
+              $this->messageMapper->update($message);
+            }
+          }
+        } 
+        return $ret;
    }
 
 	/**
@@ -66,13 +97,6 @@ class SendjobMapper extends QBMapper {
       return $queued;
     }
 
-	/**
-   * Count all the queued messages to be sent
-	 * @return int
-	 */
-    public function getCurrentRate() {
-      return 1;
-    }
 
 	/**
 	 * @param int $id message ID
@@ -85,12 +109,14 @@ class SendjobMapper extends QBMapper {
          ->where($qb->expr()->eq('message_id', $qb->createNamedParameter($id)))
          ->andWhere($qb->expr()->eq('state',$qb->createNamedParameter(0)));
 			$unsent = $qb->execute()->fetchOne();
-      $qb2 = $this->db->getQueryBuilder();
-      $qb2->select($qb->func()->count('*'))
+
+      $qb = $this->db->getQueryBuilder();
+      $qb->select($qb->func()->count('*'))
          ->from($this->getTableName())
-         ->where($qb2->expr()->eq('message_id', $qb2->createNamedParameter($id)))
-         ->andWhere($qb2->expr()->neq('state',$qb2->createNamedParameter(0)));
-			$sent = $qb2->execute()->fetchOne();
+         ->where($qb->expr()->eq('message_id', $qb->createNamedParameter($id)))
+         ->andWhere($qb->expr()->neq('state',$qb->createNamedParameter(0)));
+			$sent = $qb->execute()->fetchOne();
+
       return ['sent'=>$sent,'queued'=>$unsent];
     }
 

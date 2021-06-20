@@ -32,10 +32,14 @@ class MemberMapper extends QBMapper {
 	 * @throws DoesNotExistException
 	 */
 	public function findByConf(string $conf): Member {
+    $expire = new \DateTime();
+    $expire->sub(new \DateInterval("P1D"));
+
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from('listman_member')
-			->where($qb->expr()->eq('conf', $qb->createNamedParameter($conf)));
+			->where($qb->expr()->eq('conf', $qb->createNamedParameter($conf)))
+			->andWhere($qb->expr()->gt('confExpire', $qb->createNamedParameter($expire)));
 		return $this->findEntity($qb);
 	}
 
@@ -58,7 +62,7 @@ class MemberMapper extends QBMapper {
 	 * @param string $user_id
 	 * @return array
 	 */
-    public function findMembers(int $list_id,string $user_id) {
+    public function findMembers(int $list_id,string $user_id,$state=null) {
       $qb = $this->db->getQueryBuilder();
       $qb->select('*')
          ->from($this->getTableName())
@@ -66,6 +70,9 @@ class MemberMapper extends QBMapper {
               ($qb->expr()->eq('list_id', $qb->createNamedParameter($list_id))),
               ($qb->expr()->eq('user_id', $qb->createNamedParameter($user_id)))
            ));
+      if($state!=null){
+        $qb->andWhere($qb->expr()->eq('state', $qb->createNamedParameter($state)));
+      }
 			$ret = $this->findEntities($qb);
       return $ret;
     }

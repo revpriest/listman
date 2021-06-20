@@ -148,7 +148,7 @@ table{
 .shareIcons{
   color: white;
  background: rgb(50,13,13);
-background: linear-gradient(172deg, rgba(50,13,13,1) 0%, rgba(68,49,49,1) 18%, rgba(84,16,16,1) 41%, rgba(24,0,0,1) 100%); 
+background: linear-gradient(85deg, rgba(50,13,13,1) 0%, rgba(68,49,49,1) 18%, rgba(84,16,16,1) 41%, rgba(24,0,0,1) 100%); 
   margin: auto;
   margin-top: 0.3em;
   margin-bottom: 1em;

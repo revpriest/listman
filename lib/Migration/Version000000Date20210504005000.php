@@ -39,8 +39,28 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
                 'notnull' => true,
                 'default' => ''
             ]);
+            $table->addColumn('fromname', 'string', [
+                'notnull' => true,
+                'length' => 200
+            ]);
+            $table->addColumn('fromemail', 'string', [
+                'notnull' => true,
+                'length' => 100
+            ]);
+            $table->addColumn('buttontext', 'string', [
+                'notnull' => true,
+                'length' => 32
+            ]);
+            $table->addColumn('buttonlink', 'string', [
+                'notnull' => true,
+                'length' => 200
+            ]);
+            $table->addColumn('footer', 'string', [
+                'notnull' => true,
+                'length' => 500
+            ]);
             $table->addColumn('randid', 'string', [
-                'length' => 8,
+                'length' => 16,
                 'notnull' => true,
             ]);
             $table->addColumn('redir', 'string', [
@@ -52,6 +72,7 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             ]);
 
             $table->setPrimaryKey(['id']);
+            $table->addIndex(['randid'], 'listman_list_randid_index');
             $table->addIndex(['user_id'], 'listman_list_user_id_index');
         }
 
@@ -76,7 +97,7 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             ]);
             $table->addColumn('email', 'string', [
                 'notnull' => true,
-                'length' => 200
+                'length' => 100
             ]);
             $table->addColumn('state', 'integer', [
                 'notnull' => true,
@@ -84,6 +105,9 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             ]);
             $table->addColumn('conf', 'string', [
                 'length' => 32,
+                'notnull' => true,
+            ]);
+            $table->addColumn('conf_expire', 'datetime', [
                 'notnull' => true,
             ]);
             $table->addColumn('user_id', 'string', [
@@ -102,6 +126,10 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             $table = $schema->createTable('listman_message');
             $table->addColumn('id', 'integer', [
                 'autoincrement' => true,
+                'notnull' => true,
+            ]);
+            $table->addColumn('randid', 'string', [
+                'length' => 16,
                 'notnull' => true,
             ]);
             $table->addColumn('list_id', 'integer', [
@@ -125,8 +153,9 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
                 'notnull' => true,
             ]);
             $table->setPrimaryKey(['id']);
-            $table->addIndex(['list_id'], 'listman_email_list_id_index');
-            $table->addIndex(['user_id'], 'listman_email_user_id_index');
+            $table->addIndex(['list_id'], 'listman_message_list_id_index');
+            $table->addIndex(['randid'], 'listman_message_randid_index');
+            $table->addIndex(['user_id'], 'listman_message_user_id_index');
         }
 
 				// -- sendjob --

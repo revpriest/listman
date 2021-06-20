@@ -70,6 +70,36 @@
 						placeholder="description"
 						class="listman_listDesc"
 						:disabled="updating" />
+					<input ref="fromname"
+						v-model="currentList.fromname"
+						placeholder="The name to use in the 'from' section of the email headers"
+						type="text"
+						class="listman_listfromname"
+						:disabled="updating">
+					<input ref="fromEmail"
+						v-model="currentList.fromemail"
+						placeholder="The email to use in the 'from' section of the email headers"
+						type="text"
+						class="listman_listfromemail"
+						:disabled="updating">
+					<input ref="buttontext"
+						v-model="currentList.buttontext"
+						placeholder="The text to write in the optional action button at the end of each email"
+						type="text"
+						class="listman_listbuttontext"
+						:disabled="updating">
+					<input ref="buttonlink"
+						v-model="currentList.buttonlink"
+						placeholder="The link to use in the optional action button at the end of each email"
+						type="text"
+						class="listman_listbuttonlink"
+						:disabled="updating">
+					<input ref="footer"
+						v-model="currentList.footer"
+						placeholder="A footer at the bottom of each email"
+						type="text"
+						class="listman_footer"
+						:disabled="updating">
 					<input ref="redir"
 						v-model="currentList.redir"
 						placeholder="url to return to after un/subscribe confirmation (optional)"
@@ -395,7 +425,7 @@ export default {
 				alert('Save it first')
 			} else {
 				try {
-					const url = generateUrl(`/apps/listman/message-view/${message.id}`)
+					const url = generateUrl(`/apps/listman/message-view/${message.randid}`)
 					window.open(url, '_blank')
 				} catch (e) {
 					console.error(e)
@@ -473,6 +503,11 @@ export default {
 					title: '',
 					desc: '',
 					redir: '',
+					fromname: '',
+					fromemail: '',
+					buttontext: 'more',
+					buttonlink: '',
+					footer: '',
 				})
 				this.$nextTick(() => {
 					this.$refs.title.focus()
@@ -717,18 +752,24 @@ export default {
 
 		/**
 		* Set the sent details, the counts of messages-queued etc.
-		 * @param {Object} det Details
+		* @param {Object} det Details
 		*/
 		async setSentDetails(det) {
-			console.warn('setting sent details', det)
 			if (det.current) {
-			  this.currentMessageSentDetails.sent = det.current.sent
-			  this.currentMessageSentDetails.queued = det.current.queued
+				this.currentMessageSentDetails.sent = det.current.sent
+				this.currentMessageSentDetails.queued = det.current.queued
 			} else {
-			  this.currentMessageSentDetails.sent = 'x'
-			  this.currentMessageSentDetails.queued = 'x'
+				this.currentMessageSentDetails.sent = 'x'
+				this.currentMessageSentDetails.queued = 'x'
 			}
-			this.currentMessageSentDetails.total = this.currentListMembers.length
+			if (this.currentListMembers) {
+				const subscribed = this.currentListMembers.filter((member) => member.state > 0)
+				console.warn('Counted Subscribed...', subscribed)
+				this.currentMessageSentDetails.total = subscribed.length
+				console.warn('So length is ', this.currentMessageSentDetails.total)
+			} else {
+				this.currentMessageSentDetails.total = 0
+			}
 
 			if (det.all) {
 				this.currentQueue.queued = det.all.queued

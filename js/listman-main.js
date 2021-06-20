@@ -16635,6 +16635,36 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16789,7 +16819,7 @@ __webpack_require__.r(__webpack_exports__);
         alert('Save it first');
       } else {
         try {
-          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-view/".concat(message.id));
+          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-view/".concat(message.randid));
           window.open(url, '_blank');
         } catch (e) {
           console.error(e);
@@ -16874,7 +16904,12 @@ __webpack_require__.r(__webpack_exports__);
           id: -1,
           title: '',
           desc: '',
-          redir: ''
+          redir: '',
+          fromname: '',
+          fromemail: '',
+          buttontext: 'chat',
+          buttonlink: '',
+          footer: ''
         });
         this.$nextTick(() => {
           this.$refs.title.focus();
@@ -17150,11 +17185,9 @@ __webpack_require__.r(__webpack_exports__);
 
     /**
     * Set the sent details, the counts of messages-queued etc.
-     * @param {Object} det Details
+    * @param {Object} det Details
     */
     async setSentDetails(det) {
-      console.warn('setting sent details', det);
-
       if (det.current) {
         this.currentMessageSentDetails.sent = det.current.sent;
         this.currentMessageSentDetails.queued = det.current.queued;
@@ -17163,7 +17196,14 @@ __webpack_require__.r(__webpack_exports__);
         this.currentMessageSentDetails.queued = 'x';
       }
 
-      this.currentMessageSentDetails.total = this.currentListMembers.length;
+      if (this.currentListMembers) {
+        const subscribed = this.currentListMembers.filter(member => member.state > 0);
+        console.warn('Counted Subscribed...', subscribed);
+        this.currentMessageSentDetails.total = subscribed.length;
+        console.warn('So length is ', this.currentMessageSentDetails.total);
+      } else {
+        this.currentMessageSentDetails.total = 0;
+      }
 
       if (det.all) {
         this.currentQueue.queued = det.all.queued;
@@ -37623,6 +37663,165 @@ var render = function() {
                         {
                           name: "model",
                           rawName: "v-model",
+                          value: _vm.currentList.fromname,
+                          expression: "currentList.fromname"
+                        }
+                      ],
+                      ref: "fromname",
+                      staticClass: "listman_listfromname",
+                      attrs: {
+                        placeholder:
+                          "The name to use in the 'from' section of the email headers",
+                        type: "text",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.fromname },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.currentList,
+                            "fromname",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.currentList.fromemail,
+                          expression: "currentList.fromemail"
+                        }
+                      ],
+                      ref: "fromEmail",
+                      staticClass: "listman_listfromemail",
+                      attrs: {
+                        placeholder:
+                          "The email to use in the 'from' section of the email headers",
+                        type: "text",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.fromemail },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.currentList,
+                            "fromemail",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.currentList.buttontext,
+                          expression: "currentList.buttontext"
+                        }
+                      ],
+                      ref: "buttontext",
+                      staticClass: "listman_listbuttontext",
+                      attrs: {
+                        placeholder:
+                          "The text to write in the optional action button at the end of each email",
+                        type: "text",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.buttontext },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.currentList,
+                            "buttontext",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.currentList.buttonlink,
+                          expression: "currentList.buttonlink"
+                        }
+                      ],
+                      ref: "buttonlink",
+                      staticClass: "listman_listbuttonlink",
+                      attrs: {
+                        placeholder:
+                          "The link to use in the optional action button at the end of each email",
+                        type: "text",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.buttonlink },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.currentList,
+                            "buttonlink",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.currentList.footer,
+                          expression: "currentList.footer"
+                        }
+                      ],
+                      ref: "footer",
+                      staticClass: "listman_footer",
+                      attrs: {
+                        placeholder: "A footer at the bottom of each email",
+                        type: "text",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.footer },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.currentList,
+                            "footer",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
                           value: _vm.currentList.redir,
                           expression: "currentList.redir"
                         }
@@ -47275,4 +47474,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=23b903b89d71ed927c59
+//# sourceMappingURL=listman-main.js.map?v=d35269ca8f3a058f433f
