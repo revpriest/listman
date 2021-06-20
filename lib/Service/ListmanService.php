@@ -71,6 +71,14 @@ class ListmanService {
 	}
 
 	/**
+	* Get the permalink
+	*/
+	public function getShareUrl($messageId){
+    $share = $this->getLink("view",$messageId);
+    return $share;
+  }
+
+	/**
 	* The buttons that go on a message
 	*/
 	public function getEmailButtons($message,$list){
@@ -636,7 +644,14 @@ p{
   * Who has it already? Who is it still to go to?
   */
 	public function messagesent(int $mid, string $userId): array {
-    return $this->sendjobMapper->getMessageSentData($mid);
+    if($mid!=null){
+      $current = $this->sendjobMapper->getMessageSentData($mid);
+    }else{
+      $current = null;
+    }
+    $queued = $this->sendjobMapper->countAllQueued();
+    $rate = $this->sendjobMapper->getCurrentRate();
+    return ["current"=>$current,"all"=>['queued'=>$queued,'rate'=>$rate]];
   }
 
   /**
@@ -869,11 +884,15 @@ p{
 		}
 
     //Show the confirmation page
+    $sublink = $this->getConfirmLink($member,$list,"sub");
+    $unsublink = $this->getConfirmLink($member,$list,"unsub");
     $response = new PublicTemplateResponse(Application::APP_ID, 'confirmed', [
       'member'=>$member,
       'list'=>$list,
       'act'=>$act,
       'redir'=>$redir,
+      'sub'=>$sublink,
+      'unsub'=>$unsublink,
     ]);
     $response->setHeaderTitle($list->getTitle().' - confirmed');
     $response->setHeaderDetails('Thanks, the '.$act.' is conformed.');

@@ -1,3 +1,4 @@
+<div class="row">
 <div class="messageForm">
 <h1><?php echo $list->getTitle(); ?></h1>
 <p><?php echo $list->getDesc(); ?></p>
@@ -14,9 +15,11 @@
   <tr>
     <td colspan="2">
       <input type="hidden" name="redir" value="<?php $redir ?>">
-      <button>Subscribe</button>
+      <button name="act" value="sub">Subscribe</button>
+      <button name="act" value="unsub">Block</button>
     </td>
   </tr>
 </table>
 </form>
+</div>
 </div>

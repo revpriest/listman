@@ -27,6 +27,10 @@
 					</template>
 				</AppNavigationItem>
 			</ul>
+			<div class="queue">
+				<p>Queued:<span id="queued">{{ currentQueue.queued }}</span> messages</p>
+				<p>Rate:<span id="queued">{{ currentQueue.rate }}</span> per 5 mins</p>
+			</div>
 		</AppNavigation>
 		<AppContent>
 			<div v-if="currentList">
@@ -196,14 +200,14 @@
 									@click="saveMessage(message)">
 								<span id="listman_numsent">
 									<span
-										id="listman_numsent_sent"
-										:title="t('listman', 'sent')">
-										{{ currentMessageSentDetails.sent }}
-									</span> /
-									<span
 										id="listman_numsent_queued"
 										:title="t('listman', 'queued')">
 										{{ currentMessageSentDetails.queued }}
+									</span> /
+									<span
+										id="listman_numsent_sent"
+										:title="t('listman', 'sent')">
+										{{ currentMessageSentDetails.sent }}
 									</span> /
 									<span
 										id="listman_numsent_total"
@@ -280,6 +284,10 @@ export default {
 				queued: '?',
 				total: '?',
 			},
+			currentQueue: {
+				queued: 0,
+				rate: 0,
+			},
 			shownPane: 'details',
 			updating: false,
 			loading: true,
@@ -323,6 +331,7 @@ export default {
 		try {
 			const response = await axios.get(generateUrl('/apps/listman/lists'))
 			this.lists = response.data
+			setInterval(this.updateQueueMonitor, 1000)
 		} catch (e) {
 			console.error(e)
 			showError(t('listman', 'Could not fetch lists'))
@@ -684,6 +693,7 @@ export default {
 			  this.currentMessageId = -1
 			}
 		},
+
 		/**
 		 * Open a member doesn't really do anything right now
 		 * @param {Object} member Member object
@@ -694,15 +704,36 @@ export default {
 			}
 			console.error('Opening Member', member)
 		},
+
+		/**
+		* Periodically update the queue-monitor
+		*/
+		async updateQueueMonitor() {
+			const url = generateUrl(`/apps/listman/message-sent/${this.currentMessageId}`)
+			const sentDetails = await axios.post(url)
+			this.setSentDetails(sentDetails.data)
+			console.warn(sentDetails.data)
+		},
+
 		/**
 		* Set the sent details, the counts of messages-queued etc.
 		 * @param {Object} det Details
 		*/
 		async setSentDetails(det) {
 			console.warn('setting sent details', det)
-		  this.currentMessageSentDetails.sent = det.sent
-		  this.currentMessageSentDetails.queued = det.queued
-		  this.currentMessageSentDetails.total = this.currentListMembers.length
+			if (det.current) {
+			  this.currentMessageSentDetails.sent = det.current.sent
+			  this.currentMessageSentDetails.queued = det.current.queued
+			} else {
+			  this.currentMessageSentDetails.sent = 'x'
+			  this.currentMessageSentDetails.queued = 'x'
+			}
+			this.currentMessageSentDetails.total = this.currentListMembers.length
+
+			if (det.all) {
+				this.currentQueue.queued = det.all.queued
+				this.currentQueue.rate = det.all.rate
+			}
 		},
 		/**
 		 * Select a particular message and make the compose form show

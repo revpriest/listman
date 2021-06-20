@@ -153,15 +153,16 @@ class ListmanController extends Controller {
     $this->service->registerReaction($message,$r);
 
     $both = $this->service->messageBodyToPlainAndHtml($message);
-		$style = $this->service->getEmailStylesheet();; 
-		$buttons = $this->service->getEmailButtons($message,$list);; 
+		$style = $this->service->getEmailStylesheet();
+		$buttons = $this->service->getEmailButtons($message,$list);;
+		$url = $this->service->getShareUrl($message->getId()); 
 		$reacts = $this->service->getReactsForMessage($message->getId()); 
     if($ttype=="plain"){
       $both['plain'] = "<pre>".$both['plain']."</pre>";
       $buttons['plain'] = "<pre>".$buttons['plain']."</pre>";
     }
 
-    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"react"=>$reacts,"body"=>$both[$ttype],"style"=>$style,"buttons"=>$buttons[$ttype]]);
+    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"url"=>$url,"react"=>$reacts,"body"=>$both[$ttype],"style"=>$style,"buttons"=>$buttons[$ttype]]);
     $response->setHeaderTitle($list->getTitle().' - message sent');
     $response->setHeaderDetails($message->getSubject()." - ".$message->getCreatedAt());
     $response->setHeaderActions([

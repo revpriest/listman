@@ -16631,6 +16631,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -16662,6 +16666,10 @@ __webpack_require__.r(__webpack_exports__);
         sent: '?',
         queued: '?',
         total: '?'
+      },
+      currentQueue: {
+        queued: 0,
+        rate: 0
       },
       shownPane: 'details',
       updating: false,
@@ -16712,6 +16720,7 @@ __webpack_require__.r(__webpack_exports__);
     try {
       const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/lists'));
       this.lists = response.data;
+      setInterval(this.updateQueueMonitor, 1000);
     } catch (e) {
       console.error(e);
       Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not fetch lists'));
@@ -17130,14 +17139,36 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     /**
+    * Periodically update the queue-monitor
+    */
+    async updateQueueMonitor() {
+      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-sent/".concat(this.currentMessageId));
+      const sentDetails = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url);
+      this.setSentDetails(sentDetails.data);
+      console.warn(sentDetails.data);
+    },
+
+    /**
     * Set the sent details, the counts of messages-queued etc.
      * @param {Object} det Details
     */
     async setSentDetails(det) {
       console.warn('setting sent details', det);
-      this.currentMessageSentDetails.sent = det.sent;
-      this.currentMessageSentDetails.queued = det.queued;
+
+      if (det.current) {
+        this.currentMessageSentDetails.sent = det.current.sent;
+        this.currentMessageSentDetails.queued = det.current.queued;
+      } else {
+        this.currentMessageSentDetails.sent = 'x';
+        this.currentMessageSentDetails.queued = 'x';
+      }
+
       this.currentMessageSentDetails.total = this.currentListMembers.length;
+
+      if (det.all) {
+        this.currentQueue.queued = det.all.queued;
+        this.currentQueue.rate = det.all.rate;
+      }
     },
 
     /**
@@ -37436,7 +37467,25 @@ var render = function() {
               )
             }),
             1
-          )
+          ),
+          _vm._v(" "),
+          _c("div", { staticClass: "queue" }, [
+            _c("p", [
+              _vm._v("Queued:"),
+              _c("span", { attrs: { id: "queued" } }, [
+                _vm._v(_vm._s(_vm.currentQueue.queued))
+              ]),
+              _vm._v(" messages")
+            ]),
+            _vm._v(" "),
+            _c("p", [
+              _vm._v("Rate:"),
+              _c("span", { attrs: { id: "queued" } }, [
+                _vm._v(_vm._s(_vm.currentQueue.rate))
+              ]),
+              _vm._v(" per 5 mins")
+            ])
+          ])
         ],
         1
       ),
@@ -38054,26 +38103,6 @@ var render = function() {
                                           "span",
                                           {
                                             attrs: {
-                                              id: "listman_numsent_sent",
-                                              title: _vm.t("listman", "sent")
-                                            }
-                                          },
-                                          [
-                                            _vm._v(
-                                              "\n\t\t\t\t\t\t\t\t\t" +
-                                                _vm._s(
-                                                  _vm.currentMessageSentDetails
-                                                    .sent
-                                                ) +
-                                                "\n\t\t\t\t\t\t\t\t"
-                                            )
-                                          ]
-                                        ),
-                                        _vm._v(" /\n\t\t\t\t\t\t\t\t"),
-                                        _c(
-                                          "span",
-                                          {
-                                            attrs: {
                                               id: "listman_numsent_queued",
                                               title: _vm.t("listman", "queued")
                                             }
@@ -38084,6 +38113,26 @@ var render = function() {
                                                 _vm._s(
                                                   _vm.currentMessageSentDetails
                                                     .queued
+                                                ) +
+                                                "\n\t\t\t\t\t\t\t\t"
+                                            )
+                                          ]
+                                        ),
+                                        _vm._v(" /\n\t\t\t\t\t\t\t\t"),
+                                        _c(
+                                          "span",
+                                          {
+                                            attrs: {
+                                              id: "listman_numsent_sent",
+                                              title: _vm.t("listman", "sent")
+                                            }
+                                          },
+                                          [
+                                            _vm._v(
+                                              "\n\t\t\t\t\t\t\t\t\t" +
+                                                _vm._s(
+                                                  _vm.currentMessageSentDetails
+                                                    .sent
                                                 ) +
                                                 "\n\t\t\t\t\t\t\t\t"
                                             )
@@ -47226,4 +47275,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=ad45e9dafb7a82b62a53
+//# sourceMappingURL=listman-main.js.map?v=23b903b89d71ed927c59

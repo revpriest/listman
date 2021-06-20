@@ -54,6 +54,27 @@ class SendjobMapper extends QBMapper {
    }
 
 	/**
+   * Count all the queued messages to be sent
+	 * @return int
+	 */
+    public function countAllQueued() {
+      $qb = $this->db->getQueryBuilder();
+      $qb->select($qb->func()->count('*'))
+         ->from($this->getTableName())
+         ->where($qb->expr()->eq('state',$qb->createNamedParameter(0)));
+			$queued = $qb->execute()->fetchOne();
+      return $queued;
+    }
+
+	/**
+   * Count all the queued messages to be sent
+	 * @return int
+	 */
+    public function getCurrentRate() {
+      return 1;
+    }
+
+	/**
 	 * @param int $id message ID
 	 * @return array
 	 */
