@@ -11,9 +11,11 @@ class Message extends Entity implements JsonSerializable {
     protected $listId;
     protected $createdAt;
     protected $userId;
+    protected $sendrate;
 
     public function __construct() {
         $this->addType('id','integer');
+        $this->sendrate=0;
     }
 
     public function jsonSerialize() {
@@ -24,6 +26,7 @@ class Message extends Entity implements JsonSerializable {
             'subject' => $this->subject,
             'body' => $this->body,
             'user_id' => $this->userId,
+            'sendrate' => $this->sendrate,
         ];
     }
 }

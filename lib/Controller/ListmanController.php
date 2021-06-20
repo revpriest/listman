@@ -142,6 +142,7 @@ class ListmanController extends Controller {
 	 */
 	public function messageview(string $mid,$ttype="html") {
 		Util::addStyle($this->appName, 'pub');
+		Util::addScript($this->appName, 'listman-bonus');
 		$message = 	$this->service->getMessageEntity(intval($mid));
 		$list = $this->service->getListEntity(intval($message->getListId()),"");
     $subscribe = $this->urlGenerator->linkToRouteAbsolute('listman.listman.subscribe', ['lid'=>$list->getRandid()]);
@@ -169,6 +170,7 @@ class ListmanController extends Controller {
         new SimpleMenuAction($subscribe, 'subscribe', 'icon-css-class1', $subscribe, 0),
     ]);
 		$policy = new ContentSecurityPolicy();
+    $policy->addAllowedScriptDomain(['\'unsafe-inline\'','\'unsafe-eval\'','\'script-src\'']);
 		$policy->addAllowedImageDomain('*');
 		// Needed for the ES5 compatible build of PDF.js
 		$policy->allowEvalScript(true);

@@ -64,7 +64,7 @@ h5{
   padding: 3px 8px;
   border-radius: 1em;
 	background: rgb(28,24,96);
-	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(20,41,69,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
+	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
 }
 a{
  color: #00b;
@@ -92,7 +92,7 @@ table{
 .sbtn,
 .btn{
 	background: rgb(28,24,96);
-	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(20,41,69,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
+	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
 	text-decoration: none;
 	margin: 0.1px 0.1em;
 	padding: 0.1px 0.2em;
@@ -115,13 +115,13 @@ table{
 .sbtn:hover,
 .btn:hover{
 	background: rgb(28,96,24);
-	background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(20,69,41,1) 8%, rgba(41,125,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
+	background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(120,169,141,1) 8%, rgba(41,125,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
   color: black;
 }
 .sbtn:active,
 .btn:active{
 	background: rgb(96,28,24);
-	background: linear-gradient(171deg, rgba(96,28,24,1) 0%, rgba(69,20,41,1) 8%, rgba(125,41,77,1) 23%, rgba(116,33,49,1) 52%, rgba(88,22,28,1) 100%);
+	background: linear-gradient(171deg, rgba(96,24,28,1) 0%, rgba(168,141,120,1) 8%, rgba(125,77,41,1) 23%, rgba(116,49,33,1) 52%, rgba(88,28,22,1) 100%);
   color: black;
 }
 
@@ -147,10 +147,13 @@ table{
 }
 .shareIcons{
   color: white;
-  background: black;
+ background: rgb(50,13,13);
+background: linear-gradient(172deg, rgba(50,13,13,1) 0%, rgba(68,49,49,1) 18%, rgba(84,16,16,1) 41%, rgba(24,0,0,1) 100%); 
   margin: auto;
   margin-top: 0.3em;
   margin-bottom: 1em;
+	box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8);
+  border: 1px solid black;
 }
 .shareIcons p{
   color: white;

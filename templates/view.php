@@ -1,13 +1,15 @@
 <?php echo $style; ?>
 <div class="row">
 	<div class="shareIcons">
-		<p>Share with:</p>
+		<p>🌎 Share</p>
 		<ul class="shareIconsList">
 			<li><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $url; ?>" class="sbtn">Facebook</a></li>
 			<li><a target="_blank" href="https://twitter.com/intent/tweet?url=<?php echo $url; ?>" class="sbtn">Twitter</a></li>
 			<li><a target="_blank" href="https://pinterest.com/pin/create/button/?url=<?php echo $url; ?>" class="sbtn">Pinterest</a></li>
+			<li><a target="_blank" href="https://t.me/share/url?url=<?php echo $url; ?>" class="sbtn">Telegram</a></li>
 			<li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=<?php echo $url; ?>" class="sbtn">Linked In</a></li>
 			<li><a target="_blank" href="mailto:?&subject=&cc=&bcc=&body=<?php echo $url; ?>" class="sbtn">Email</a></li>
+			<li><a id="clipcopy" class="sbtn">Clipboard</a></li>
 		</ul>
 	</div>
 	<div class="messageText">
@@ -28,13 +30,15 @@
 		</div>
 	</div>
 	<div class="shareIcons">
-		<p>Share with:</p>
+		<p>🌎 Share</p>
 		<ul class="shareIconsList">
 			<li><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $url; ?>" class="sbtn">Facebook</a></li>
 			<li><a target="_blank" href="https://twitter.com/intent/tweet?url=<?php echo $url; ?>" class="sbtn">Twitter</a></li>
 			<li><a target="_blank" href="https://pinterest.com/pin/create/button/?url=<?php echo $url; ?>" class="sbtn">Pinterest</a></li>
 			<li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=<?php echo $url; ?>" class="sbtn">Linked In</a></li>
+			<li><a target="_blank" href="https://t.me/share/url?url=<?php echo $url; ?>" class="sbtn">Telegram</a></li>
 			<li><a target="_blank" href="mailto:?&subject=&cc=&bcc=&body=<?php echo $url; ?>" class="sbtn">Email</a></li>
+			<li><a id="clipcopy2" class="sbtn">Clipboard</a></li>
 		</ul>
 	</div>
 </div>

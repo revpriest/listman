@@ -1,4 +1,10 @@
 * Proper "from" and stuff.
 * Send emails at accelerating rate
+  * Per mail? Yeah. Has to be really.
+   * So find each email with sending
+		* Then pick the next X
+			* INcrement X, or zero it
+	* Display: Sum of all rates for all active mails
+
 * SMTP settings
 

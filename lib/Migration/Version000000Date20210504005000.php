@@ -121,6 +121,9 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
                 'notnull' => true,
                 'length' => 200,
             ]);
+            $table->addColumn('sendrate', 'integer', [
+                'notnull' => true,
+            ]);
             $table->setPrimaryKey(['id']);
             $table->addIndex(['list_id'], 'listman_email_list_id_index');
             $table->addIndex(['user_id'], 'listman_email_user_id_index');
@@ -177,7 +180,6 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             $table->setPrimaryKey(['id']);
             $table->addIndex(['message_id'], 'listman_react_index');
         }
-
 
         return $schema;
     }

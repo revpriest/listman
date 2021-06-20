@@ -171,7 +171,7 @@ p{
 }
 .btn{
 	background: rgb(28,24,96);
-	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(20,41,69,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
+	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
 	border: 2px solid black;
 	border-radius: 1.3em;
 	font-size: 1.5em;
@@ -183,7 +183,7 @@ p{
 }
 .ebtn{
 	background: rgb(28,24,96);
-	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(20,41,69,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
+	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
 	text-decoration: none;
 	margin: 0.1px 0.1em;
 	padding: 0.1px 0.2em;
@@ -202,13 +202,13 @@ p{
 .ebtn:hover,
 .btn:hover{
 	background: rgb(28,96,24);
-	background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(20,69,41,1) 8%, rgba(41,125,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
+	background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(120,196,141,1) 8%, rgba(41,127,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
   color: black;
 }
 .ebtn:active,
 .btn:active{
 	background: rgb(96,28,24);
-	background: linear-gradient(171deg, rgba(96,28,24,1) 0%, rgba(69,20,41,1) 8%, rgba(125,41,77,1) 23%, rgba(116,33,49,1) 52%, rgba(88,22,28,1) 100%);
+	background: linear-gradient(171deg, rgba(96,24,28,1) 0%, rgba(168,141,120,1) 8%, rgba(125,77,41,1) 23%, rgba(116,49,33,1) 52%, rgba(88,28,22,1) 100%);
   color: black;
 }
 </style>";
@@ -519,6 +519,7 @@ p{
 		$message = new Message();
 		$message->setSubject($subject);
 		$message->setCreatedAt($now->format("Y-m-d H:i:s"));
+		$message->setSendrate(1);
 		$message->setBody($body);
 		$message->setListId($list_id);
 		$message->setUserId($userId);
@@ -965,6 +966,23 @@ p{
       case "🤣":
       case "😢":
       case "😮":
+      case "🚀":
+      case "🤘":
+      case "🖖":
+      case "👽":
+      case "😃":
+      case "😁":
+      case "😇":
+      case "🤪":
+      case "👌":
+      case "👏":
+      case "👐":
+      case "🐙":
+      case "✊":
+      case "👊":
+      case "🙃":
+      case "😉":
+      case "😘":
         break;
       default:
     	  $r = "📃";
