@@ -7,7 +7,7 @@
 			<li><a target="_blank" href="https://twitter.com/intent/tweet?url=<?php echo $url; ?>" class="sbtn">Twitter</a></li>
 			<li><a target="_blank" href="https://pinterest.com/pin/create/button/?url=<?php echo $url; ?>" class="sbtn">Pinterest</a></li>
 			<li><a target="_blank" href="https://t.me/share/url?url=<?php echo $url; ?>" class="sbtn">Telegram</a></li>
-			<li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=<?php echo $url; ?>" class="sbtn">Linked In</a></li>
+			<li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=<?php echo $url; ?>" class="sbtn">LinkedIn</a></li>
 			<li><a target="_blank" href="mailto:?&subject=&cc=&bcc=&body=<?php echo $url; ?>" class="sbtn">Email</a></li>
 			<li><a id="clipcopy" class="sbtn">Clipboard</a></li>
 		</ul>

@@ -16907,7 +16907,7 @@ __webpack_require__.r(__webpack_exports__);
           redir: '',
           fromname: '',
           fromemail: '',
-          buttontext: 'chat',
+          buttontext: 'more',
           buttonlink: '',
           footer: ''
         });
@@ -37611,7 +37611,7 @@ var render = function() {
                         }
                       ],
                       ref: "title",
-                      staticClass: "listman_listTitle",
+                      staticClass: "listman_listInput",
                       attrs: {
                         type: "text",
                         placeholder: "list title",
@@ -37642,7 +37642,7 @@ var render = function() {
                         }
                       ],
                       ref: "desc",
-                      staticClass: "listman_listDesc",
+                      staticClass: "listman_listInput",
                       attrs: {
                         placeholder: "description",
                         disabled: _vm.updating
@@ -37668,7 +37668,7 @@ var render = function() {
                         }
                       ],
                       ref: "fromname",
-                      staticClass: "listman_listfromname",
+                      staticClass: "listman_listInput",
                       attrs: {
                         placeholder:
                           "The name to use in the 'from' section of the email headers",
@@ -37700,7 +37700,7 @@ var render = function() {
                         }
                       ],
                       ref: "fromEmail",
-                      staticClass: "listman_listfromemail",
+                      staticClass: "listman_listInput",
                       attrs: {
                         placeholder:
                           "The email to use in the 'from' section of the email headers",
@@ -37732,7 +37732,7 @@ var render = function() {
                         }
                       ],
                       ref: "buttontext",
-                      staticClass: "listman_listbuttontext",
+                      staticClass: "listman_listInput",
                       attrs: {
                         placeholder:
                           "The text to write in the optional action button at the end of each email",
@@ -37764,7 +37764,7 @@ var render = function() {
                         }
                       ],
                       ref: "buttonlink",
-                      staticClass: "listman_listbuttonlink",
+                      staticClass: "listman_listInput",
                       attrs: {
                         placeholder:
                           "The link to use in the optional action button at the end of each email",
@@ -37796,7 +37796,7 @@ var render = function() {
                         }
                       ],
                       ref: "footer",
-                      staticClass: "listman_footer",
+                      staticClass: "listman_listInput",
                       attrs: {
                         placeholder: "A footer at the bottom of each email",
                         type: "text",
@@ -37827,7 +37827,7 @@ var render = function() {
                         }
                       ],
                       ref: "redir",
-                      staticClass: "listman_listRedir",
+                      staticClass: "listman_listInput",
                       attrs: {
                         placeholder:
                           "url to return to after un/subscribe confirmation (optional)",
@@ -47474,4 +47474,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=d35269ca8f3a058f433f
+//# sourceMappingURL=listman-main.js.map?v=8f7713bdff2857e74ef3

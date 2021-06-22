@@ -12,10 +12,10 @@
   display: block;
 }
 
-.listman_listRedir, 
-.listman_listDesc{
-  max-width: 30em;
+.listman_listInput{
+  max-width: 40em;
   display: block;
+  border:2px solid blue;
 }
 
 .listman_members li{

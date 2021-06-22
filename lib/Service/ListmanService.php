@@ -108,7 +108,7 @@ class ListmanService {
     $html.="<li><a href=\"$share?r=❤\" class=\"ebtn\">❤</a></li>";
     $html.="<li><a href=\"$share?r=👍\" class=\"ebtn\">👍</a></li>";
     $html.="<li><a href=\"$share?r=👎\" class=\"ebtn\">👎</a></li>";
-    $html.="<li><a href=\"$share?r=🤣\" class=\"ebtn\">🤣</a></li>";
+    $html.="<li><a href=\"$share?r=😆\" class=\"ebtn\">😆</a></li>";
     $html.="<li><a href=\"$share?r=😢\" class=\"ebtn\">😢</a></li>";
     $html.="<li><a href=\"$share?r=😮\" class=\"ebtn\">😮</a></li>";
     $html.="</ul>";
@@ -424,14 +424,15 @@ p{
   /**
   * Send an actual email to an actual member!
   */
-  private function sendEmail($member,$template){
+  private function sendEmail($member,$template,$list){
     file_put_contents("data/prelog.txt","Emailing ".$member->getEmail(),FILE_APPEND);
 
-    $message = $this->mailer->createMessage();
-    $message->useTemplate($template);
-    $message->setFrom(['pre@dalliance.net'=>'Mailing Lister']);
+		$message = $this->mailer->createMessage();
+		$message->useTemplate($template);
+		$message->setFrom([$list->getFromemail()=>$list->getFromname()]);
     $message->setTo([$member->getEmail()=>$member->getName()]);
     $this->mailer->send($message);
+		return true;
   }
 
 
@@ -801,7 +802,10 @@ p{
       if($email=="") return false;
       if($name=="") return false;
       if($name==null) return false;
-      //todo: At least check for an @ ?
+			$pos = strpos($email,"@");
+			if($pos == false){
+				return false;
+			}
       return true;
   }
 
@@ -838,54 +842,76 @@ p{
       return $response;
     }
 
-    $member = null;
-    $new = false;
-    $existed = "no";
-    try {
-      $member = $this->memberMapper->findMemberByEmail($lid,$email);
-      $existed = "yes";
-    } catch (Exception $e) {
-      //Doesn't yet exist so just create it
-      if($this->formValid($email,$name)){
-        $conf = $this->randId(32);
-        $now = new \Datetime(); 
-        $member = new Member();
-        $member->setEmail($email);
-        $member->setName($name);
-        $member->setConf($conf);
-        $member->setConfExpire($now->format("Y-m-d H:i:s"));
-        $state = 0;
-        $member->setState($state);       #Unconfirmed
-        $member->setListId($lid);
-        $member->setConf($this->randId(32));
-        $member->setUserId($list->getUserId());
-        $member = $this->memberMapper->insert($member);
-      }
-    }
+		if($email!=""){
+		  $ret = $this->formValid($email,$name);
+			if(!$this->formValid($email,$name)){
+				$sub = $this->getLink("subscribe",$list->getRandid());
+				$response = new PublicTemplateResponse(Application::APP_ID, 'cantsend', ['message'=>"Invalid Email or No Name","list"=>$list,"sub"=>$sub]);
+				\OCP\Util::addStyle(Application::APP_ID, 'pub');
+				$response->setHeaderTitle('Not Found');
+				$response->setHeaderDetails('You can\'t spell your own email address');
+				return $response;
+			}
 
-    if($this->formValid($email,$name)){
-      $content = $this->getConfirmTemplate($member,$list,$act);
-      $this->sendEmail($member,$content);
+			$member = null;
+			$new = false;
+			$existed = "no";
+			try {
+				$member = $this->memberMapper->findMemberByEmail($lid,$email);
+				$existed = "yes";
+			} catch (Exception $e) {
+				//Doesn't yet exist so just create it
+				$conf = $this->randId(32);
+				$now = new \Datetime(); 
+				$member = new Member();
+				$member->setEmail($email);
+				$member->setName($name);
+				$member->setConf($conf);
+				$member->setConfExpire($now->format("Y-m-d H:i:s"));
+				$state = 0;
+				$member->setState($state);       #Unconfirmed
+				$member->setListId($lid);
+				$member->setConf($this->randId(32));
+				$member->setUserId($list->getUserId());
+				$member = $this->memberMapper->insert($member);
+			}
 
-      //All good, so we redirect to owner's URL?
-      if($redir!=null){
-        return new RedirectResponse($redir);
-      }
+			$now = new \DateTime;
+			$then = new \DateTime;
+			$then->setTimestamp($now->getTimestamp()-12*60*60);
+			if($member->getConfExpire() < $then->format("Y-m-d H:i:s")){
+				$this->memberMapper->update($member);		//Update rewrites conf automatically
+			}
 
-      //Thanks, that's it.
-      $response = new PublicTemplateResponse(Application::APP_ID, 'thanks', [
-        'email'=>$email,
-        'name'=>$name,
-        'act'=>$act,
-        'url'=>$act,
-        'redir'=>$redir,
-        'list'=>$list,
-      ]);
-      $response->setHeaderTitle('Thanks');
-      $response->setHeaderDetails('Aw, its like you care!');
-      \OCP\Util::addStyle(Application::APP_ID, 'pub');
-      return $response;
-    }
+			$content = $this->getConfirmTemplate($member,$list,$act);
+			$ret = $this->sendEmail($member,$content,$list);
+			if($ret!==true){
+				$response = new PublicTemplateResponse(Application::APP_ID, 'cantsend', ['messge'=>$ret,'list'=>$list]);
+				\OCP\Util::addStyle(Application::APP_ID, 'pub');
+				$response->setHeaderTitle('Invalid');
+				$response->setHeaderDetails($ret);
+				return $response;
+			}
+
+			//All good, so we redirect to owner's URL?
+			if($redir!=null){
+				return new RedirectResponse($redir);
+			}
+
+			//Thanks, that's it.
+			$response = new PublicTemplateResponse(Application::APP_ID, 'thanks', [
+				'email'=>$email,
+				'name'=>$name,
+				'act'=>$act,
+				'url'=>$act,
+				'redir'=>$redir,
+				'list'=>$list,
+			]);
+			$response->setHeaderTitle('Thanks');
+			$response->setHeaderDetails('Aw, its like you care!');
+			\OCP\Util::addStyle(Application::APP_ID, 'pub');
+			return $response;
+	  }
 
     //Show the subscribe form
     $response = new PublicTemplateResponse(Application::APP_ID, 'subscribe', [
@@ -1035,7 +1061,7 @@ p{
   * page-load
   */
   public function registerReaction($message,$r){
-    $allowed = [";)","x","❤", "👍", "👎", "🤣", "😢", "😮", "🚀", "🤘", "🖖", "👽", "😃", "😁", "😇", "🤪", "👌", "👏", "👐", "🐙", "✊", "👊", "🙃", "😉", "😘"];
+    $allowed = ["😆",";)","x","❤", "👍", "👎", "🤣", "😢", "😮", "🚀", "🤘", "🖖", "👽", "😃", "😁", "😇", "🤪", "👌", "👏", "👐", "🐙", "✊", "👊", "🙃", "😉", "😘"];
     if(!in_array($r,$allowed)){
       $r = "📃";
     }
