@@ -18,6 +18,8 @@ use \OCP\BackgroundJob\IJobList;
 
 use OCA\Listman\Db\Maillist;
 use OCA\Listman\Db\MaillistMapper;
+use OCA\Listman\Db\Settings;
+use OCA\Listman\Db\SettingsMapper;
 use OCA\Listman\Db\Member;
 use OCA\Listman\Db\Message;
 use OCA\Listman\Db\Sendjob;
@@ -32,6 +34,8 @@ class ListmanService {
 
   /** @var MaillistMapper */
   private $mapper;
+  /** @var SettingsMapper */
+  private $settingsMapper;
   /** @var MemberMapper */
   private $memberMapper;
   /** @var MessageMapper */
@@ -50,8 +54,9 @@ class ListmanService {
   private $l10nFactory;
 
 
-  public function __construct(MaillistMapper $mapper, MessageMapper $messageMapper, MemberMapper $memberMapper, ReactMapper $reactMapper,  SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory, IJobList  $jobList) {
+  public function __construct(MaillistMapper $mapper, SettingsMapper $settingsMapper,  MessageMapper $messageMapper, MemberMapper $memberMapper, ReactMapper $reactMapper,  SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory, IJobList  $jobList) {
     $this->mapper = $mapper;
+    $this->settingsMapper = $settingsMapper;
     $this->memberMapper = $memberMapper;
     $this->messageMapper = $messageMapper;
     $this->sendjobMapper = $sendjobMapper;
@@ -305,6 +310,37 @@ p{
   }
 
   /**
+   * Settings need to be fetched or setted.
+   */
+  public function settings(Array $postvars): array {
+		//This is weird. Why the hell do I have to do this:
+	  $keys = array_keys($postvars);
+ 		$postvars = json_decode($keys[0],true);
+
+		//Default settings
+		$settings = [
+			'host'=>'',
+			'user'=>'',
+			'pass'=>'',
+			'port'=>'',
+		];
+
+		$settings = $this->settingsMapper->loadall($settings);
+
+		foreach($settings as $n=>$v){
+			if(isset($postvars[$n])){
+			  $settings[$n] = $postvars[$n];
+			}
+		}
+
+		$this->settingsMapper->saveall($settings);
+
+    file_put_contents("data/prelog.txt","EndSettings ".json_encode($settings)."\n",FILE_APPEND);
+    return $settings;
+  }
+  
+
+  /**
    * Send Message Template
    */
   private function getMessageTemplate($member,$message,$list): object {
@@ -338,6 +374,9 @@ p{
 
     $html.=$bhtml;
     $plain.=$bplain;
+
+    $html.="<hr/>";
+    $plain.="---\n";
 
     //Three calls to action at the bottom of each mail.
     //Subscribe/Unsubscribe - Public Link remember, shareable. 
@@ -409,6 +448,7 @@ p{
   * or random-ids.
   */
   private function getLink($page,$param):string {
+		$base = "";
     switch($page){
       case "subscribe":
         $base = $this->urlGenerator->linkToRouteAbsolute('listman.listman.subscribe', ['lid'=>$param]);
@@ -422,11 +462,10 @@ p{
   }
 
   /**
-  * Send an actual email to an actual member!
+  * Send a system email to an actual member!
   */
-  private function sendEmail($member,$template,$list){
+  private function sendSystemEmail($member,$template,$list){
     file_put_contents("data/prelog.txt","Emailing ".$member->getEmail(),FILE_APPEND);
-
 		$message = $this->mailer->createMessage();
 		$message->useTemplate($template);
 		$message->setFrom([$list->getFromemail()=>$list->getFromname()]);
@@ -695,7 +734,7 @@ p{
     }
     $queued = $this->sendjobMapper->countAllQueued();
     $rate = $this->messageMapper->getSumSendRate();
-    return ["current"=>$current,"all"=>['queued'=>$queued,'rate'=>$rate]];
+    return ["current"=>$current,"all"=>['queued'=>intval($queued),'rate'=>intval($rate)]];
   }
 
   /**
@@ -815,11 +854,11 @@ p{
   * whatever status we are switching to.
   */
   public function subscribe(string $lrid): object {
-    $name  = "";  if(isset($_POST['name'] )){$name  = $_POST['name'] ;}
-    $email = ""; if(isset($_POST['email'])){$email = $_POST['email'];}
-    $conf  = "";  if(isset($_POST['conf'] )){$conf  = $_POST['conf'] ;}
-    $act   = "sub" ;  if(isset($_POST['act']  )){$act   = $_POST['act']  ;}
-    $redir = null;    if(isset($_POST['redir'])){$redir = $_POST['redir'];}
+    $name  = "";     if(isset($_POST['name'] )){$name  = $_POST['name'] ;}
+    $email = "";     if(isset($_POST['email'])){$email = $_POST['email'];}
+    $conf  = "";     if(isset($_POST['conf'] )){$conf  = $_POST['conf'] ;}
+    $act   = "sub";  if(isset($_POST['act']  )){$act   = $_POST['act']  ;}
+    $redir = null;   if(isset($_POST['redir'])){$redir = $_POST['redir'];}
 
     if($redir == "{{Your Return URL}}"){    //They didn't bother to fill it in.
       $redir=null;
@@ -884,14 +923,7 @@ p{
 			}
 
 			$content = $this->getConfirmTemplate($member,$list,$act);
-			$ret = $this->sendEmail($member,$content,$list);
-			if($ret!==true){
-				$response = new PublicTemplateResponse(Application::APP_ID, 'cantsend', ['messge'=>$ret,'list'=>$list]);
-				\OCP\Util::addStyle(Application::APP_ID, 'pub');
-				$response->setHeaderTitle('Invalid');
-				$response->setHeaderDetails($ret);
-				return $response;
-			}
+			$this->sendSystemEmail($member,$content,$list);
 
 			//All good, so we redirect to owner's URL?
 			if($redir!=null){
@@ -1036,6 +1068,7 @@ p{
     $maxToTry= 10;
     $tried = 0;
 
+    file_put_contents("data/prelog.txt","Cron: \n",FILE_APPEND);
     $jobList = $this->sendjobMapper->getListToSend();
     foreach($jobList as $job){
       if($tried >= $maxToTry){

@@ -1,4 +1,6 @@
-
+.composeTextarea{
+  height: 20em;
+}
 .listman_empty{
   display: block;
   font-size: 2em;
@@ -130,14 +132,39 @@ textarea {
 }
 #listman_numsent{
   float:right;
+  background: transparent;
+  position: relative;
+   top: 0.5em;
+  margin-left: 1em;
 }
 #listman_sendtoall{
   float:right;
 }
-.queue{
+
+.settingsSection{
+  margin: 0;
+  padding: 0;
+  display: block;
   position: absolute;
-  bottom: 0px;
+  bottom: 2px;
   width: 100%;
-  height: 3em;
-  z-index: 4;
+  z-index: 100;
 }
+.settingsSection h3,
+.settingsSection ul{
+  margin: 0;
+  padding: 2px;
+  box-shadow: 0em 0em 0.4em rgba(.5,.0,.0,.8);
+  background: rgba(128,128,128,0.3);
+}
+.settingsSection h3{
+  text-align: center;
+  font-weight: bold;
+}
+.settingsSection h3:hover{
+  font-weight: normal;
+  background: rgba(128,200,128,0.3);
+}
+#settingsPanel{
+}
+

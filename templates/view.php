@@ -26,6 +26,7 @@
 		</div>
 		<div class="messageBody">
 			<?php print $body; ?>
+      <hr/>
 			<?php print $buttons; ?>
 			<?php print $footer; ?>
 		</div>

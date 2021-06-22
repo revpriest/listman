@@ -45,6 +45,7 @@ class SendjobMapper extends QBMapper {
         $ret = [];
         $messages = $this->messageMapper->findRunningMessages();
 
+        file_put_contents("data/prelog.txt","Mess: ".json_encode($messages)."\n",FILE_APPEND);
         foreach($messages as $message){
           $sr = $message->getSendrate();
           $qb = $this->db->getQueryBuilder();
@@ -55,6 +56,7 @@ class SendjobMapper extends QBMapper {
              ->orderBy('member_id')
              ->setMaxResults($sr);
           $jobs = $this->findEntities($qb);
+          file_put_contents("data/prelog.txt","Jobs: ".json_encode($jobs)."\n",FILE_APPEND);
           if(sizeof($jobs)<=0){
             $message->setSendrate(0);
             $this->messageMapper->update($message);

@@ -16665,6 +16665,41 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16704,7 +16739,14 @@ __webpack_require__.r(__webpack_exports__);
       shownPane: 'details',
       updating: false,
       loading: true,
-      subscribeFormText: null
+      subscribeFormText: null,
+      settingsToggle: false,
+      settings: {
+        host: '',
+        user: '',
+        pass: '',
+        port: ''
+      }
     };
   },
 
@@ -16751,6 +16793,7 @@ __webpack_require__.r(__webpack_exports__);
       const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/lists'));
       this.lists = response.data;
       setInterval(this.updateQueueMonitor, 1000);
+      this.updateSettings(false);
     } catch (e) {
       console.error(e);
       Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not fetch lists'));
@@ -16807,6 +16850,27 @@ __webpack_require__.r(__webpack_exports__);
         this.createMessage(message);
       } else {
         this.updateMessage(message);
+      }
+    },
+
+    /**
+    * Action to signal the server to save the settings
+    * @param {Boolean} savefirst Should we save existing settings, or just load?
+    */
+    async updateSettings(savefirst) {
+      let senddat = [];
+
+      try {
+        if (savefirst) {
+          senddat = this.settings;
+        }
+
+        const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/settings');
+        const reply = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url, JSON.stringify(senddat));
+        this.settings = reply.data;
+      } catch (e) {
+        console.error(e);
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not save settings'));
       }
     },
 
@@ -17001,6 +17065,14 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       this.updating = false;
+    },
+
+    /**
+     * Delete a list, remove it from the frontend and show a hint
+     * @param {Object} list List object
+     */
+    async toggleSettings() {
+      this.settingsToggle = !this.settingsToggle;
     },
 
     /**
@@ -37509,22 +37581,153 @@ var render = function() {
             1
           ),
           _vm._v(" "),
-          _c("div", { staticClass: "queue" }, [
-            _c("p", [
-              _vm._v("Queued:"),
-              _c("span", { attrs: { id: "queued" } }, [
-                _vm._v(_vm._s(_vm.currentQueue.queued))
+          _c("div", { staticClass: "settingsSection" }, [
+            _c("ul", { attrs: { id: "queueDetails" } }, [
+              _c("li", [
+                _vm._v("Queued: "),
+                _c("span", { attrs: { id: "queued" } }, [
+                  _vm._v(_vm._s(_vm.currentQueue.queued))
+                ]),
+                _vm._v(" messages")
               ]),
-              _vm._v(" messages")
+              _vm._v(" "),
+              _c("li", [
+                _vm._v("Rate: "),
+                _c("span", { attrs: { id: "queued" } }, [
+                  _vm._v(_vm._s(_vm.currentQueue.rate))
+                ]),
+                _vm._v(" per 5 mins")
+              ])
             ]),
             _vm._v(" "),
-            _c("p", [
-              _vm._v("Rate:"),
-              _c("span", { attrs: { id: "queued" } }, [
-                _vm._v(_vm._s(_vm.currentQueue.rate))
-              ]),
-              _vm._v(" per 5 mins")
-            ])
+            _c(
+              "h3",
+              {
+                on: {
+                  click: function($event) {
+                    return _vm.toggleSettings()
+                  }
+                }
+              },
+              [_vm._v("\n\t\t\t\tSettings\n\t\t\t")]
+            ),
+            _vm._v(" "),
+            _vm.settingsToggle
+              ? _c("ul", { attrs: { id: "settingsPanel" } }, [
+                  _c("li", [
+                    _vm._v("\n\t\t\t\t\tSMTP Host:"),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.host,
+                          expression: "settings.host"
+                        }
+                      ],
+                      ref: "settings.host",
+                      attrs: { type: "text", placeholder: "SMTP Host" },
+                      domProps: { value: _vm.settings.host },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(_vm.settings, "host", $event.target.value)
+                        }
+                      }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c("li", [
+                    _vm._v("\n\t\t\t\t\tSMTP User:"),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.user,
+                          expression: "settings.user"
+                        }
+                      ],
+                      ref: "settings.user",
+                      attrs: { type: "text", placeholder: "SMTP User" },
+                      domProps: { value: _vm.settings.user },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(_vm.settings, "user", $event.target.value)
+                        }
+                      }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c("li", [
+                    _vm._v("\n\t\t\t\t\tSMTP Pass:"),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.pass,
+                          expression: "settings.pass"
+                        }
+                      ],
+                      ref: "settings.Pass",
+                      attrs: { type: "text", placeholder: "SMTP Pass" },
+                      domProps: { value: _vm.settings.pass },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(_vm.settings, "pass", $event.target.value)
+                        }
+                      }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c("li", [
+                    _vm._v("\n\t\t\t\t\tSMTP Port:"),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.port,
+                          expression: "settings.port"
+                        }
+                      ],
+                      ref: "settings.port",
+                      attrs: { type: "text", placeholder: "SMTP port" },
+                      domProps: { value: _vm.settings.port },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(_vm.settings, "port", $event.target.value)
+                        }
+                      }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c("input", {
+                    staticClass: "primary",
+                    attrs: {
+                      type: "button",
+                      value: _vm.t("listman", "Save Settings")
+                    },
+                    on: {
+                      click: function($event) {
+                        return _vm.updateSettings(true)
+                      }
+                    }
+                  })
+                ])
+              : _vm._e()
           ])
         ],
         1
@@ -38294,6 +38497,38 @@ var render = function() {
                                       }
                                     }),
                                     _vm._v(" "),
+                                    _c("input", {
+                                      staticClass: "primary",
+                                      attrs: {
+                                        id: "listman_view",
+                                        type: "button",
+                                        value: _vm.t("listman", "Web View"),
+                                        disabled:
+                                          _vm.updating || !_vm.savePossible
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.webView(message)
+                                        }
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("input", {
+                                      staticClass: "primary",
+                                      attrs: {
+                                        id: "listman_sendtoall",
+                                        type: "button",
+                                        value: _vm.t("listman", "Send To All"),
+                                        disabled:
+                                          _vm.updating || !_vm.savePossible
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.sendToAll(message)
+                                        }
+                                      }
+                                    }),
+                                    _vm._v(" "),
                                     _c(
                                       "span",
                                       { attrs: { id: "listman_numsent" } },
@@ -38363,39 +38598,7 @@ var render = function() {
                                             "\n\t\t\t\t\t\t\t"
                                         )
                                       ]
-                                    ),
-                                    _vm._v(" "),
-                                    _c("input", {
-                                      staticClass: "primary",
-                                      attrs: {
-                                        id: "listman_view",
-                                        type: "button",
-                                        value: _vm.t("listman", "Web View"),
-                                        disabled:
-                                          _vm.updating || !_vm.savePossible
-                                      },
-                                      on: {
-                                        click: function($event) {
-                                          return _vm.webView(message)
-                                        }
-                                      }
-                                    }),
-                                    _vm._v(" "),
-                                    _c("input", {
-                                      staticClass: "primary",
-                                      attrs: {
-                                        id: "listman_sendtoall",
-                                        type: "button",
-                                        value: _vm.t("listman", "Send To All"),
-                                        disabled:
-                                          _vm.updating || !_vm.savePossible
-                                      },
-                                      on: {
-                                        click: function($event) {
-                                          return _vm.sendToAll(message)
-                                        }
-                                      }
-                                    })
+                                    )
                                   ]
                                 )
                               : _vm._e()
@@ -47474,4 +47677,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=8f7713bdff2857e74ef3
+//# sourceMappingURL=listman-main.js.map?v=7ed23b8a4b88d4cfe7a4

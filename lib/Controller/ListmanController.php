@@ -131,6 +131,12 @@ class ListmanController extends Controller {
     return $this->messageview($rid,"plain");
   }
 
+	/**
+   * Load/Save settings.
+	 */
+	public function settings() {
+    return $this->service->settings($_POST);
+  }
 
 	/**
    * Web view of the message.

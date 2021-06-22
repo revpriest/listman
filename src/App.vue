@@ -27,9 +27,44 @@
 					</template>
 				</AppNavigationItem>
 			</ul>
-			<div class="queue">
-				<p>Queued:<span id="queued">{{ currentQueue.queued }}</span> messages</p>
-				<p>Rate:<span id="queued">{{ currentQueue.rate }}</span> per 5 mins</p>
+			<div class="settingsSection">
+				<ul id="queueDetails">
+					<li>Queued: <span id="queued">{{ currentQueue.queued }}</span> messages</li>
+					<li>Rate: <span id="queued">{{ currentQueue.rate }}</span> per 5 mins</li>
+				</ul>
+				<h3 @click="toggleSettings()">
+					Settings
+				</h3>
+				<ul v-if="settingsToggle" id="settingsPanel">
+					<li>
+						SMTP Host:<input ref="settings.host"
+							v-model="settings.host"
+							type="text"
+							placeholder="SMTP Host">
+					</li>
+					<li>
+						SMTP User:<input ref="settings.user"
+							v-model="settings.user"
+							type="text"
+							placeholder="SMTP User">
+					</li>
+					<li>
+						SMTP Pass:<input ref="settings.Pass"
+							v-model="settings.pass"
+							type="text"
+							placeholder="SMTP Pass">
+					</li>
+					<li>
+						SMTP Port:<input ref="settings.port"
+							v-model="settings.port"
+							type="text"
+							placeholder="SMTP port">
+					</li>
+					<input type="button"
+						class="primary"
+						:value="t('listman', 'Save Settings')"
+						@click="updateSettings(true)">
+				</ul>
 			</div>
 		</AppNavigation>
 		<AppContent>
@@ -228,6 +263,20 @@
 									:value="t('listman', 'Save')"
 									:disabled="updating || !savePossible"
 									@click="saveMessage(message)">
+								<input
+									id="listman_view"
+									type="button"
+									class="primary"
+									:value="t('listman', 'Web View')"
+									:disabled="updating || !savePossible"
+									@click="webView(message)">
+								<input
+									id="listman_sendtoall"
+									type="button"
+									class="primary"
+									:value="t('listman', 'Send To All')"
+									:disabled="updating || !savePossible"
+									@click="sendToAll(message)">
 								<span id="listman_numsent">
 									<span
 										id="listman_numsent_queued"
@@ -246,20 +295,6 @@
 									</span>
 									{{ t('listman', 'sent') }}
 								</span>
-								<input
-									id="listman_view"
-									type="button"
-									class="primary"
-									:value="t('listman', 'Web View')"
-									:disabled="updating || !savePossible"
-									@click="webView(message)">
-								<input
-									id="listman_sendtoall"
-									type="button"
-									class="primary"
-									:value="t('listman', 'Send To All')"
-									:disabled="updating || !savePossible"
-									@click="sendToAll(message)">
 							</div>
 						</li>
 					</ul>
@@ -322,6 +357,13 @@ export default {
 			updating: false,
 			loading: true,
 			subscribeFormText: null,
+			settingsToggle: false,
+			settings: {
+				host: '',
+				user: '',
+				pass: '',
+				port: '',
+			},
 		}
 	},
 	computed: {
@@ -362,6 +404,7 @@ export default {
 			const response = await axios.get(generateUrl('/apps/listman/lists'))
 			this.lists = response.data
 			setInterval(this.updateQueueMonitor, 1000)
+			this.updateSettings(false)
 		} catch (e) {
 			console.error(e)
 			showError(t('listman', 'Could not fetch lists'))
@@ -414,6 +457,24 @@ export default {
 				this.createMessage(message)
 			} else {
 				this.updateMessage(message)
+			}
+		},
+		/**
+		* Action to signal the server to save the settings
+		* @param {Boolean} savefirst Should we save existing settings, or just load?
+		*/
+		async updateSettings(savefirst) {
+			let senddat = []
+			try {
+				if (savefirst) {
+					senddat = this.settings
+				}
+				const url = generateUrl('/apps/listman/settings')
+				const reply = await axios.post(url, JSON.stringify(senddat))
+				this.settings = reply.data
+			} catch (e) {
+				console.error(e)
+				showError(t('listman', 'Could not save settings'))
 			}
 		},
 		/**
@@ -585,6 +646,13 @@ export default {
 				showError(t('listman', 'Could not update the message'))
 			}
 			this.updating = false
+		},
+		/**
+		 * Delete a list, remove it from the frontend and show a hint
+		 * @param {Object} list List object
+		 */
+		async toggleSettings() {
+			this.settingsToggle = !this.settingsToggle
 		},
 		/**
 		 * Delete a list, remove it from the frontend and show a hint

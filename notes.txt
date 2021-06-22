@@ -1,10 +1,12 @@
 
 * From-addresses
-  * Can't use arbitrary ones.  Should trap the error
-	  from failing to send and ensure it's seen and fixed.
+  * Can't use arbitrary ones. Email never arrives.
+		Mine work. presuambly the ones I've enabled at mailbox.org do
+	  Should trap the error somehow ideally
 
 * SMTP settings
   * Sendgrid, whatever they need.
+  * Max-Per day settings.
 
 * Member's can't currently edit their names
 

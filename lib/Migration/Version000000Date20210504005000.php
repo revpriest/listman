@@ -210,6 +210,24 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             $table->addIndex(['message_id'], 'listman_react_index');
         }
 
+				// -- Settings ---
+				// Just a name/value pair set
+        if (!$schema->hasTable('listman_settings')) {
+            $table = $schema->createTable('listman_settings');
+            $table->addColumn('id', 'integer', [
+                'autoincrement' => true,
+                'notnull' => true,
+            ]);
+            $table->addColumn('settingname', 'string', [
+                'notnull' => true,
+            ]);
+            $table->addColumn('settingvalue', 'string', [
+                'notnull' => true,
+            ]);
+            $table->setPrimaryKey(['id']);
+            $table->addIndex(['settingname'], 'listman_setting_name_i');
+        }
+
         return $schema;
     }
 }
