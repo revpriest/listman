@@ -14,7 +14,7 @@
 				}
 			?></td></tr>
 		</table>
-		<div class="btns">
+		<div class="center">
 			<a class="btn" href="<?php echo $sub; ?>">Subscribe</a> 
 			<a class="btn" href="<?php echo $unsub; ?>">Block</a> 
 		</div>

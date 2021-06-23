@@ -1,3 +1,75 @@
+.row{
+  width: 150%;
+  max-width: 80em;
+  margin: auto;
+  margin-top: 0em;
+}
+
+.messageText{
+  background: #eee;
+  display: block;
+  clear: both;
+  border:2px solid black;
+  color: black;
+  padding: 2em;
+  border-radius: 1em;
+  margin: auto;
+  margin-top: 1em;
+  width: 90%;
+  max-width: 80em;
+}
+
+.shareIcons{
+  display: block;
+  width: 100%;
+  text-align: center;
+  border-radius: 1em;
+  padding: 0em 0.1em;
+  margin: 0.1em 1em;
+  color: white;
+  background: rgb(50,13,13);
+  background: linear-gradient(85deg, rgba(50,13,13,1) 0%, rgba(68,49,49,1) 18%, rgba(84,16,16,1) 41%, rgba(24,0,0,1) 100%); 
+  margin: auto;
+  margin-top: 0.3em;
+  margin-bottom: 1em;
+	box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8);
+  border: 1px solid black;
+}
+.shareIcons li{
+	float left;
+	display: inline-block;
+}
+.shareIcons p{
+  text-align:left;
+  margin: -5px;
+  padding: 0;
+  float: left;
+  color: white;
+  margin: 0;
+  margin-left:2em;
+  text-align: left;
+}
+
+.react{
+  display:block;
+  margin: auto;
+  margin-top: 1em;
+  text-align: center;
+}
+.react ul{
+}
+.react li{
+	float left;
+  color: white;
+  font-size:1.3em;
+	display: inline-block;
+  padding: 3px 8px;
+	border: 2px solid black;
+	background: rgb(28,96,24);
+	background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(120,169,141,1) 8%, rgba(41,125,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
+}
+
+
 p, h1, h2, h3, h4, h5, h6{
   color: black;
 }
@@ -13,13 +85,10 @@ h3{
 h4{
   font-size: 1.3em;
 }
-h4{
-  font-size: 1.2em;
-}
-h4{
+h5{
   font-size: 1.1em;
 }
-h5{
+h6{
   font-size: 1.05em;
 }
 .messageForm p, 
@@ -32,49 +101,9 @@ h5{
   color: white;
   text-align: center;
 }
-.row{
-  width: 80%;
-  max-width: 80em;
-  margin: auto;
-  margin-top: 0em;
-}
-.messageText{
-  margin: auto;
-  margin-top: 1em;
-  background: #eee;
-  display: block;
-  clear: both;
-  border:2px solid black;
-  color: black;
-  padding: 2em;
-  border-radius: 1em;
-}
-.react{
-  display:block;
-  margin: auto;
-  background: #eee;
-}
-.react ul{
-}
-.react li{
-	float left;
-  color: white;
-  font-size:1.3em;
-	display: inline-block;
-  padding: 3px 8px;
-  border-radius: 1em;
-	background: rgb(28,24,96);
-	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
-}
 a{
  color: #bb0;
  text-decoration: underline;
-}
-.messageBody{
-  margin-top: 1em;
-  padding-top: 1em;
-  border-top: 2px solid #666;
-  color: black;
 }
 .messageForm{
   margin: auto;
@@ -89,7 +118,9 @@ table{
   margin:auto;
   margin-top: 1em;
 }
-.sbtn,
+.center{
+  text-align: center;
+}
 .btn{
 	background: rgb(28,24,96);
 	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
@@ -105,20 +136,11 @@ table{
   padding: 0.1em 1em;
   line-height:3em;
 }
-.sbtn{
-  font-size: 1em;
-}
-.btns{
-  text-align: center;
-  margin: 1em;
-}
-.sbtn:hover,
 .btn:hover{
 	background: rgb(28,96,24);
 	background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(120,169,141,1) 8%, rgba(41,125,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
   color: black;
 }
-.sbtn:active,
 .btn:active{
 	background: rgb(96,28,24);
 	background: linear-gradient(171deg, rgba(96,24,28,1) 0%, rgba(168,141,120,1) 8%, rgba(125,77,41,1) 23%, rgba(116,49,33,1) 52%, rgba(88,28,22,1) 100%);
@@ -126,38 +148,3 @@ table{
 }
 
 
-.shareIcons{
-  display: block;
-  width: 100%;
-  text-align: center;
-  border-radius: 1em;
-  padding: 0em 0.1em;
-  margin: 0.1em 1em;
-}
-.shareIcons li{
-	float left;
-	display: inline-block;
-}
-.shareIcons p{
-  font-size:10pt;
-  text-align:left;
-  margin: -5px;
-  padding: 0;
-  float: left;
-}
-.shareIcons{
-  color: white;
- background: rgb(50,13,13);
-background: linear-gradient(85deg, rgba(50,13,13,1) 0%, rgba(68,49,49,1) 18%, rgba(84,16,16,1) 41%, rgba(24,0,0,1) 100%); 
-  margin: auto;
-  margin-top: 0.3em;
-  margin-bottom: 1em;
-	box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8);
-  border: 1px solid black;
-}
-.shareIcons p{
-  color: white;
-  margin: 0;
-  margin-left:2em;
-  text-align: left;
-}

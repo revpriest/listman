@@ -85,7 +85,7 @@ class ListmanService {
   /**
   * The footer at the bottom of the message
   */
-  public function emailFooter($message,$list){
+  public function getEmailFooter($message,$list){
     $footer = $list->getFooter();
     $html = "";
     $plain= "";
@@ -101,6 +101,7 @@ class ListmanService {
   * The buttons that go on a message
   */
   public function getEmailButtons($message,$list){
+    $btn = "class=\"btn\" style=\"background: rgb(28,24,96); font-size:1.1em; background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%); text-decoration: none; margin: 0.1px 0.3em; border: 2px solid black; border-radius: 1em; box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8); text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8); color: white; padding: 0.1em 1em; line-height:2.5em;\"";
     $subscribe = $this->getLink("subscribe",$list->getRandid());
     $share = $this->getLink("view",$message->getRandid());
     $reply = $list->getButtonlink();
@@ -108,19 +109,17 @@ class ListmanService {
       "mailto:".$list->getFromemail();
     }
     $html = "";
-    $html.="<p class=\"ar\">Anonymous React:</p>";
-    $html.="<ul class=\"ebtns\">";
-    $html.="<li><a href=\"$share?r=❤\" class=\"ebtn\">❤</a></li>";
-    $html.="<li><a href=\"$share?r=👍\" class=\"ebtn\">👍</a></li>";
-    $html.="<li><a href=\"$share?r=👎\" class=\"ebtn\">👎</a></li>";
-    $html.="<li><a href=\"$share?r=😆\" class=\"ebtn\">😆</a></li>";
-    $html.="<li><a href=\"$share?r=😢\" class=\"ebtn\">😢</a></li>";
-    $html.="<li><a href=\"$share?r=😮\" class=\"ebtn\">😮</a></li>";
-    $html.="</ul>";
-    $html.="<ul class=\"btns\">";
-    $html.="<li><a href=\"$subscribe\" class=\"btn\">Un/Subscribe</a></li>";
-    $html.="<li><a href=\"$share\" class=\"btn\">Share</a></li>";
-    $html.="<li><a href=\"$reply\" class=\"btn\">".$list->getButtontext()."</a></li>";
+    $html.="<div style=\"text-align:center\">";
+    $html.="<a $btn href=\"$share?r=❤\">❤</a>";
+    $html.="<a $btn href=\"$share?r=👍\">👍</a>";
+    $html.="<a $btn href=\"$share?r=👎\">👎</a>";
+    $html.="<a $btn href=\"$share?r=😆\">😆</a>";
+    $html.="<a $btn href=\"$share?r=😢\">😢</a>";
+    $html.="<a $btn href=\"$share?r=😮\">😮</a>";
+    $html.="<br clear=\"both\"/>";
+    $html.="<a $btn href=\"$subscribe\">Un/Subscribe</a></li>";
+    $html.="<a $btn href=\"$share\">Share</a></li>";
+    $html.="<a $btn href=\"$reply\">".$list->getButtontext()."</a></li>";
     $html.="</ul>";
 
     $plain.="---\n";
@@ -131,130 +130,39 @@ class ListmanService {
     return ['html'=>$html,'plain'=>$plain]; 
   }
 
-  /**
-  * A Style-sheet for the emails
-  */
-  public function getEmailStylesheet(){
-    $ret = "<style>
-h1, h2, h3, h4, h5, h6{
-  text-align:left;
-  margin:0.01em;
-  padding: 0.01em;
-  font-weight: normal;
-  margin-bottom: 0.1em;
-  font-size: 1.0em;
-}
-h1{
-  font-size: 2em;
-}
-h2{
-  font-size: 1.6em;
-}
-h3{
-  font-size: 1.4em;
-}
-h4{
-  font-size: 1.2em;
-}
-h5{
-  font-size: 1.1em;
-}
-p{
-  margin-bottom: 1em;
-}
-.inlineimg{
-  width: 20em;
-  max-width: 100%;
-  padding: 0px;
-  margin: 0px;
-  display: inline-block;
-  box-shadow: 0em 0em 0.4em rgba(.0,.0,.0,.8);
-}
-.footer{
-  text-align: center;
-}
-.ebtns,
-.btns{
-  display: block;
-  text-align: center;
-  list-style-type: none;
-  margin: auto;
-  padding: 0.1em;
-}
-.ebtns li,
-.btns li{
-  float left;
-  display: inline-block;
-  margin: 0px;
-  padding: 2px;
-  margin-bottom: 0.5em;
-  line-height: 3.3em;
-}
-.ebtns li{
-  font-size: 2em;
-  line-height: 1.3em;
-}
-.btn{
-  background: rgb(28,24,96);
-  background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
-  border: 2px solid black;
-  border-radius: 1.3em;
-  font-size: 1.5em;
-  color: #fc3;
-  text-decoration: none;
-  padding: 0.3em 1.2em;
-  box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8);
-  text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8);
-}
-.ebtn{
-  background: rgb(28,24,96);
-  background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
-  text-decoration: none;
-  margin: 0.1px 0.1em;
-  padding: 0.1px 0.2em;
-  border: 2px solid black;
-  border-radius: 1em;
-  text-decoration: none;
-  box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8);
-  text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8);
-}
-.ar{
-  text-align: center;
-  padding: 0.3em;
-  margin: 0.1em;
-  font-size: 0.8em;
-}
-.ebtn:hover,
-.btn:hover{
-  background: rgb(28,96,24);
-  background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(120,196,141,1) 8%, rgba(41,127,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
-  color: black;
-}
-.ebtn:active,
-.btn:active{
-  background: rgb(96,28,24);
-  background: linear-gradient(171deg, rgba(96,24,28,1) 0%, rgba(168,141,120,1) 8%, rgba(125,77,41,1) 23%, rgba(116,49,33,1) 52%, rgba(88,28,22,1) 100%);
-  color: black;
-}
-</style>";
-    return $ret;
-  }
-
 
   /**
   * Convert a message into plain and HTML,
   * interpreting the link commands and stuff
   */
-  function messageBodyToPlainAndHtml($message){
-    $bhtml = "<p>";
-    $bplain = "";
+  function messageRender($message,$list){
+    $html="";
+    $plain="";
+
+    $html.='<div class="messageHeaders">';
+    $html.="<h1>".$message->getSubject()."</h1>";
+    $html.="<h2>From:".$list->getFromname()." [".$list->getTitle()."]</h2>";
+    $html.="<h2>To: All subscribers</h2>";
+    $html.="<h2>Date: ".$message->getCreatedAt()."</h2>";
+    $html.="</div>";
+    $html.="<hr/>";
+
+    $plain.="# $subject\n";
+    $plain.="## From: ".$list->getTitle()."\n";
+    $plain.="## To: All Subscribers\n";
+    $plain.="## Date:x".$message->getCreatedAt()."x\n";
+    $plain.="---\n";
+
+    //Translate the actual test
+    $html.= "<p>";
+
     $body = $message->getBody();
     $lines = explode("\n",$body);
 
     foreach($lines as $p){
       if($p==""){
-        $bhtml.="</p><p>";
-        $bplain.="\n\n";
+        $html.="</p><p>";
+        $plain.="\n\n";
       }else{
         $params = [""];
         if($p[0]=="/"){
@@ -270,12 +178,12 @@ p{
               $dat = implode(" ",$params);
               $dat_h = htmlspecialchars($dat);
               if($dat!=""){
-                $bhtml.="</p><h$num>$dat_h</h$num>\n<p>";
+                $html.="</p><h$num>$dat_h</h$num>\n<p>";
                 $indent = "";
                 for($n=0;$n<intval($num);$n++){
                   $indent.="#";
                 }
-                $bplain.="\n$indent $dat\n\n";
+                $plain.="\n$indent $dat\n\n";
               }
               break;
 
@@ -284,8 +192,8 @@ p{
               $img = array_shift($params);
               $alt = implode(" ",$params);
               $alt_h = htmlspecialchars($alt);
-              $bhtml.="</p><a href=\"$img\"><img class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a>\n<p>";
-              $bplain.="\n * $img ($alt)\n";
+              $html.="</p><a href=\"$img\"><img class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a>\n<p>";
+              $plain.="\n * $img ($alt)\n";
               break;
 
             case "/link":
@@ -294,19 +202,32 @@ p{
               $dsc = implode(" ",$params);
               if($dsc==""){$dsc = "Link";}
               $dsc_h = htmlspecialchars($dsc);
-              $bhtml.=" <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a> ";
-              $bplain.=" ($dsc)[ $lnk ]";
+              $html.=" <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a> ";
+              $plain.=" ($dsc)[ $lnk ]";
               break;
 
             default:
-              $bhtml.=htmlspecialchars($p);
-              $bplain.=$p;
+              $html.=htmlspecialchars($p);
+              $plain.=$p;
               break;
         }
       }
     }
-    $bhtml.= "</p>";
-    return ["html"=>$bhtml,"plain"=>$bplain];
+    $html.= "</p>";
+
+    $html.="<hr/>";
+    $plain.="---\n";
+
+    $both = $this->getEmailButtons($message,$list);
+    $html.=$both['html'];
+    $plain.=$both['plain'];
+
+    $footer = $this->getEmailFooter($message,$list);
+    $html.=$footer['html'];
+    $plain.=$footer['plain'];
+
+
+    return ["html"=>$html,"plain"=>$plain];
   }
 
   /**
@@ -351,43 +272,10 @@ p{
     $emailTemplate->setFrom([$list->getFromemail()=>$list->getFromname()]);
     $emailTemplate->setTo([$member->getEmail()=>$member->getname()]);
 
-    $html=$this->getEmailStylesheet();; 
-    $plain="";
-
-    $html.='<div class="messageText">';
-    $html.="<h1>".$subject."</h1>";
-    $html.="<h2>From:".$list->getFromname()." - [".$list->getTitle()."]</h2>";
-    $html.="<h2>To: All Subscribers</h2>";
-    $html.="<h2>Date: ".$message->getCreatedAt()."</h2>";
-    $html.="<hr/>";
-
-    $plain.="# $subject\n";
-    $plain.="## From: ".$list->getTitle()."\n";
-    $plain.="## To: All Subscribers\n";
-    $plain.="## Date:x".$message->getCreatedAt()."x\n";
-    $plain.="---\n";
-
     //The Message!
-    $both = $this->messageBodyToPlainAndHtml($message);
-    $bhtml = $both['html'];
-    $bplain= $both['plain'];
-
-    $html.=$bhtml;
-    $plain.=$bplain;
-
-    $html.="<hr/>";
-    $plain.="---\n";
-
-    //Three calls to action at the bottom of each mail.
-    //Subscribe/Unsubscribe - Public Link remember, shareable. 
-
-    $both = $this->getEmailButtons($message,$list);
-    $html.=$both['html'];
-    $plain.=$both['plain'];
-
-    $footer = $this->emailFooter($message,$list);
-    $html.=$footer['html'];
-    $plain.=$footer['plain'];
+    $both = $this->messageRender($message,$list);
+    $html = $both['html'];
+    $plain= $both['plain'];
 
     $emailTemplate->setPlainBody($plain);
     $emailTemplate->setHtmlBody($html);

@@ -5,7 +5,7 @@
     <p><?php echo $message; ?></p>
     <?php if($sub!=null): ?>
       <hr/>
-      <div class="btns">
+      <div class="center">
         <a class="btn" href="<?php echo $sub; ?>">Subscribe</a> 
       </div>
     <?php endif; ?>

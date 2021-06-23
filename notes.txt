@@ -6,6 +6,7 @@
 
 * SMTP settings
   * Sendgrid, whatever they need.
+		* Will they ever activate my account?
   * Max-Per day settings.
 
 * Member's can't currently edit their names
@@ -17,4 +18,9 @@
   that shows the job-status for that user.
 
 
+* Google's Advice:
+  https://support.google.com/mail/answer/81126?hl=en#authentication
+
+* One-click unsubscribe:
+  https://datatracker.ietf.org/doc/html/rfc8058
 

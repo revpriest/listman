@@ -6,7 +6,7 @@
     <?php if($sub!=null): ?>
       <hr/>
       <p>Maybe try the subscribe form again?</p>
-      <div class="btns">
+      <div class="center">
         <a class="btn" href="<?php echo $sub; ?>">Subscribe</a> 
       </div>
     <?php endif; ?>
