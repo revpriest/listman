@@ -8,10 +8,12 @@ use OCA\Listman\AppInfo\Application;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\IURLGenerator;
-use OCP\Mail\IMailer;
 use OCP\L10N\IFactory;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\Template\PublicTemplateResponse;
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 
 use \OCP\BackgroundJob\Job;
 use \OCP\BackgroundJob\IJobList;
@@ -46,15 +48,13 @@ class ListmanService {
   private $reactMapper;
   /** @var IURLGenerator */
   protected $urlGenerator;
-  /** @var IMailer */
-  private $mailer;
   /** @var IJobList **/
   private $jobList;
   /** @var IFactory */
   private $l10nFactory;
 
 
-  public function __construct(MaillistMapper $mapper, SettingsMapper $settingsMapper,  MessageMapper $messageMapper, MemberMapper $memberMapper, ReactMapper $reactMapper,  SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IMailer $mailer, IFactory $l10nFactory, IJobList  $jobList) {
+  public function __construct(MaillistMapper $mapper, SettingsMapper $settingsMapper,  MessageMapper $messageMapper, MemberMapper $memberMapper, ReactMapper $reactMapper,  SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IFactory $l10nFactory, IJobList  $jobList) {
     $this->mapper = $mapper;
     $this->settingsMapper = $settingsMapper;
     $this->memberMapper = $memberMapper;
@@ -62,7 +62,6 @@ class ListmanService {
     $this->sendjobMapper = $sendjobMapper;
     $this->reactMapper = $reactMapper;
     $this->urlGenerator = $urlGenerator;
-    $this->mailer = $mailer;
     $this->jobList = $jobList;
     $this->l10nFactory = $l10nFactory;
   }
@@ -96,12 +95,15 @@ class ListmanService {
     return ['html'=>$html,'plain'=>$plain]; 
   }
 
+	public function getButtonClass(){
+	  return "class=\"btn\" style=\"background: rgb(28,24,96); font-size:1.1em; background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%); text-decoration: none; margin: 0.1px 0.3em; border: 2px solid black; border-radius: 1em; box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8); text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8); color: white; padding: 0.1em 1em; line-height:2.5em;\"";
+	}
 
   /**
   * The buttons that go on a message
   */
   public function getEmailButtons($message,$list){
-    $btn = "class=\"btn\" style=\"background: rgb(28,24,96); font-size:1.1em; background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%); text-decoration: none; margin: 0.1px 0.3em; border: 2px solid black; border-radius: 1em; box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8); text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8); color: white; padding: 0.1em 1em; line-height:2.5em;\"";
+    $btn = $this->getButtonClass();
     $subscribe = $this->getLink("subscribe",$list->getRandid());
     $share = $this->getLink("view",$message->getRandid());
     $reply = $list->getButtonlink();
@@ -139,29 +141,24 @@ class ListmanService {
     $html="";
     $plain="";
 
+		//Title
     $html.='<div class="messageHeaders">';
     $html.="<h1>".$message->getSubject()."</h1>";
-    $html.="<h2>From:".$list->getFromname()." [".$list->getTitle()."]</h2>";
-    $html.="<h2>To: All subscribers</h2>";
-    $html.="<h2>Date: ".$message->getCreatedAt()."</h2>";
-    $html.="</div>";
     $html.="<hr/>";
 
     $plain.="# $subject\n";
-    $plain.="## From: ".$list->getTitle()."\n";
-    $plain.="## To: All Subscribers\n";
-    $plain.="## Date:x".$message->getCreatedAt()."x\n";
     $plain.="---\n";
 
-    //Translate the actual test
-    $html.= "<p>";
+    //Render the actual text of the message body.
+    $pstyle = "style=\"margin-bottom:1em;\"";
+    $html.= "<p $pstyle>";
 
     $body = $message->getBody();
     $lines = explode("\n",$body);
 
     foreach($lines as $p){
       if($p==""){
-        $html.="</p><p>";
+        $html.="</p><p $pstyle>";
         $plain.="\n\n";
       }else{
         $params = [""];
@@ -178,7 +175,7 @@ class ListmanService {
               $dat = implode(" ",$params);
               $dat_h = htmlspecialchars($dat);
               if($dat!=""){
-                $html.="</p><h$num>$dat_h</h$num>\n<p>";
+                $html.="</p><h$num>$dat_h</h$num>\n<p $pstyle>";
                 $indent = "";
                 for($n=0;$n<intval($num);$n++){
                   $indent.="#";
@@ -192,7 +189,7 @@ class ListmanService {
               $img = array_shift($params);
               $alt = implode(" ",$params);
               $alt_h = htmlspecialchars($alt);
-              $html.="</p><a href=\"$img\"><img class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a>\n<p>";
+              $html.="</p><p style=\"text-align:center\"><a href=\"$img\"><img style=\"width: 40em;max-width:90%;\" class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a></p>\n<p $pstyle>";
               $plain.="\n * $img ($alt)\n";
               break;
 
@@ -207,7 +204,7 @@ class ListmanService {
               break;
 
             default:
-              $html.=htmlspecialchars($p);
+              $html.=htmlspecialchars($p." ");
               $plain.=$p;
               break;
         }
@@ -215,39 +212,42 @@ class ListmanService {
     }
     $html.= "</p>";
 
-    $html.="<hr/>";
+    $html.="<br><hr style=\"clear:both;\"/>";
     $plain.="---\n";
 
+		//Action Buttons
     $both = $this->getEmailButtons($message,$list);
     $html.=$both['html'];
     $plain.=$both['plain'];
 
+		//Footer
     $footer = $this->getEmailFooter($message,$list);
     $html.=$footer['html'];
     $plain.=$footer['plain'];
 
-
     return ["html"=>$html,"plain"=>$plain];
   }
 
-  /**
-   * Settings need to be fetched or setted.
-   */
-  public function settings(Array $postvars): array {
-		//This is weird. Why the hell do I have to do this:
-	  $keys = array_keys($postvars);
- 		$postvars = json_decode($keys[0],true);
 
+	public function getSettings(){
 		//Default settings
 		$settings = [
 			'host'=>'',
 			'user'=>'',
 			'pass'=>'',
 			'port'=>'',
+			'maxdaily'=>'50',
 		];
-
 		$settings = $this->settingsMapper->loadall($settings);
+		return $settings;
+	}
 
+  /**
+   * Settings need to be fetched or setted.
+   */
+  public function settings(Array $postvars): array{
+		//This is weird. Why the hell do I have to do this:
+		$settings = $this->getSettings();
 		foreach($settings as $n=>$v){
 			if(isset($postvars[$n])){
 			  $settings[$n] = $postvars[$n];
@@ -255,69 +255,47 @@ class ListmanService {
 		}
 
 		$this->settingsMapper->saveall($settings);
-
-    file_put_contents("data/prelog.txt","EndSettings ".json_encode($settings)."\n",FILE_APPEND);
     return $settings;
   }
   
 
   /**
-   * Send Message Template
+   * Welcome Message Content, return text and HTML versions.
    */
-  private function getMessageTemplate($member,$message,$list): object {
-    $subject = $message->getSubject();
-
-    $emailTemplate = $this->mailer->createMessage(); 
-    $emailTemplate->setSubject($subject." [".$list->getTitle()."]");
-    $emailTemplate->setFrom([$list->getFromemail()=>$list->getFromname()]);
-    $emailTemplate->setTo([$member->getEmail()=>$member->getname()]);
-
-    //The Message!
-    $both = $this->messageRender($message,$list);
-    $html = $both['html'];
-    $plain= $both['plain'];
-
-    $emailTemplate->setPlainBody($plain);
-    $emailTemplate->setHtmlBody($html);
-
-    return $emailTemplate;
-  }
-
-
-  /**
-   * Welcome Message Content.
-   */
-  private function getConfirmTemplate($member,$list,$act): object {
-    $subject = $list->getTitle()." subscription";
-
-    $emailTemplate = $this->mailer->createEMailTemplate("listman.confirm", 
-      [
-        'name' => $member->getName(),
-        'email' => $member->getEmail(),
-        'subject' => $subject,
-      ]
-    );
-    $emailTemplate->setSubject($subject);
-    $emailTemplate->addHeading($subject);
+  private function confirmRender($member,$list,$act): array {
+    $btn = "class=\"btn\" style=\"background: rgb(28,24,96); font-size:1.1em; background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%); text-decoration: none; margin: 0.1px 0.3em; border: 2px solid black; border-radius: 1em; box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8); text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8); color: white; padding: 0.1em 1em; line-height:2.5em;\"";
 
     $link = $this->getConfirmLink($member,$list,$act);
     $actverb = "subscribe";
     if($act=="unsub"){$actverb = "unsubscribe";}
 
-    $t = "Hi ".$member->getName().",";
-    $emailTemplate->addBodyText(htmlspecialchars($t),$t);
+		$ret = ['html'=>'','plain'=>''];
 
-    $t = "Someone (hopefully you) asked to $actverb to the email-list \"".$list->getTitle()."\"";
-    $emailTemplate->addBodyText(htmlspecialchars($t),$t);
+		//Title
+		$ret['html'].="<h1>".$list->getTitle()." Subscription</h1>";
+		$ret['plain'].="= ".$list->getTitle()." Subscription =\n\n";
 
-    $t = "If you want that, then you'll have to confirm by clicking this link:";
-    $emailTemplate->addBodyText(htmlspecialchars($t),$t);
+		//Greeting
+    $ret['html'].= "<p>Hi ".$member->getName().",</p>";
+    $ret['plain'].= "Hi ".$member->getName().",\n";
 
-    $t = "If not you should ignore this email.";
-    $emailTemplate->addBodyText(htmlspecialchars($t),$t);
+		//Explaination
+    $ret['html'].= "<p>Someone (hopefully you) asked to $actverb to the email-list \"".$list->getTitle()."\"</p>";
+    $ret['plain'].= "Someone (hopefully you) asked to $actverb to the email-list \"".$list->getTitle()."\"\n";
 
-    $emailTemplate->addBodyButton(htmlspecialchars($actverb),$link,$link);
-    return $emailTemplate;
+		//Call to action
+    $ret['html'].= "<p>If you want that, then you'll have to confirm by clicking this link:</p>";
+    $ret['plain'].= "If you want that, then you'll have to confirm by clicking this link:\n\n";
+
+		//Action button
+    $ret['html'].= "<p>If not you should ignore this email.</p>";
+    $ret['plain'].= "If not you should ignore this email.\n";
+
+    $btn = $this->getButtonClass();
+		$ret['html'].="<p align=\"center\"><a $btn href=\"".$link."\">$actverb</a></p>";
+		$ret['plain'].=" * $link\n\n";
+	  
+    return $ret;
   }
 
   /**
@@ -326,6 +304,9 @@ class ListmanService {
   * These are SECRET CODE links
   */
   private function getConfirmLink($member,$list,$act): string{
+    if($this->updateMemberConfCode($member)){
+      $this->memberMapper->update($member);
+    }
     $base = $this->urlGenerator->linkToRouteAbsolute('listman.listman.confirm', ['lid'=>$list->getRandid()]);
     $params = "?conf=".$member->getConf()."&act=".$act;
     return  $base.$params;
@@ -347,19 +328,6 @@ class ListmanService {
         break;
     }
     return  $base;
-  }
-
-  /**
-  * Send a system email to an actual member!
-  */
-  private function sendSystemEmail($member,$template,$list){
-    file_put_contents("data/prelog.txt","Emailing ".$member->getEmail(),FILE_APPEND);
-		$message = $this->mailer->createMessage();
-		$message->useTemplate($template);
-		$message->setFrom([$list->getFromemail()=>$list->getFromname()]);
-    $message->setTo([$member->getEmail()=>$member->getName()]);
-    $this->mailer->send($message);
-		return true;
   }
 
 
@@ -520,6 +488,23 @@ class ListmanService {
       $this->handleException($e);
     }
   }
+
+  /** 
+  * Update the conf code
+  */
+  public function updateMemberConfCode($member){
+		$now = new \DateTime();
+		$then = new \DateTime();
+		$then->setTimestamp($then->getTimestamp()-12*60*60);
+		if($member->getConfExpire() < $then->format("Y-m-d H:i:s")){
+      $conf = $this->randId(32);
+      $member->setConf($conf);
+      $member->setConfExpire($now->format("Y-m-d H:i:s"));
+      return true;
+    }
+    return false;
+  }
+
   /**
   * Update existing member
   */
@@ -531,9 +516,7 @@ class ListmanService {
       $member->setName($name);
       $member->setState($state);
       $member->setListId($list_id);
-      $conf = $this->randId(32);
-      $member->setConf($conf);
-      $member->setConfExpire($now->format("Y-m-d H:i:s"));
+      $this->updateMemberConfCode($member);
       return $this->memberMapper->update($member);
     } catch (Exception $e) {
       $this->handleException($e);
@@ -585,7 +568,7 @@ class ListmanService {
   public function deleteMessage($id,$userId) {
     try {
       $message = $this->messageMapper->find($id,$userId);
-      $this->messageMapper->delete($member);
+      $this->messageMapper->delete($message);
       return $message;
     } catch (Exception $e) {
       $this->handleException($e);
@@ -680,7 +663,6 @@ class ListmanService {
         $alreadyAdded+=1;
       } catch (Exception $e) {
         $newlyAdded+=1;
-        file_put_contents("data/prelog.txt","Adding Member ".$member->getId()."\n",FILE_APPEND);
         $sendJob = new Sendjob();
         $sendJob->setMemberId($member->getId());
         $sendJob->setMessageId($message->getId());
@@ -694,7 +676,6 @@ class ListmanService {
 
     $this->jobList->remove(ListmanSend::class);
     $this->jobList->add(ListmanSend::class);
-    file_put_contents("data/prelog.txt","Starting Cron ".microtime(true)."\n",FILE_APPEND);
     return [
       'message'=>$message,
       'new'=>$newlyAdded,
@@ -735,6 +716,64 @@ class ListmanService {
 			}
       return true;
   }
+
+	/**
+	* Check the sending limits for this user,
+  * list and generally all-over
+	*/
+	private function checkSendingLimits($list,$member,$message=null){
+
+    //There's a overall per-day limit.
+    $today = new \DateTime();
+    $today = $today->format("Y-m-d");
+    $sentToday = 0;
+		file_put_contents("/var/www-nextcloud/data/prelog.txt","Check Lim $today\n",FILE_APPEND);
+    $dbtoday = $this->settingsMapper->getSettingVal("today","");
+		file_put_contents("/var/www-nextcloud/data/prelog.txt","Check Lim2 !$today!- !$dbtoday!\n",FILE_APPEND);
+    if($today!=$dbtoday){
+      $this->settingsMapper->setSettingVal("today",$today);
+      $sentToday = 0;
+    }else{
+      $sentToday = intval($this->settingsMapper->getSettingVal("senttoday",0));
+    }
+		file_put_contents("/var/www-nextcloud/data/prelog.txt","Check Lim2\n",FILE_APPEND);
+    $maxToSend = intval($this->settingsMapper->getSettingVal("maxdaily","50"));
+    if($sentToday>$maxToSend){
+      return false;
+    }
+    $sentToday+=1;
+    $this->settingsMapper->setSettingVal("senttoday","".$sentToday);
+
+    //There's an hourly per-person limit.
+    //TODO
+
+    return true;
+  }
+
+	/**
+	* Get a mailer with SMTP details etc.
+	*/
+	private function getMailer($list){
+    if(!$this->checkSendingLimits($list,$member)){
+      return null;
+    }
+		require __DIR__.'/../../vendor/autoload.php';
+		$settings = $this->getSettings();
+		$mail = new PHPMailer(true);
+		$mail->CharSet = 'UTF-8';
+		$mail->isSMTP();                       
+		$mail->Host       = $settings['host'];
+		$mail->Username   = $settings['user'];
+		$mail->Password   = $settings['pass'];
+		$mail->Port       = $settings['port'];
+		$mail->SMTPAuth   = true;
+		$mail->isHTML(true);
+		$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+		$mail->addCustomHeader('List-Unsubscribe','<'.$unsub.'>');
+		$mail->addCustomHeader('List-Unsubscribe-Post','List-Unsubscribe=One-Click');
+		$mail->setFrom($list->getFromemail(), $list->getFromname());
+		return $mail;
+	}
 
   /**
   * A subscribe action to be used from forms from
@@ -803,15 +842,43 @@ class ListmanService {
 				$member = $this->memberMapper->insert($member);
 			}
 
-			$now = new \DateTime;
-			$then = new \DateTime;
-			$then->setTimestamp($now->getTimestamp()-12*60*60);
-			if($member->getConfExpire() < $then->format("Y-m-d H:i:s")){
-				$this->memberMapper->update($member);		//Update rewrites conf automatically
+			if($this->updateMemberConfCode($member)){
+				$this->memberMapper->update($member);
 			}
 
-			$content = $this->getConfirmTemplate($member,$list,$act);
-			$this->sendSystemEmail($member,$content,$list);
+			//Send the actual email.
+		  $sentOkay = false;
+			try{
+				$content = $this->confirmRender($member,$list,$act);
+				$mail = $this->getMailer($list,$member,null);
+        if($mail==null){
+          //Sending limits passed. 
+					$sentOkay=false;
+        }else{
+					$mail->addAddress($member->getEmail(),$member->getname());
+					$mail->Subject = $list->getTitle()." subscription";
+					$mail->Body    = $content['html'];;
+					$mail->AltBody = $content['plain'];
+					$mail->send();
+					$sentOkay=true;
+				}
+			}catch (Exception $e) {
+				$sentOkay=false;
+				file_put_contents("/var/www-nextcloud/data/prelog.txt","Can't send ".$member->getEmail()." - ".$mail->ErrorInfo."\n",FILE_APPEND);
+			}
+			if(!$sentOkay){
+        $member->setState(-2);       #Needs confirmation-email resend
+        $member = $this->memberMapper->update($member);
+        $response = new PublicTemplateResponse(Application::APP_ID, 'cantsend', [
+          'message'=>"<p>I am unable to send your confirmation message right away.</p><p>Sorry.</p><p>I have a limt on the number of emails I can send per day to prevent accidentally spamming anyone.</p><p>I have passed that limit.</p><p>Thanks for your patience.</p><p>I will send it tomorrow.</p><p>Looking forward to having you on board.</p><p>Or....  Off-board, if this was an unsubscribe. 😔</p>",
+					'headline'=>"A short delay",
+          'list'=>$list,
+        ]);
+        $response->setHeaderTitle('Really Sorry');
+        $response->setHeaderDetails('I\'m only allowed a certain number of emails per day');
+        \OCP\Util::addStyle(Application::APP_ID, 'pub');
+        return $response;
+			}
 
 			//All good, so we redirect to owner's URL?
 			if($redir!=null){
@@ -935,13 +1002,25 @@ class ListmanService {
     $member = $this->memberMapper->find($sendJob->getMemberId());
     $message = $this->messageMapper->find($sendJob->getMessageId());
     $list = $this->mapper->find($message->getListId(),"");
+    $unsub = $this->getConfirmLink($member,$list,"unsub");
 
-    file_put_contents("/var/www-nextcloud/data/prelog.txt","Emailing ".$member->getEmail()." with message ".$message->getSubject()."\n",FILE_APPEND);
-     
-    $email = $this->getMessageTemplate($member,$message,$list);
-    $this->mailer->send($email);
+	  try{
+      $content = $this->messageRender($message,$list);
+			$mail = $this->getMailer($list,$member,$message);
+      if($mail==null){
+        //Passed sending-limits.
+        return -2; #Paused
+      }
+      $mail->addAddress($member->getEmail(),$member->getname());
+			$mail->Subject = $message->getSubject()." [".$list->getTitle()."]";
+			$mail->Body    = $content['html'];;
+			$mail->AltBody = $content['plain'];
+			$mail->send();
+		}catch (Exception $e) {
+      file_put_contents("/var/www-nextcloud/data/prelog.txt","Can't send ".$member->getEmail()." - ".$mail->ErrorInfo."\n",FILE_APPEND);
+			return -1;
+		}
 
-    file_put_contents("/var/www-nextcloud/data/prelog.txt","Emailed ".$member->getEmail()." with message ".$message->getSubject()."\n",FILE_APPEND);
     return 1;   
   }
 
@@ -956,7 +1035,6 @@ class ListmanService {
     $maxToTry= 10;
     $tried = 0;
 
-    file_put_contents("data/prelog.txt","Cron: \n",FILE_APPEND);
     $jobList = $this->sendjobMapper->getListToSend();
     foreach($jobList as $job){
       if($tried >= $maxToTry){
@@ -964,11 +1042,9 @@ class ListmanService {
       }
       $tried++;
       try{
-
         $state = $this->sendEmailToMember($job);
         $job->setState($state);
         $this->sendjobMapper->update($job);
-      
       }catch(Exception $e){
         return false;
       }

@@ -20,14 +20,13 @@
 		</div>
 	</div>
 
+  <div class="react">
+    <ul>
+      <?php foreach($react as $r): ?>
+        <li><?php echo $r->getSymbol().$r->getCount(); ?></li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+
 </div>
 
-<div class="react">
-	<ul>
-		<?php foreach($react as $r): ?>
-			<li><?php echo $r->getSymbol().$r->getCount(); ?></li>
-		<?php endforeach; ?>
-	</ul>
-</div>
-
-</div>		<!-- something fishy about needing an extra close -->

@@ -37,27 +37,33 @@
 				</h3>
 				<ul v-if="settingsToggle" id="settingsPanel">
 					<li>
+						Max Send Per Day:<input ref="settings.maxdaily"
+							v-model="settings.maxdaily"
+							type="input"
+							placeholder="SMTP Host">
+					</li>
+					<li>
 						SMTP Host:<input ref="settings.host"
 							v-model="settings.host"
-							type="text"
+							type="input"
 							placeholder="SMTP Host">
 					</li>
 					<li>
 						SMTP User:<input ref="settings.user"
 							v-model="settings.user"
-							type="text"
+							type="input"
 							placeholder="SMTP User">
 					</li>
 					<li>
-						SMTP Pass:<input ref="settings.Pass"
+						SMTP Pass:<input ref="settings.pass"
 							v-model="settings.pass"
-							type="text"
+							type="password"
 							placeholder="SMTP Pass">
 					</li>
 					<li>
 						SMTP Port:<input ref="settings.port"
 							v-model="settings.port"
-							type="text"
+							type="input"
 							placeholder="SMTP port">
 					</li>
 					<input type="button"
@@ -185,6 +191,9 @@
 									<option value="-1">
 										Blocked
 									</option>
+									<option value="-2">
+										Awaiting Resend
+									</option>
 								</select>
 								<input type="button"
 									class="primary"
@@ -244,7 +253,6 @@
 							</div>
 							<div v-if="currentMessageId==message.id"
 								id="listman_messagedetails">
-								<p>{{ t('listman', 'Selected Message Details:') }}</p>
 								<input ref="subject"
 									v-model="message.subject"
 									type="text"
@@ -363,6 +371,7 @@ export default {
 				user: '',
 				pass: '',
 				port: '',
+				maxdaily: '50',
 			},
 		}
 	},
@@ -470,7 +479,7 @@ export default {
 					senddat = this.settings
 				}
 				const url = generateUrl('/apps/listman/settings')
-				const reply = await axios.post(url, JSON.stringify(senddat))
+				const reply = await axios.post(url, senddat)
 				this.settings = reply.data
 			} catch (e) {
 				console.error(e)
@@ -648,7 +657,7 @@ export default {
 			this.updating = false
 		},
 		/**
-		 * Delete a list, remove it from the frontend and show a hint
+		 * Toggle the settings dialogue visibility
 		 * @param {Object} list List object
 		 */
 		async toggleSettings() {
@@ -659,6 +668,9 @@ export default {
 		 * @param {Object} list List object
 		 */
 		async deleteList(list) {
+			if (!confirm(t('listman', 'Do you really want to delete this whole list?'))) {
+				return
+			}
 			try {
 				await axios.delete(generateUrl(`/apps/listman/lists/${list.id}`))
 				this.lists.splice(this.lists.indexOf(list), 1)
@@ -676,6 +688,9 @@ export default {
 		 * @param {Object} member Member object
 		 */
 		async deleteMember(member) {
+			if (!confirm(t('listman', 'Do you really want to delete this member?'))) {
+				return
+			}
 			try {
 				const url = generateUrl(`/apps/listman/members/${member.id}`)
 				console.error('opening url to delete member:' + url)
@@ -692,6 +707,9 @@ export default {
 		 * @param {Object} message Message object
 		 */
 		async deleteMessage(message) {
+			if (!confirm(t('listman', 'Do you really want to delete this message?'))) {
+				return
+			}
 			try {
 				const url = generateUrl(`/apps/listman/messages/${message.id}`)
 				console.error('opening url to delete message:' + url)

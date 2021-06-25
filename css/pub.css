@@ -61,12 +61,16 @@
 .react li{
 	float left;
   color: white;
-  font-size:1.3em;
+  font-size:1.0em;
 	display: inline-block;
   padding: 3px 8px;
-	border: 2px solid black;
+	border: 2px solid #666;
+	border-bottom: 2px solid #aaa;
+	border-right: 2px solid #aaa;
+	border-radius: 5px;
+	text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8);
 	background: rgb(28,96,24);
-	background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(120,169,141,1) 8%, rgba(41,125,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
+	background: linear-gradient(355deg, rgba(28,96,24,1) 0%, rgba(120,169,141,1) 8%, rgba(41,125,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
 }
 
 

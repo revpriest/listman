@@ -26,9 +26,6 @@
 .listman_memberName{
   max-width: 20em;
 }
-.listman_messagedetails{
-  border:2px solid purple;
-}
 .listman_textline{
   position: relative;
   top: -1em;
@@ -70,12 +67,10 @@ textarea {
 }
 
 #subscribeFormText {
-  margin: 1em 1em;
   padding: 0.1em 1em;
-  border: 2px solid #00aa00;
-  border-radius: 1em;
+  border: 2px solid #000000;
+  border-radius: 3px;
   width: 90%;
-  margin-left:5%;
   background: white;
   color: black;
   box-shadow: 0em 0em 0.4em rgba(.5,.0,.0,.8);
@@ -84,10 +79,6 @@ textarea {
 #shownPane{
   margin: 0.1em 1em;
   margin-top: 1em;
-  padding: 0.1em 1em;
-  border: 2px solid #AA0000;
-  border-radius: 1em;
-  box-shadow: 0em 0em 0.4em rgba(.5,.0,.0,.8);
   overflow: hidden;
 }
 .memberline,
@@ -114,11 +105,8 @@ textarea {
 }
 #listman_messagedetails{
   margin: 1em 1em;
-  padding: 0.1em 1em;
-  border: 2px solid #00aa00;
+  padding: 0.5em 1em;
   border-radius: 1em;
-  width: 90%;
-  margin-left:5%;
   box-shadow: 0em 0em 0.4em rgba(.5,.0,.0,.8);
   overflow: hidden;
   background: rgba(0,0,0,0.2);
@@ -134,8 +122,8 @@ textarea {
   float:right;
   background: transparent;
   position: relative;
-   top: 0.5em;
-  margin-left: 1em;
+  top: 0.5em;
+  margin-right: 1em;
 }
 #listman_sendtoall{
   float:right;

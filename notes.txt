@@ -1,26 +1,26 @@
 
-* From-addresses
-  * Can't use arbitrary ones. Email never arrives.
-		Mine work. presuambly the ones I've enabled at mailbox.org do
-	  Should trap the error somehow ideally
 
-* SMTP settings
-  * Sendgrid, whatever they need.
-		* Will they ever activate my account?
-  * Max-Per day settings.
+* Max-Per day settings need to work
+  * Which means some new reg's can't be emailed right away so:
+    * Re-send confirmation messages on cron new day.
+
+
+* Limit sending confirmation emails to one an hour.
+
+* Can I inject phpmailer so I don't have to 'require' it?
+  * How? Naïve way didn't work
 
 * Member's can't currently edit their names
 
-* Deleting is WAY too easy. Just Gone. No undo. No confirm.
+* Post to telegram group [Also signal? Activitypub? Whatsapp? Wordpress?]
 
 * Display which mails have gone to which users, ideally also when.
   That'd need a new column in the Member-list when a message is selected
   that shows the job-status for that user.
-
+	* Trap email-sending errors and display them somehow
+	* Trap email-bounces etc.  and display them somehow
 
 * Google's Advice:
   https://support.google.com/mail/answer/81126?hl=en#authentication
 
-* One-click unsubscribe:
-  https://datatracker.ietf.org/doc/html/rfc8058
 

@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="messageForm">
 		<h1><?php echo $list==null?"Unknown List":$list->getTitle(); ?></h1>
-		<h3>Error</h3>
+		<h3><?php if($headline){echo $headline;}else{echo "Error";} ?></h3>
     <p><?php echo $message; ?></p>
     <?php if($sub!=null): ?>
       <hr/>

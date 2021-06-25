@@ -9,6 +9,3 @@ function copyUrl(url){
 }
 var moo = document.getElementById("clipcopy");
 moo.onclick = copyUrl;
-var moo = document.getElementById("clipcopy2");
-moo.onclick = copyUrl;
-

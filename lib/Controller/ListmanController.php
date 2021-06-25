@@ -134,8 +134,9 @@ class ListmanController extends Controller {
 	/**
    * Load/Save settings.
 	 */
-	public function settings() {
-    return $this->service->settings($_POST);
+	public function settings($settings) {
+    $post = json_decode(file_get_contents('php://input'),true);
+    return $this->service->settings($post);
   }
 
 	/**
@@ -167,7 +168,7 @@ class ListmanController extends Controller {
 
     $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"url"=>$url,"react"=>$reacts,"body"=>$body[$ttype]]);
     $response->setHeaderTitle($message->getSubject()." [".$list->getTitle()."]");
-    $response->setHeaderDetails($message->getCreatedAt());
+    $response->setHeaderDetails("To all subscribers at ".$message->getCreatedAt());
     $response->setHeaderActions([
         new SimpleMenuAction($subscribe, 'subscribe', 'icon-css-class1', $subscribe, 0),
     ]);
@@ -179,6 +180,15 @@ class ListmanController extends Controller {
 		$response->setContentSecurityPolicy($policy);
     return $response;
 	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function confirmPost(string $lid): Response {
+    return $this->confirm($lid);
+  }
 
 	/**
 	 * @PublicPage

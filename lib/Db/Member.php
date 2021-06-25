@@ -14,6 +14,13 @@ class Member extends Entity implements JsonSerializable {
     protected $listId;
     protected $userId;
 
+    #States:
+    # 0 - Unconfirmed
+    # 1 - Subscribed
+    # 2+ - Reserved for sub-groups
+    #-1 - Blocked
+    #-2 - Delay in sending confirmation, resend tomorrow.
+
     public function __construct() {
         $this->addType('id','integer');
     }

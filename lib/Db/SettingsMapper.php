@@ -24,6 +24,80 @@ class SettingsMapper extends QBMapper {
         return $this->findEntity($qb);
    }
 
+	/**
+	* @param string $name
+	* @param string $default
+	* @return string|value
+	*/
+  public function getSettingVal(string $name,string $default=null) {
+		file_put_contents("/var/www-nextcloud/data/prelog.txt","Getting $name $default\n",FILE_APPEND);
+	  try{
+       $qb = $this->db->getQueryBuilder();
+       $qb->select('*')
+          ->from($this->getTableName())
+          ->where($qb->expr()->eq('settingname', $qb->createNamedParameter($name)));
+	 		$obj = $this->findEntity($qb);
+	 		if($obj){
+        $ret = $obj->getSettingvalue();
+	 			return $ret;
+      }
+	  }catch(\Exception $e){
+		  file_put_contents("/var/www-nextcloud/data/prelog.txt","exceptiong".json_encode($e->getMessage())."\n",FILE_APPEND);
+	 	 return $defaut;
+	  }
+		file_put_contents("/var/www-nextcloud/data/prelog.txt","Ending\n",FILE_APPEND);
+    return $default;
+  }
+
+	/**
+	* @param string $name
+	* @param string $value
+	* @return string|value
+	*/
+  public function setSettingVal(string $name,string $value=null) {
+		file_put_contents("/var/www-nextcloud/data/prelog.txt","Saving $name $value\n",FILE_APPEND);
+	  try{
+       $qb = $this->db->getQueryBuilder();
+       $qb->select('*')
+          ->from($this->getTableName())
+          ->where($qb->expr()->eq('settingname', $qb->createNamedParameter($name)));
+	 		$obj = $this->findEntity($qb);
+	 		if($obj){
+				$obj->setSettingvalue($value);
+        $this->update($obj);
+	 			return $obj;
+	 		}
+	  }catch(\Exception $e){
+	  }
+    $set = new Settings();
+    $set->setSettingvalue($value);
+    $set->setSettingname($name);
+    $this->insert($set);
+    return $set;
+  }
+
+	/**
+	 * @param string $name
+	 * @param string $value
+	 * @return string|value
+	 */
+   public function getVal(int $name) {
+		 try{
+        $qb = $this->db->getQueryBuilder();
+        $qb->select('*')
+           ->from($this->getTableName())
+           ->where($qb->expr()->eq('settingname', $qb->createNamedParameter($name)));
+				$obj = $this->findEntity($qb);
+				if($obj){
+					return $obj->getSettingValue();
+				}
+		 }catch(Exception $e){
+			 return null;
+		 }
+     return null;
+   }
+
+
 
 	/**
    * We load settings from the DB. Still only one

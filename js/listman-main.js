@@ -16700,6 +16700,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16745,7 +16753,8 @@ __webpack_require__.r(__webpack_exports__);
         host: '',
         user: '',
         pass: '',
-        port: ''
+        port: '',
+        maxdaily: '50'
       }
     };
   },
@@ -16866,7 +16875,7 @@ __webpack_require__.r(__webpack_exports__);
         }
 
         const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/settings');
-        const reply = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url, JSON.stringify(senddat));
+        const reply = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url, senddat);
         this.settings = reply.data;
       } catch (e) {
         console.error(e);
@@ -17068,7 +17077,7 @@ __webpack_require__.r(__webpack_exports__);
     },
 
     /**
-     * Delete a list, remove it from the frontend and show a hint
+     * Toggle the settings dialogue visibility
      * @param {Object} list List object
      */
     async toggleSettings() {
@@ -17080,6 +17089,10 @@ __webpack_require__.r(__webpack_exports__);
      * @param {Object} list List object
      */
     async deleteList(list) {
+      if (!confirm(t('listman', 'Do you really want to delete this whole list?'))) {
+        return;
+      }
+
       try {
         await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/lists/".concat(list.id)));
         this.lists.splice(this.lists.indexOf(list), 1);
@@ -17100,6 +17113,10 @@ __webpack_require__.r(__webpack_exports__);
      * @param {Object} member Member object
      */
     async deleteMember(member) {
+      if (!confirm(t('listman', 'Do you really want to delete this member?'))) {
+        return;
+      }
+
       try {
         const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/members/".concat(member.id));
         console.error('opening url to delete member:' + url);
@@ -17117,6 +17134,10 @@ __webpack_require__.r(__webpack_exports__);
      * @param {Object} message Message object
      */
     async deleteMessage(message) {
+      if (!confirm(t('listman', 'Do you really want to delete this message?'))) {
+        return;
+      }
+
       try {
         const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/messages/".concat(message.id));
         console.error('opening url to delete message:' + url);
@@ -37615,6 +37636,35 @@ var render = function() {
             _vm.settingsToggle
               ? _c("ul", { attrs: { id: "settingsPanel" } }, [
                   _c("li", [
+                    _vm._v("\n\t\t\t\t\tMax Send Per Day:"),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.settings.maxdaily,
+                          expression: "settings.maxdaily"
+                        }
+                      ],
+                      ref: "settings.maxdaily",
+                      attrs: { type: "input", placeholder: "SMTP Host" },
+                      domProps: { value: _vm.settings.maxdaily },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.settings,
+                            "maxdaily",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c("li", [
                     _vm._v("\n\t\t\t\t\tSMTP Host:"),
                     _c("input", {
                       directives: [
@@ -37626,7 +37676,7 @@ var render = function() {
                         }
                       ],
                       ref: "settings.host",
-                      attrs: { type: "text", placeholder: "SMTP Host" },
+                      attrs: { type: "input", placeholder: "SMTP Host" },
                       domProps: { value: _vm.settings.host },
                       on: {
                         input: function($event) {
@@ -37651,7 +37701,7 @@ var render = function() {
                         }
                       ],
                       ref: "settings.user",
-                      attrs: { type: "text", placeholder: "SMTP User" },
+                      attrs: { type: "input", placeholder: "SMTP User" },
                       domProps: { value: _vm.settings.user },
                       on: {
                         input: function($event) {
@@ -37675,8 +37725,8 @@ var render = function() {
                           expression: "settings.pass"
                         }
                       ],
-                      ref: "settings.Pass",
-                      attrs: { type: "text", placeholder: "SMTP Pass" },
+                      ref: "settings.pass",
+                      attrs: { type: "password", placeholder: "SMTP Pass" },
                       domProps: { value: _vm.settings.pass },
                       on: {
                         input: function($event) {
@@ -37701,7 +37751,7 @@ var render = function() {
                         }
                       ],
                       ref: "settings.port",
-                      attrs: { type: "text", placeholder: "SMTP port" },
+                      attrs: { type: "input", placeholder: "SMTP port" },
                       domProps: { value: _vm.settings.port },
                       on: {
                         input: function($event) {
@@ -38242,6 +38292,12 @@ var render = function() {
                                       _vm._v(
                                         "\n\t\t\t\t\t\t\t\t\tBlocked\n\t\t\t\t\t\t\t\t"
                                       )
+                                    ]),
+                                    _vm._v(" "),
+                                    _c("option", { attrs: { value: "-2" } }, [
+                                      _vm._v(
+                                        "\n\t\t\t\t\t\t\t\t\tAwaiting Resend\n\t\t\t\t\t\t\t\t"
+                                      )
                                     ])
                                   ]
                                 ),
@@ -38407,17 +38463,6 @@ var render = function() {
                                   "div",
                                   { attrs: { id: "listman_messagedetails" } },
                                   [
-                                    _c("p", [
-                                      _vm._v(
-                                        _vm._s(
-                                          _vm.t(
-                                            "listman",
-                                            "Selected Message Details:"
-                                          )
-                                        )
-                                      )
-                                    ]),
-                                    _vm._v(" "),
                                     _c("input", {
                                       directives: [
                                         {
@@ -47677,4 +47722,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=7ed23b8a4b88d4cfe7a4
+//# sourceMappingURL=listman-main.js.map?v=ec352de1c8faaba2da2f
