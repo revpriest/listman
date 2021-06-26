@@ -311,6 +311,8 @@
 				<div v-if="shownPane=='form'" id="shownPane">
 					<h2>{{ currentList.title }} - {{ t('listman', 'Subscribe-form code.') }}</h2>
 					<pre id="subscribeFormText">{{ subscribeFormText }}</pre>
+					<hr>
+					<a :href="subscribeFormUrl" class="btn">{{ t('listman', 'Link To Native Form') }}</a>
 				</div>
 			</div>
 			<div v-else id="emptydesc">
@@ -367,6 +369,7 @@ export default {
 			updating: false,
 			loading: true,
 			subscribeFormText: null,
+			subscribeFormUrl: '',
 			settingsToggle: false,
 			settings: {
 				host: '',
@@ -541,6 +544,7 @@ export default {
 			this.shownPane = panename
 			if (panename === 'form') {
 				this.subscribeFormText = this.generateSubscribeFormText()
+				this.subscribeFormUrl = window.location.protocol + '//' + window.location.host + generateUrl('/apps/listman/subscribe/' + this.currentListRandId)
 			}
 		},
 		/**

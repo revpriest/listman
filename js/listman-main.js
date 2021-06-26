@@ -16710,6 +16710,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -16752,6 +16754,7 @@ __webpack_require__.r(__webpack_exports__);
       updating: false,
       loading: true,
       subscribeFormText: null,
+      subscribeFormUrl: '',
       settingsToggle: false,
       settings: {
         host: '',
@@ -16946,6 +16949,7 @@ __webpack_require__.r(__webpack_exports__);
 
       if (panename === 'form') {
         this.subscribeFormText = this.generateSubscribeFormText();
+        this.subscribeFormUrl = window.location.protocol + '//' + window.location.host + Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/subscribe/' + this.currentListRandId);
       }
     },
 
@@ -38694,7 +38698,18 @@ var render = function() {
                     _vm._v(" "),
                     _c("pre", { attrs: { id: "subscribeFormText" } }, [
                       _vm._v(_vm._s(_vm.subscribeFormText))
-                    ])
+                    ]),
+                    _vm._v(" "),
+                    _c("hr"),
+                    _vm._v(" "),
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn",
+                        attrs: { href: _vm.subscribeFormUrl }
+                      },
+                      [_vm._v(_vm._s(_vm.t("listman", "Link To Native Form")))]
+                    )
                   ])
                 : _vm._e()
             ])
@@ -47749,4 +47764,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=92a6ef005c239eb6e1bf
+//# sourceMappingURL=listman-main.js.map?v=d94386090018acab0f5b

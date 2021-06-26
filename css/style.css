@@ -156,3 +156,29 @@ textarea {
 #settingsPanel{
 }
 
+.btn{
+	background: rgb(28,24,96);
+	background: linear-gradient(171deg, rgba(28,24,96,1) 0%, rgba(120,141,169,1) 8%, rgba(41,77,125,1) 23%, rgba(33,49,116,1) 52%, rgba(22,28,88,1) 100%);
+	text-decoration: none;
+	margin: 0.1px 0.1em;
+	padding: 0.1px 0.2em;
+	border: 2px solid black;
+	border-radius: 1em;
+	text-decoration: none;
+	box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8);
+	text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8);
+  color: white;
+  padding: 0.1em 1em;
+  line-height:3em;
+}
+.btn:hover{
+	background: rgb(28,96,24);
+	background: linear-gradient(171deg, rgba(28,96,24,1) 0%, rgba(120,169,141,1) 8%, rgba(41,125,77,1) 23%, rgba(33,116,49,1) 52%, rgba(22,88,28,1) 100%);
+  color: black;
+}
+.btn:active{
+	background: rgb(96,28,24);
+	background: linear-gradient(171deg, rgba(96,24,28,1) 0%, rgba(168,141,120,1) 8%, rgba(125,77,41,1) 23%, rgba(116,49,33,1) 52%, rgba(88,28,22,1) 100%);
+  color: black;
+}
+
