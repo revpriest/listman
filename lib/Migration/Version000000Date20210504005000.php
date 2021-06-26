@@ -110,6 +110,9 @@ class Version000000Date20210504005000 extends SimpleMigrationStep {
             $table->addColumn('conf_expire', 'datetime', [
                 'notnull' => true,
             ]);
+            $table->addColumn('lastsend', 'datetime', [
+                'notnull' => false,
+            ]);
             $table->addColumn('user_id', 'string', [
                 'notnull' => true,
                 'length' => 200,

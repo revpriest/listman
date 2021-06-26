@@ -11,6 +11,7 @@ class Member extends Entity implements JsonSerializable {
     protected $state;
     protected $conf;
     protected $confExpire;
+    protected $lastsend;
     protected $listId;
     protected $userId;
 
@@ -33,6 +34,7 @@ class Member extends Entity implements JsonSerializable {
             'state' => $this->state,
             'conf' => $this->conf,
             'confExpire' => $this->confExpire,
+            'lastsend' => $this->lastsend,
             'list_id' => $this->listId
         ];
     }

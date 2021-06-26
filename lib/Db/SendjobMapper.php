@@ -46,18 +46,20 @@ class SendjobMapper extends QBMapper {
         $ret = [];
         $messages = $this->messageMapper->findRunningMessages();
 
-        file_put_contents("/var/www-nextcloud/data/prelog.txt","Mess: ".json_encode($messages)."\n",FILE_APPEND);
         foreach($messages as $message){
           $sr = $message->getSendrate();
           $qb = $this->db->getQueryBuilder();
-          $qb->select('*')
-             ->from($this->getTableName())
-             ->where($qb->expr()->eq('state', $qb->createNamedParameter(0)))
-             ->andWhere($qb->expr()->eq('message_id', $qb->createNamedParameter($message->getId())))
-             ->orderBy('member_id')
-             ->setMaxResults($sr);
-          $jobs = $this->findEntities($qb);
-          file_put_contents("/var/www-nextcloud/data/prelog.txt","Jobs: ".json_encode($jobs)."\n",FILE_APPEND);
+          try{
+            $qb->select('*')
+               ->from($this->getTableName())
+               ->where($qb->expr()->eq('state', $qb->createNamedParameter(0)))
+               ->andWhere($qb->expr()->eq('message_id', $qb->createNamedParameter($message->getId())))
+               ->orderBy('member_id')
+               ->setMaxResults($sr);
+            $jobs = $this->findEntities($qb);
+          }catch(\Exception $e){
+            $jobs = [];
+          }
           if(sizeof($jobs)<=0){
             $message->setSendrate(0);
             $this->messageMapper->update($message);
@@ -66,7 +68,7 @@ class SendjobMapper extends QBMapper {
               $ret[] = $job;
             }
             if($sr<$this->maxSendrate){
-              $message->setSendrate($sr+1);
+              $message->setSendrate($sr*2);
               $this->messageMapper->update($message);
             }
           }

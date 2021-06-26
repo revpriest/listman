@@ -738,7 +738,13 @@ class ListmanService {
     }
 
     //There's an hourly per-person limit.
-    //TODO
+		$hourAgo = new \DateTime();
+	  $hourAgo->setTimestamp($hourAgo->getTimestamp()-60*60);
+	  $hourAgo=$hourAgo->format("Y-m-d H:i:s");
+		$lastSend = $member->getLastsend();
+		if($lastSend > $hourAgo){
+			return false;
+		}
 
     return true;
   }
@@ -746,10 +752,16 @@ class ListmanService {
 	/**
 	* Get a mailer with SMTP details etc.
 	*/
-	private function getMailer($list){
+	private function getMailer($list,$member,$message=null){
     if(!$this->checkSendingLimits($list,$member)){
       return null;
     }
+
+		//Log this sending
+		$now = new \DateTime();
+		$member->setLastsend($now->format("Y-m-d H:i:s"));
+		$this->memberMapper->update($member);
+
 		require __DIR__.'/../../vendor/autoload.php';
 		$settings = $this->getSettings();
 		$mail = new PHPMailer(true);
@@ -1047,7 +1059,7 @@ class ListmanService {
   * user action.
   */
   public function runCron(){
-    $maxToTry= 10;
+    $allowedToDo = intval($this->settingsMapper->getSettingVal("maxdaily","0"));
     $tried = 0;
 
     //Uh.. Yawn. What day is it?
@@ -1062,7 +1074,6 @@ class ListmanService {
       $this->settingsMapper->setSettingVal("senttoday","0");
 
       //Oh 😟 It's tomorrow. We have to do yesterday's overflow..
-      $allowedToDo = intval($this->settingsMapper->getSettingVal("maxdaily","0"));
       $confirmations = $this->memberMapper->getOverflow();
       foreach($confirmations as $member){
         if($tried < $allowedToDo){
