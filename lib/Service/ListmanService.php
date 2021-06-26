@@ -246,7 +246,6 @@ class ListmanService {
    * Settings need to be fetched or setted.
    */
   public function settings(Array $postvars): array{
-		//This is weird. Why the hell do I have to do this:
 		$settings = $this->getSettings();
 		foreach($settings as $n=>$v){
 			if(isset($postvars[$n])){

@@ -27,7 +27,7 @@
 					</template>
 				</AppNavigationItem>
 			</ul>
-			<div class="settingsSection">
+			<div v-if="isAdmin" class="settingsSection">
 				<ul id="queueDetails">
 					<li>Queued: <span id="queued">{{ currentQueue.queued }}</span> messages</li>
 					<li>Rate: <span id="queued">{{ currentQueue.rate }}</span> per 5 mins</li>
@@ -331,12 +331,14 @@ import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
 import AppNavigationNew from '@nextcloud/vue/dist/Components/AppNavigationNew'
 
 import '@nextcloud/dialogs/styles/toast.scss'
-import { generateUrl } from '@nextcloud/router'
 import { showError, showSuccess } from '@nextcloud/dialogs'
+import { generateUrl } from '@nextcloud/router'
+import { getCurrentUser } from '@nextcloud/auth'
 import axios from '@nextcloud/axios'
 
 export default {
 	name: 'App',
+	isAdmin: false,
 	components: {
 		ActionButton,
 		AppContent,
@@ -413,7 +415,11 @@ export default {
 			const response = await axios.get(generateUrl('/apps/listman/lists'))
 			this.lists = response.data
 			setInterval(this.updateQueueMonitor, 1000)
-			this.updateSettings(false)
+			const currentUser = getCurrentUser()
+			if (currentUser.isAdmin) {
+				this.isAdmin = true
+				this.updateSettings(false)
+			}
 		} catch (e) {
 			console.error(e)
 			showError(t('listman', 'Could not fetch lists'))

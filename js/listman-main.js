@@ -16378,11 +16378,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _nextcloud_vue_dist_Components_AppNavigationNew__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_vue_dist_Components_AppNavigationNew__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _nextcloud_dialogs_styles_toast_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @nextcloud/dialogs/styles/toast.scss */ "./node_modules/@nextcloud/dialogs/styles/toast.scss");
 /* harmony import */ var _nextcloud_dialogs_styles_toast_scss__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_dialogs_styles_toast_scss__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _nextcloud_router__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @nextcloud/router */ "./node_modules/@nextcloud/router/dist/index.js");
-/* harmony import */ var _nextcloud_router__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @nextcloud/dialogs */ "./node_modules/@nextcloud/dialogs/dist/index.es.js");
-/* harmony import */ var _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @nextcloud/axios */ "./node_modules/@nextcloud/axios/dist/index.js");
-/* harmony import */ var _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_axios__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var _nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @nextcloud/dialogs */ "./node_modules/@nextcloud/dialogs/dist/index.es.js");
+/* harmony import */ var _nextcloud_router__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @nextcloud/router */ "./node_modules/@nextcloud/router/dist/index.js");
+/* harmony import */ var _nextcloud_router__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _nextcloud_auth__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @nextcloud/auth */ "./node_modules/@nextcloud/auth/dist/index.js");
+/* harmony import */ var _nextcloud_auth__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_auth__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @nextcloud/axios */ "./node_modules/@nextcloud/axios/dist/index.js");
+/* harmony import */ var _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_nextcloud_axios__WEBPACK_IMPORTED_MODULE_9__);
 //
 //
 //
@@ -16708,6 +16710,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 
 
@@ -16719,6 +16722,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'App',
+  isAdmin: false,
   components: {
     ActionButton: (_nextcloud_vue_dist_Components_ActionButton__WEBPACK_IMPORTED_MODULE_0___default()),
     AppContent: (_nextcloud_vue_dist_Components_AppContent__WEBPACK_IMPORTED_MODULE_1___default()),
@@ -16799,13 +16803,18 @@ __webpack_require__.r(__webpack_exports__);
    */
   async mounted() {
     try {
-      const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/lists'));
+      const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.get(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/lists'));
       this.lists = response.data;
       setInterval(this.updateQueueMonitor, 1000);
-      this.updateSettings(false);
+      const currentUser = Object(_nextcloud_auth__WEBPACK_IMPORTED_MODULE_8__["getCurrentUser"])();
+
+      if (currentUser.isAdmin) {
+        this.isAdmin = true;
+        this.updateSettings(false);
+      }
     } catch (e) {
       console.error(e);
-      Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not fetch lists'));
+      Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not fetch lists'));
     }
 
     this.loading = false;
@@ -16828,8 +16837,8 @@ __webpack_require__.r(__webpack_exports__);
         this.$refs.desc.focus();
       }); // Fill members-list
 
-      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/listdetails/' + this.currentListId);
-      const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.get(url);
+      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/listdetails/' + this.currentListId);
+      const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.get(url);
       this.currentListMembers = response.data.members;
       this.currentListMessages = response.data.messages;
       this.currentListRandId = response.data.list.randid;
@@ -16874,12 +16883,12 @@ __webpack_require__.r(__webpack_exports__);
           senddat = this.settings;
         }
 
-        const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/settings');
-        const reply = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url, senddat);
+        const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/settings');
+        const reply = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(url, senddat);
         this.settings = reply.data;
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not save settings'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not save settings'));
       }
     },
 
@@ -16892,11 +16901,11 @@ __webpack_require__.r(__webpack_exports__);
         alert('Save it first');
       } else {
         try {
-          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-view/".concat(message.randid));
+          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/message-view/".concat(message.randid));
           window.open(url, '_blank');
         } catch (e) {
           console.error(e);
-          Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not signal to send the message') + e);
+          Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not signal to send the message') + e);
         }
       }
     },
@@ -16914,14 +16923,14 @@ __webpack_require__.r(__webpack_exports__);
         this.updating = true;
 
         try {
-          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-send/".concat(message.id));
-          await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url);
-          const url2 = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-sent/".concat(message.id));
-          const sentDetails = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url2);
+          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/message-send/".concat(message.id));
+          await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(url);
+          const url2 = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/message-sent/".concat(message.id));
+          const sentDetails = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(url2);
           this.setSentDetails(sentDetails.data);
         } catch (e) {
           console.error(e);
-          Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not signal to send the message') + e);
+          Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not signal to send the message') + e);
         }
 
         this.updating = false;
@@ -16945,7 +16954,7 @@ __webpack_require__.r(__webpack_exports__);
      * @returns {string}
     */
     generateSubscribeFormText() {
-      const url = window.location.protocol + '//' + window.location.host + Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/subscribe/' + this.currentListRandId);
+      const url = window.location.protocol + '//' + window.location.host + Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/subscribe/' + this.currentListRandId);
       let formText = '';
       formText += '<form method="post" action="' + url + '">' + '\n';
       formText += '\tName:<input placeholder="name" name="name"><br/>' + '\n';
@@ -17009,13 +17018,13 @@ __webpack_require__.r(__webpack_exports__);
       this.updating = true;
 
       try {
-        const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/lists'), list);
+        const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/lists'), list);
         const index = this.lists.findIndex(match => match.id === this.currentListId);
         this.$set(this.lists, index, response.data);
         this.currentListId = response.data.id;
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not create the list'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not create the list'));
       }
 
       this.updating = false;
@@ -17029,14 +17038,14 @@ __webpack_require__.r(__webpack_exports__);
       this.updating = true;
 
       try {
-        const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/messages'), message);
+        const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/messages'), message);
         const index = this.currentListMessages.findIndex(match => match.id === this.currentMessageId);
         this.$set(this.currentListMessages, index, response.data);
         this.currentMessageId = response.data.id;
         message.id = response.data.id;
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not create the message'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not create the message'));
       }
 
       this.updating = false;
@@ -17050,10 +17059,10 @@ __webpack_require__.r(__webpack_exports__);
       this.updating = true;
 
       try {
-        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/lists/".concat(list.id)), list);
+        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/lists/".concat(list.id)), list);
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not update the list'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not update the list'));
       }
 
       this.updating = false;
@@ -17067,10 +17076,10 @@ __webpack_require__.r(__webpack_exports__);
       this.updating = true;
 
       try {
-        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/messages/".concat(message.id)), message);
+        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/messages/".concat(message.id)), message);
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not update the message'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not update the message'));
       }
 
       this.updating = false;
@@ -17094,17 +17103,17 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       try {
-        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/lists/".concat(list.id)));
+        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.delete(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/lists/".concat(list.id)));
         this.lists.splice(this.lists.indexOf(list), 1);
 
         if (this.currentListId === list.id) {
           this.currentListId = null;
         }
 
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('listman', 'List deleted'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showSuccess"])(t('listman', 'List deleted'));
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not delete the list'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not delete the list'));
       }
     },
 
@@ -17118,14 +17127,14 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       try {
-        const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/members/".concat(member.id));
+        const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/members/".concat(member.id));
         console.error('opening url to delete member:' + url);
-        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(url);
+        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.delete(url);
         this.currentListMembers.splice(this.currentListMembers.indexOf(member), 1);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('listman', 'Member deleted'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showSuccess"])(t('listman', 'Member deleted'));
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not delete the member'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not delete the member'));
       }
     },
 
@@ -17139,14 +17148,14 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       try {
-        const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/messages/".concat(message.id));
+        const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/messages/".concat(message.id));
         console.error('opening url to delete message:' + url);
-        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.delete(url);
+        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.delete(url);
         this.currentListMessages.splice(this.currentListMessages.indexOf(message), 1);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showSuccess"])(t('listman', 'Message deleted'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showSuccess"])(t('listman', 'Message deleted'));
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not delete the message'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not delete the message'));
       }
     },
 
@@ -17185,13 +17194,13 @@ __webpack_require__.r(__webpack_exports__);
       this.updating = true;
 
       try {
-        const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])('/apps/listman/members'), member);
+        const response = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/members'), member);
         const index = this.currentListMembers.findIndex(match => match.id === member.id);
         this.$set(this.currentListMembers, index, response.data);
         member.id = response.data.id;
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not create the member'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not create the member'));
       }
 
       this.updating = false;
@@ -17205,10 +17214,10 @@ __webpack_require__.r(__webpack_exports__);
       this.updating = true;
 
       try {
-        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/members/".concat(member.id)), member);
+        await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.put(Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/members/".concat(member.id)), member);
       } catch (e) {
         console.error(e);
-        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_7__["showError"])(t('listman', 'Could not update the member'));
+        Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not update the member'));
       }
 
       this.updating = false;
@@ -17270,8 +17279,8 @@ __webpack_require__.r(__webpack_exports__);
     * Periodically update the queue-monitor
     */
     async updateQueueMonitor() {
-      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-sent/".concat(this.currentMessageId));
-      const sentDetails = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url);
+      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/message-sent/".concat(this.currentMessageId));
+      const sentDetails = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(url);
       this.setSentDetails(sentDetails.data);
       console.warn(sentDetails.data);
     },
@@ -17319,8 +17328,8 @@ __webpack_require__.r(__webpack_exports__);
         sent: '*',
         queued: '*'
       });
-      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_6__["generateUrl"])("/apps/listman/message-sent/".concat(message.id));
-      const sentDetails = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_8___default.a.post(url);
+      const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/message-sent/".concat(message.id));
+      const sentDetails = await _nextcloud_axios__WEBPACK_IMPORTED_MODULE_9___default.a.post(url);
       this.setSentDetails(sentDetails.data);
     }
 
@@ -37602,183 +37611,201 @@ var render = function() {
             1
           ),
           _vm._v(" "),
-          _c("div", { staticClass: "settingsSection" }, [
-            _c("ul", { attrs: { id: "queueDetails" } }, [
-              _c("li", [
-                _vm._v("Queued: "),
-                _c("span", { attrs: { id: "queued" } }, [
-                  _vm._v(_vm._s(_vm.currentQueue.queued))
+          _vm.isAdmin
+            ? _c("div", { staticClass: "settingsSection" }, [
+                _c("ul", { attrs: { id: "queueDetails" } }, [
+                  _c("li", [
+                    _vm._v("Queued: "),
+                    _c("span", { attrs: { id: "queued" } }, [
+                      _vm._v(_vm._s(_vm.currentQueue.queued))
+                    ]),
+                    _vm._v(" messages")
+                  ]),
+                  _vm._v(" "),
+                  _c("li", [
+                    _vm._v("Rate: "),
+                    _c("span", { attrs: { id: "queued" } }, [
+                      _vm._v(_vm._s(_vm.currentQueue.rate))
+                    ]),
+                    _vm._v(" per 5 mins")
+                  ])
                 ]),
-                _vm._v(" messages")
-              ]),
-              _vm._v(" "),
-              _c("li", [
-                _vm._v("Rate: "),
-                _c("span", { attrs: { id: "queued" } }, [
-                  _vm._v(_vm._s(_vm.currentQueue.rate))
-                ]),
-                _vm._v(" per 5 mins")
-              ])
-            ]),
-            _vm._v(" "),
-            _c(
-              "h3",
-              {
-                on: {
-                  click: function($event) {
-                    return _vm.toggleSettings()
-                  }
-                }
-              },
-              [_vm._v("\n\t\t\t\tSettings\n\t\t\t")]
-            ),
-            _vm._v(" "),
-            _vm.settingsToggle
-              ? _c("ul", { attrs: { id: "settingsPanel" } }, [
-                  _c("li", [
-                    _vm._v("\n\t\t\t\t\tMax Send Per Day:"),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.settings.maxdaily,
-                          expression: "settings.maxdaily"
-                        }
-                      ],
-                      ref: "settings.maxdaily",
-                      attrs: { type: "input", placeholder: "SMTP Host" },
-                      domProps: { value: _vm.settings.maxdaily },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(
-                            _vm.settings,
-                            "maxdaily",
-                            $event.target.value
-                          )
-                        }
-                      }
-                    })
-                  ]),
-                  _vm._v(" "),
-                  _c("li", [
-                    _vm._v("\n\t\t\t\t\tSMTP Host:"),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.settings.host,
-                          expression: "settings.host"
-                        }
-                      ],
-                      ref: "settings.host",
-                      attrs: { type: "input", placeholder: "SMTP Host" },
-                      domProps: { value: _vm.settings.host },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(_vm.settings, "host", $event.target.value)
-                        }
-                      }
-                    })
-                  ]),
-                  _vm._v(" "),
-                  _c("li", [
-                    _vm._v("\n\t\t\t\t\tSMTP User:"),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.settings.user,
-                          expression: "settings.user"
-                        }
-                      ],
-                      ref: "settings.user",
-                      attrs: { type: "input", placeholder: "SMTP User" },
-                      domProps: { value: _vm.settings.user },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(_vm.settings, "user", $event.target.value)
-                        }
-                      }
-                    })
-                  ]),
-                  _vm._v(" "),
-                  _c("li", [
-                    _vm._v("\n\t\t\t\t\tSMTP Pass:"),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.settings.pass,
-                          expression: "settings.pass"
-                        }
-                      ],
-                      ref: "settings.pass",
-                      attrs: { type: "password", placeholder: "SMTP Pass" },
-                      domProps: { value: _vm.settings.pass },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(_vm.settings, "pass", $event.target.value)
-                        }
-                      }
-                    })
-                  ]),
-                  _vm._v(" "),
-                  _c("li", [
-                    _vm._v("\n\t\t\t\t\tSMTP Port:"),
-                    _c("input", {
-                      directives: [
-                        {
-                          name: "model",
-                          rawName: "v-model",
-                          value: _vm.settings.port,
-                          expression: "settings.port"
-                        }
-                      ],
-                      ref: "settings.port",
-                      attrs: { type: "input", placeholder: "SMTP port" },
-                      domProps: { value: _vm.settings.port },
-                      on: {
-                        input: function($event) {
-                          if ($event.target.composing) {
-                            return
-                          }
-                          _vm.$set(_vm.settings, "port", $event.target.value)
-                        }
-                      }
-                    })
-                  ]),
-                  _vm._v(" "),
-                  _c("input", {
-                    staticClass: "primary",
-                    attrs: {
-                      type: "button",
-                      value: _vm.t("listman", "Save Settings")
-                    },
+                _vm._v(" "),
+                _c(
+                  "h3",
+                  {
                     on: {
                       click: function($event) {
-                        return _vm.updateSettings(true)
+                        return _vm.toggleSettings()
                       }
                     }
-                  })
-                ])
-              : _vm._e()
-          ])
+                  },
+                  [_vm._v("\n\t\t\t\tSettings\n\t\t\t")]
+                ),
+                _vm._v(" "),
+                _vm.settingsToggle
+                  ? _c("ul", { attrs: { id: "settingsPanel" } }, [
+                      _c("li", [
+                        _vm._v("\n\t\t\t\t\tMax Send Per Day:"),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.settings.maxdaily,
+                              expression: "settings.maxdaily"
+                            }
+                          ],
+                          ref: "settings.maxdaily",
+                          attrs: { type: "input", placeholder: "SMTP Host" },
+                          domProps: { value: _vm.settings.maxdaily },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.settings,
+                                "maxdaily",
+                                $event.target.value
+                              )
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("li", [
+                        _vm._v("\n\t\t\t\t\tSMTP Host:"),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.settings.host,
+                              expression: "settings.host"
+                            }
+                          ],
+                          ref: "settings.host",
+                          attrs: { type: "input", placeholder: "SMTP Host" },
+                          domProps: { value: _vm.settings.host },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.settings,
+                                "host",
+                                $event.target.value
+                              )
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("li", [
+                        _vm._v("\n\t\t\t\t\tSMTP User:"),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.settings.user,
+                              expression: "settings.user"
+                            }
+                          ],
+                          ref: "settings.user",
+                          attrs: { type: "input", placeholder: "SMTP User" },
+                          domProps: { value: _vm.settings.user },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.settings,
+                                "user",
+                                $event.target.value
+                              )
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("li", [
+                        _vm._v("\n\t\t\t\t\tSMTP Pass:"),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.settings.pass,
+                              expression: "settings.pass"
+                            }
+                          ],
+                          ref: "settings.pass",
+                          attrs: { type: "password", placeholder: "SMTP Pass" },
+                          domProps: { value: _vm.settings.pass },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.settings,
+                                "pass",
+                                $event.target.value
+                              )
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("li", [
+                        _vm._v("\n\t\t\t\t\tSMTP Port:"),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.settings.port,
+                              expression: "settings.port"
+                            }
+                          ],
+                          ref: "settings.port",
+                          attrs: { type: "input", placeholder: "SMTP port" },
+                          domProps: { value: _vm.settings.port },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.settings,
+                                "port",
+                                $event.target.value
+                              )
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("input", {
+                        staticClass: "primary",
+                        attrs: {
+                          type: "button",
+                          value: _vm.t("listman", "Save Settings")
+                        },
+                        on: {
+                          click: function($event) {
+                            return _vm.updateSettings(true)
+                          }
+                        }
+                      })
+                    ])
+                  : _vm._e()
+              ])
+            : _vm._e()
         ],
         1
       ),
@@ -47722,4 +47749,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=ec352de1c8faaba2da2f
+//# sourceMappingURL=listman-main.js.map?v=92a6ef005c239eb6e1bf
