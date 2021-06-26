@@ -2,6 +2,7 @@
 namespace OCA\Listman\Db;
 
 use OCP\IDBConnection;
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\AppFramework\Db\QBMapper;
 use OCA\Listman\Db\Message;
 use OCA\Listman\Db\MessageMapper;
@@ -45,7 +46,7 @@ class SendjobMapper extends QBMapper {
         $ret = [];
         $messages = $this->messageMapper->findRunningMessages();
 
-        file_put_contents("data/prelog.txt","Mess: ".json_encode($messages)."\n",FILE_APPEND);
+        file_put_contents("/var/www-nextcloud/data/prelog.txt","Mess: ".json_encode($messages)."\n",FILE_APPEND);
         foreach($messages as $message){
           $sr = $message->getSendrate();
           $qb = $this->db->getQueryBuilder();
@@ -56,7 +57,7 @@ class SendjobMapper extends QBMapper {
              ->orderBy('member_id')
              ->setMaxResults($sr);
           $jobs = $this->findEntities($qb);
-          file_put_contents("data/prelog.txt","Jobs: ".json_encode($jobs)."\n",FILE_APPEND);
+          file_put_contents("/var/www-nextcloud/data/prelog.txt","Jobs: ".json_encode($jobs)."\n",FILE_APPEND);
           if(sizeof($jobs)<=0){
             $message->setSendrate(0);
             $this->messageMapper->update($message);
@@ -84,6 +85,38 @@ class SendjobMapper extends QBMapper {
             ->where($qb->expr()->eq('message_id', $qb->createNamedParameter($message_id)));
 				$ret = $this->findEntities($qb);
         return $ret;
+   }
+
+
+	/**
+   * Reset the overflow.
+   * We also want to re-start the sending of any messages
+   * whose rate went to zero if they are getting overflow
+   * sends. Have to do that first, before we destroy the
+   * information about which messages that is.
+	 */
+   public function resetOverflow() {
+      //Subquery to get all the messages that need rate altered
+      $qbs = $this->db->getQueryBuilder();
+      $qbs->selectDistinct("message_id")
+         ->from($this->getTableName())
+         ->where($qbs->expr()->eq('state',$qbs->createNamedParameter(-2)));
+
+      //Superquery to then update them
+      $qb = $this->db->getQueryBuilder();
+      $qb->update("listman_message")
+          ->set("sendrate", $qb->createNamedParameter(1))
+          ->where($qb->expr()->eq('sendrate', $qb->createNamedParameter(0)))
+			    ->andWhere($qb->expr()->in('id', $qb->createFunction($qbs->getSQL()), IQueryBuilder::PARAM_INT_ARRAY));
+      $qb->execute();
+
+      //Main query to set all the state=-2 sendjobs to state=0 to rejoin the queue
+      $qb = $this->db->getQueryBuilder();
+      $qb->update($this->getTableName())
+          ->set("state", $qb->createNamedParameter(0))
+          ->where($qb->expr()->eq('state', $qb->createNamedParameter(-2)))
+          ->execute();
+      return;
    }
 
 	/**

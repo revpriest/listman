@@ -74,12 +74,16 @@ class MessageMapper extends QBMapper {
     * List all the messages that have sendrate > 0
     */
    public function findRunningMessages(){
-      $qb = $this->db->getQueryBuilder();
-      $qb->select('*')
-         ->from("listman_message")
-         ->where($qb->expr()->gt('sendrate', $qb->createNamedParameter(0)));
-      $messages = $this->findEntities($qb);
-      return $messages;
+      try{
+        $qb = $this->db->getQueryBuilder();
+        $qb->select('*')
+           ->from("listman_message")
+           ->where($qb->expr()->gt('sendrate', $qb->createNamedParameter(0)));
+        $messages = $this->findEntities($qb);
+        return $messages;
+      }catch(\Exception $e){
+      }
+      return [];
    }
 
 	/**

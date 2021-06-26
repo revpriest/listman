@@ -25,8 +25,6 @@ class ListmanSend extends Job {
 	}
 
 	protected function run($arguments) {
-		if($this->service->runCron()===false){
-      $this->jobList->remove(ListmanSend::class);
-	  }
+		$this->service->runCron();
 	}
 }

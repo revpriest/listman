@@ -48,14 +48,31 @@ class MemberMapper extends QBMapper {
 	 * @param string $userId
 	 * @return array
 	 */
-    public function findAll(string $userId) {
+  public function findAll(string $userId) {
+      $qb = $this->db->getQueryBuilder();
+      $qb->select('*')
+         ->from($this->getTableName())
+         ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
+			$ret = $this->findEntities($qb);
+      return $ret;
+  }
+
+	/**
+	 * @param string $userId
+	 * @return array
+	 */
+  public function getOverflow() {
+      try{
         $qb = $this->db->getQueryBuilder();
         $qb->select('*')
            ->from($this->getTableName())
-           ->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)));
-				$ret = $this->findEntities($qb);
+           ->where($qb->expr()->eq('state', $qb->createNamedParameter(-2)));
+        $ret = $this->findEntities($qb);
         return $ret;
-    }
+      }catch(Exception $e){
+        return [];
+      }
+  }
 
 	/**
 	 * @param int $list_id

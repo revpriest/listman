@@ -30,7 +30,6 @@ class SettingsMapper extends QBMapper {
 	* @return string|value
 	*/
   public function getSettingVal(string $name,string $default=null) {
-		file_put_contents("/var/www-nextcloud/data/prelog.txt","Getting $name $default\n",FILE_APPEND);
 	  try{
        $qb = $this->db->getQueryBuilder();
        $qb->select('*')
@@ -42,10 +41,8 @@ class SettingsMapper extends QBMapper {
 	 			return $ret;
       }
 	  }catch(\Exception $e){
-		  file_put_contents("/var/www-nextcloud/data/prelog.txt","exceptiong".json_encode($e->getMessage())."\n",FILE_APPEND);
 	 	 return $defaut;
 	  }
-		file_put_contents("/var/www-nextcloud/data/prelog.txt","Ending\n",FILE_APPEND);
     return $default;
   }
 
@@ -55,7 +52,6 @@ class SettingsMapper extends QBMapper {
 	* @return string|value
 	*/
   public function setSettingVal(string $name,string $value=null) {
-		file_put_contents("/var/www-nextcloud/data/prelog.txt","Saving $name $value\n",FILE_APPEND);
 	  try{
        $qb = $this->db->getQueryBuilder();
        $qb->select('*')

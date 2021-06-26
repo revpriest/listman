@@ -722,27 +722,20 @@ class ListmanService {
   * list and generally all-over
 	*/
 	private function checkSendingLimits($list,$member,$message=null){
-
     //There's a overall per-day limit.
     $today = new \DateTime();
     $today = $today->format("Y-m-d");
     $sentToday = 0;
-		file_put_contents("/var/www-nextcloud/data/prelog.txt","Check Lim $today\n",FILE_APPEND);
     $dbtoday = $this->settingsMapper->getSettingVal("today","");
-		file_put_contents("/var/www-nextcloud/data/prelog.txt","Check Lim2 !$today!- !$dbtoday!\n",FILE_APPEND);
-    if($today!=$dbtoday){
-      $this->settingsMapper->setSettingVal("today",$today);
-      $sentToday = 0;
-    }else{
+    if($today==$dbtoday){
+      $maxToSend = intval($this->settingsMapper->getSettingVal("maxdaily","50"));
       $sentToday = intval($this->settingsMapper->getSettingVal("senttoday",0));
+      if($sentToday>$maxToSend){
+        return false;
+      }
+      $sentToday+=1;
+      $this->settingsMapper->setSettingVal("senttoday","".$sentToday);
     }
-		file_put_contents("/var/www-nextcloud/data/prelog.txt","Check Lim2\n",FILE_APPEND);
-    $maxToSend = intval($this->settingsMapper->getSettingVal("maxdaily","50"));
-    if($sentToday>$maxToSend){
-      return false;
-    }
-    $sentToday+=1;
-    $this->settingsMapper->setSettingVal("senttoday","".$sentToday);
 
     //There's an hourly per-person limit.
     //TODO
@@ -774,6 +767,45 @@ class ListmanService {
 		$mail->setFrom($list->getFromemail(), $list->getFromname());
 		return $mail;
 	}
+
+
+  /**
+  * Send a confirmation email
+  */
+  private function sendConfirmationEmail($member,$list=null,$act="sub"){
+    if($list==null){
+      //Ugh. Overflow. Which list was it they want again?
+      try{
+        $list = $this->mapper->find($member->getListId(),"");
+      }catch(Exception $e){
+        file_put_contents("/var/www-nextcloud/data/prelog.txt","Can't send conf ".$member->getEmail()."\n",FILE_APPEND);
+        return false;
+      }
+    } 
+
+    $sentOkay = false;
+    try{
+      $content = $this->confirmRender($member,$list,$act);
+      $mail = $this->getMailer($list,$member,null);
+      if($mail==null){
+        //Sending limits passed. 
+        $sentOkay=false;
+      }else{
+        $mail->addAddress($member->getEmail(),$member->getname());
+        $mail->Subject = $list->getTitle()." subscription";
+        $mail->Body    = $content['html'];;
+        $mail->AltBody = $content['plain'];
+        $mail->send();
+        $sentOkay=true;
+      }
+    }catch (Exception $e) {
+      $sentOkay=false;
+      file_put_contents("/var/www-nextcloud/data/prelog.txt","Can't send ".$member->getEmail()." - ".$mail->ErrorInfo."\n",FILE_APPEND);
+    }
+    return $sentOkay;
+  }
+
+
 
   /**
   * A subscribe action to be used from forms from
@@ -847,25 +879,7 @@ class ListmanService {
 			}
 
 			//Send the actual email.
-		  $sentOkay = false;
-			try{
-				$content = $this->confirmRender($member,$list,$act);
-				$mail = $this->getMailer($list,$member,null);
-        if($mail==null){
-          //Sending limits passed. 
-					$sentOkay=false;
-        }else{
-					$mail->addAddress($member->getEmail(),$member->getname());
-					$mail->Subject = $list->getTitle()." subscription";
-					$mail->Body    = $content['html'];;
-					$mail->AltBody = $content['plain'];
-					$mail->send();
-					$sentOkay=true;
-				}
-			}catch (Exception $e) {
-				$sentOkay=false;
-				file_put_contents("/var/www-nextcloud/data/prelog.txt","Can't send ".$member->getEmail()." - ".$mail->ErrorInfo."\n",FILE_APPEND);
-			}
+      $sentOkay = $this->sendConfirmationEmail($member,$list,$act);
 			if(!$sentOkay){
         $member->setState(-2);       #Needs confirmation-email resend
         $member = $this->memberMapper->update($member);
@@ -997,6 +1011,7 @@ class ListmanService {
   * 0 - Job not done, should still be attempted
   * 1 - Job complete
   * < 0 - Errors
+  * -2 - Limits expired
   */
   public function sendEmailToMember($sendJob){
     $member = $this->memberMapper->find($sendJob->getMemberId());
@@ -1035,19 +1050,48 @@ class ListmanService {
     $maxToTry= 10;
     $tried = 0;
 
+    //Uh.. Yawn. What day is it?
+    $today = new \DateTime();
+    $today = $today->format("Y-m-d");
+    //But..!? I thought it was....
+    $dbtoday = $this->settingsMapper->getSettingVal("today","");
+
+    if($today!=$dbtoday){
+      //Oh! It's tomorrow! All our limits get reset! Hurray!
+      $this->settingsMapper->setSettingVal("today",$today);
+      $this->settingsMapper->setSettingVal("senttoday","0");
+
+      //Oh 😟 It's tomorrow. We have to do yesterday's overflow..
+      $allowedToDo = intval($this->settingsMapper->getSettingVal("maxdaily","0"));
+      $confirmations = $this->memberMapper->getOverflow();
+      foreach($confirmations as $member){
+        if($tried < $allowedToDo){
+          $done = $this->sendConfirmationEmail($member,null,"sub");
+          $tried++;
+          if($done){
+						$member->setState(0);
+      			$this->memberMapper->update($member);
+          }  
+        }
+      }
+
+			//Overflowed send-jobs just have their state changed to be retried today.
+      $queuedjobs = $this->sendjobMapper->resetOverflow();
+    }
+
+		//Now we process the queue as usual.    
     $jobList = $this->sendjobMapper->getListToSend();
     foreach($jobList as $job){
-      if($tried >= $maxToTry){
-        break;
-      }
-      $tried++;
-      try{
-        $state = $this->sendEmailToMember($job);
-        $job->setState($state);
-        $this->sendjobMapper->update($job);
-      }catch(Exception $e){
-        return false;
-      }
+      if($tried < $allowedToDo){
+				$tried++;
+				try{
+					$state = $this->sendEmailToMember($job);
+					$job->setState($state);
+					$this->sendjobMapper->update($job);
+				}catch(Exception $e){
+					return false;
+				}
+			}
     }
     return true;
   }

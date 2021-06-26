@@ -10,6 +10,12 @@ class Sendjob extends Entity implements JsonSerializable {
     protected $messageId;
     protected $memberId;
 
+    #States:
+    #-2 - Needs resend after limit reached
+    #-1 - Failed to send
+    # 0 - queueud
+    # 1 - Sent
+
     public function __construct() {
     }
 
