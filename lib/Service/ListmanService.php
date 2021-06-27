@@ -124,7 +124,6 @@ class ListmanService {
     $html.="<a $btn href=\"$reply\">".$list->getButtontext()."</a></li>";
     $html.="</ul>";
 
-    $plain.="---\n";
     $plain.=" * Un/Subscribe: $subscribe\n";
     $plain.=" * Share: $share\n";
     $plain.=" * ".$list->getButtontext().": $reply\n";
@@ -146,7 +145,7 @@ class ListmanService {
     $html.="<h1>".$message->getSubject()."</h1>";
     $html.="<hr/>";
 
-    $plain.="# $subject\n";
+    $plain.="# ".$message->getSubject()."\n";
     $plain.="---\n";
 
     //Render the actual text of the message body.
@@ -180,7 +179,7 @@ class ListmanService {
                 for($n=0;$n<intval($num);$n++){
                   $indent.="#";
                 }
-                $plain.="\n$indent $dat\n\n";
+                $plain.="\n$indent $dat";
               }
               break;
 
@@ -191,6 +190,16 @@ class ListmanService {
               $alt_h = htmlspecialchars($alt);
               $html.="</p><p style=\"text-align:center\"><a href=\"$img\"><img style=\"width: 40em;max-width:90%;\" class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a></p>\n<p $pstyle>";
               $plain.="\n * $img ($alt)\n";
+              break;
+
+            case "/*link":
+              $cmd = array_shift($params);
+              $lnk = array_shift($params);
+              $dsc = implode(" ",$params);
+              if($dsc==""){$dsc = "Link";}
+              $dsc_h = htmlspecialchars($dsc);
+              $html.=" <li style=\"margin-left:2em\"><a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a></li> ";
+              $plain.=" * ($dsc)[ $lnk ]\n";
               break;
 
             case "/link":
