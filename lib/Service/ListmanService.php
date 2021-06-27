@@ -198,7 +198,7 @@ class ListmanService {
               $dsc = implode(" ",$params);
               if($dsc==""){$dsc = "Link";}
               $dsc_h = htmlspecialchars($dsc);
-              $html.=" <li style=\"margin-left:2em\"><a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a></li> ";
+              $html.=" <p style=\"margin-left:2em\">* <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a></p> ";
               $plain.=" * ($dsc)[ $lnk ]\n";
               break;
 
@@ -1104,9 +1104,11 @@ class ListmanService {
       if($tried < $allowedToDo){
 				$tried++;
 				try{
+          file_put_contents("/var/www-nextcloud/data/prelog.txt","SEnding\n",FILE_APPEND);
 					$state = $this->sendEmailToMember($job);
 					$job->setState($state);
 					$this->sendjobMapper->update($job);
+          file_put_contents("/var/www-nextcloud/data/prelog.txt","Changed\n",FILE_APPEND);
 				}catch(Exception $e){
 					return false;
 				}
