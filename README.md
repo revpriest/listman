@@ -36,6 +36,13 @@ Features:
   * Bullet-links
 * Sane plain-text version of every email too.
 
+## Screenshots
+
+The compose screen and a web-view of the email sent:
+
+![interface](img/screenshot/interface.png)
+![email](img/screenshot/email.png)
+
 ## Message Syntax
 
 In composed messages you may use special commands. Put them in a
