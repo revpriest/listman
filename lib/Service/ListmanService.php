@@ -188,7 +188,7 @@ class ListmanService {
               $img = array_shift($params);
               $alt = implode(" ",$params);
               $alt_h = htmlspecialchars($alt);
-              $html.="</p><p style=\"text-align:center\"><a href=\"$img\"><img style=\"width: 40em;max-width:90%;\" class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a></p>\n<p $pstyle>";
+              $html.="</p><p style=\"text-align:center\"><a href=\"$img\"><img style=\"width: 30em;\" class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a></p>\n<p $pstyle>";
               $plain.="\n * $img ($alt)\n";
               break;
 
