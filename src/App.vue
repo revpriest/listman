@@ -544,7 +544,6 @@ export default {
 			this.shownPane = panename
 			if (panename === 'form') {
 				this.subscribeFormText = this.generateSubscribeFormText()
-				this.subscribeFormUrl = window.location.protocol + '//' + window.location.host + generateUrl('/apps/listman/subscribe/' + this.currentListRandId)
 			}
 		},
 		/**
@@ -560,6 +559,7 @@ export default {
 			formText += '\t<input type="hidden" name="redir" value="{{Your Return URL}}">' + '\n'
 			formText += '\t<button>Subscribe</button>' + '\n'
 			formText += '</form>' + '\n'
+			this.subscribeFormUrl = window.location.protocol + '//' + window.location.host + generateUrl('/apps/listman/subscribe/' + this.currentListRandId)
 			return formText
 		},
 		/**

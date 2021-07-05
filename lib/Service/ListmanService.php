@@ -198,7 +198,7 @@ class ListmanService {
               $dsc = implode(" ",$params);
               if($dsc==""){$dsc = "Link";}
               $dsc_h = htmlspecialchars($dsc);
-              $html.=" <p style=\"margin-left:2em\">* <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a></p> ";
+              $html.=" <p style=\"margin-left:1em\">* <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a></p> ";
               $plain.=" * ($dsc)[ $lnk ]\n";
               break;
 

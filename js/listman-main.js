@@ -16949,7 +16949,6 @@ __webpack_require__.r(__webpack_exports__);
 
       if (panename === 'form') {
         this.subscribeFormText = this.generateSubscribeFormText();
-        this.subscribeFormUrl = window.location.protocol + '//' + window.location.host + Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/subscribe/' + this.currentListRandId);
       }
     },
 
@@ -16966,6 +16965,7 @@ __webpack_require__.r(__webpack_exports__);
       formText += '\t<input type="hidden" name="redir" value="{{Your Return URL}}">' + '\n';
       formText += '\t<button>Subscribe</button>' + '\n';
       formText += '</form>' + '\n';
+      this.subscribeFormUrl = window.location.protocol + '//' + window.location.host + Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/subscribe/' + this.currentListRandId);
       return formText;
     },
 
@@ -47764,4 +47764,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=d94386090018acab0f5b
+//# sourceMappingURL=listman-main.js.map?v=5a1ebb9c6ffd36575a93
