@@ -13,6 +13,12 @@
     <td><input placeholder="email" name="email"></td>
   </tr>
   <tr>
+    <td colspan="2">To show you're not a robot, type hello:</td>
+  </tr>
+  <tr>
+    <td colspan="2"><input placeholder="hello" name="hello"></td>
+  </tr>
+  <tr>
     <td colspan="2">
       <input type="hidden" name="redir" value="<?php $redir ?>">
       <button name="act" value="sub">Subscribe</button>

@@ -713,16 +713,20 @@ class ListmanService {
     ];
   }
 
-  public function formValid($email,$name){
-      if($email==null) return false;
-      if($email=="") return false;
-      if($name=="") return false;
+  public function formValid($email,$name,$robo){
+      if($email==null) return "No Email";
+      if($email=="") return "No Email";
+      if($name=="") return "No Name";
+      if((!strcasecmp($robo,"hello"))&&
+         (!strcasecmp($robo,"hi"))){
+        return "Failed robot check";
+      }
       if($name==null) return false;
 			$pos = strpos($email,"@");
 			if($pos == false){
-				return false;
+				return "bad email";
 			}
-      return true;
+      return "yes";
   }
 
 	/**
@@ -833,8 +837,9 @@ class ListmanService {
   * whatever status we are switching to.
   */
   public function subscribe(string $lrid): object {
+    $robo  = "";     if(isset($_POST['hello'] )){$name  = $_POST['hello'] ;}
     $name  = "";     if(isset($_POST['name'] )){$name  = $_POST['name'] ;}
-    $email = "";     if(isset($_POST['email'])){$email = $_POST['email'];}
+    $email = null;   if(isset($_POST['email'])){$email = $_POST['email'];}
     $conf  = "";     if(isset($_POST['conf'] )){$conf  = $_POST['conf'] ;}
     $act   = "sub";  if(isset($_POST['act']  )){$act   = $_POST['act']  ;}
     $redir = null;   if(isset($_POST['redir'])){$redir = $_POST['redir'];}
@@ -860,11 +865,11 @@ class ListmanService {
       return $response;
     }
 
-		if($email!=""){
-		  $ret = $this->formValid($email,$name);
-			if(!$this->formValid($email,$name)){
+		if($email!==null){
+		  $valid = $this->formValid($email,$name,$robo);
+			if($valid!="yes"){
 				$sub = $this->getLink("subscribe",$list->getRandid());
-				$response = new PublicTemplateResponse(Application::APP_ID, 'cantsend', ['message'=>"Invalid Email or No Name","list"=>$list,"sub"=>$sub]);
+				$response = new PublicTemplateResponse(Application::APP_ID, 'cantsend', ['message'=>$valid,"list"=>$list,"sub"=>$sub]);
 				\OCP\Util::addStyle(Application::APP_ID, 'pub');
 				$response->setHeaderTitle('Not Found');
 				$response->setHeaderDetails('You can\'t spell your own email address');

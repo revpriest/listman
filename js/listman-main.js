@@ -16961,7 +16961,9 @@ __webpack_require__.r(__webpack_exports__);
       let formText = '';
       formText += '<form method="post" action="' + url + '">' + '\n';
       formText += '\tName:<input placeholder="name" name="name"><br/>' + '\n';
-      formText += '\tEmail:<input placeholder="email" name="email"><br/>' + '\n';
+      formText += '\tEmail:<input placeholder="email" name="email"><br/><br/>' + '\n';
+      formText += '\tTo prove you\'re not a robot: Type hello.<br/>\n';
+      formText += '\t<input placeholder="hello" name="hello"><br/>' + '\n';
       formText += '\t<input type="hidden" name="redir" value="{{Your Return URL}}">' + '\n';
       formText += '\t<button>Subscribe</button>' + '\n';
       formText += '</form>' + '\n';
@@ -47764,4 +47766,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=5a1ebb9c6ffd36575a93
+//# sourceMappingURL=listman-main.js.map?v=ff6982ecba7ed6611611
