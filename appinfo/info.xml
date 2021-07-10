@@ -2,15 +2,22 @@
 <info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
     <id>listman</id>
-    <name>List Manager</name>
-    <summary>App for managing email-lists</summary>
-    <description><![CDATA[This is a simple app for managing mail-lists with the Nextcloud System]]></description>
-    <version>19.0.0</version>
+    <name>Listman</name>
+    <summary>App for managing email-lists. Sign-up forms, unsubscribe links in the email, all that jazz</summary>
+    <description><![CDATA[This is a simple app for managing mail-lists with the Nextcloud System. Each Nextcloud user may create multiple mail-lists, circulate subscribe forms, send messages to the members of the list etc. It has a separate SMTP configuration visible only to nextcloud admin-users.]]></description>
+    <version>20.0.0</version>
     <licence>agpl</licence>
     <author mail="pre@dalliance.net" >Pre</author>
     <namespace>Listman</namespace>
-    <category>office</category>
+    <category>Social</category>
+		<website>https://github.com/revpriest/listman</website>
     <bugs>https://github.com/revpriest/listman</bugs>
+    <repository type="git">https://github.com/revpriest/listman</repository>
+    <documentation>
+        <admin>https://github.com/revpriest/listman#readme</admin>
+    </documentation>
+    <screenshot>https://raw.githubusercontent.com/revpriest/listman/main/img/screenshot/interface.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/revpriest/listman/main/img/screenshot/email.png</screenshot>
     <dependencies>
         <nextcloud min-version="19" max-version="22"/>
     </dependencies>
