@@ -13,10 +13,10 @@
     <td><input placeholder="email" name="email"></td>
   </tr>
   <tr>
-    <td colspan="2">To show you're not a robot, type hello:</td>
+    <td colspan="2">To show you're not a robot, what is double the number three?</td>
   </tr>
   <tr>
-    <td colspan="2"><input placeholder="hello" name="hello"></td>
+    <td colspan="2"><input name="hello"></td>
   </tr>
   <tr>
     <td colspan="2">

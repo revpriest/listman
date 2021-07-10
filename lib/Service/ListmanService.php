@@ -714,11 +714,12 @@ class ListmanService {
   }
 
   public function formValid($email,$name,$robo){
+      file_put_contents("/var/www-nextcloud/data/prelog.txt","Validating Form: ".$email." / ".$name." / ".$robo."\n",FILE_APPEND);
       if($email==null) return "No Email";
       if($email=="") return "No Email";
       if($name=="") return "No Name";
-      if((!strcasecmp($robo,"hello"))&&
-         (!strcasecmp($robo,"hi"))){
+      if((!strcasecmp($robo,"six")==0)&&
+         (!strcasecmp($robo,"6")==0)){
         return "Failed robot check";
       }
       if($name==null) return false;
@@ -837,7 +838,7 @@ class ListmanService {
   * whatever status we are switching to.
   */
   public function subscribe(string $lrid): object {
-    $robo  = "";     if(isset($_POST['hello'] )){$name  = $_POST['hello'] ;}
+    $robo  = "";     if(isset($_POST['hello'] )){$robo = $_POST['hello'] ;}
     $name  = "";     if(isset($_POST['name'] )){$name  = $_POST['name'] ;}
     $email = null;   if(isset($_POST['email'])){$email = $_POST['email'];}
     $conf  = "";     if(isset($_POST['conf'] )){$conf  = $_POST['conf'] ;}
