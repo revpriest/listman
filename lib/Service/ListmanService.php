@@ -714,7 +714,6 @@ class ListmanService {
   }
 
   public function formValid($email,$name,$robo){
-      file_put_contents("/var/www-nextcloud/data/prelog.txt","Validating Form: ".$email." / ".$name." / ".$robo."\n",FILE_APPEND);
       if($email==null) return "No Email";
       if($email=="") return "No Email";
       if($name=="") return "No Name";
@@ -803,7 +802,6 @@ class ListmanService {
       try{
         $list = $this->mapper->find($member->getListId(),"");
       }catch(Exception $e){
-        file_put_contents("/var/www-nextcloud/data/prelog.txt","Can't send conf ".$member->getEmail()."\n",FILE_APPEND);
         return false;
       }
     } 
@@ -825,7 +823,6 @@ class ListmanService {
       }
     }catch (Exception $e) {
       $sentOkay=false;
-      file_put_contents("/var/www-nextcloud/data/prelog.txt","Can't send ".$member->getEmail()." - ".$mail->ErrorInfo."\n",FILE_APPEND);
     }
     return $sentOkay;
   }
@@ -1058,7 +1055,6 @@ class ListmanService {
 			$mail->AltBody = $content['plain'];
 			$mail->send();
 		}catch (Exception $e) {
-      file_put_contents("/var/www-nextcloud/data/prelog.txt","Can't send ".$member->getEmail()." - ".$mail->ErrorInfo."\n",FILE_APPEND);
 			return -1;
 		}
 
@@ -1110,11 +1106,9 @@ class ListmanService {
       if($tried < $allowedToDo){
 				$tried++;
 				try{
-          file_put_contents("/var/www-nextcloud/data/prelog.txt","SEnding\n",FILE_APPEND);
 					$state = $this->sendEmailToMember($job);
 					$job->setState($state);
 					$this->sendjobMapper->update($job);
-          file_put_contents("/var/www-nextcloud/data/prelog.txt","Changed\n",FILE_APPEND);
 				}catch(Exception $e){
 					return false;
 				}
