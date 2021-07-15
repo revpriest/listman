@@ -41,7 +41,7 @@ class SettingsMapper extends QBMapper {
 	 			return $ret;
       }
 	  }catch(\Exception $e){
-	 	 return $defaut;
+	 	 return $default;
 	  }
     return $default;
   }

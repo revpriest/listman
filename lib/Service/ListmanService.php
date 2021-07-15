@@ -124,6 +124,7 @@ class ListmanService {
     $html.="<a $btn href=\"$reply\">".$list->getButtontext()."</a></li>";
     $html.="</ul>";
 
+    $plain = "";
     $plain.=" * Un/Subscribe: $subscribe\n";
     $plain.=" * Share: $share\n";
     $plain.=" * ".$list->getButtontext().": $reply\n";
