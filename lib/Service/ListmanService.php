@@ -943,7 +943,7 @@ class ListmanService {
       'email'=>$email,
       'name'=>$name,
       'act'=>$act,
-      'url'=>$url,
+      'url'=>$act,
       'redir'=>$redir,
       'list'=>$list,
     ]);
