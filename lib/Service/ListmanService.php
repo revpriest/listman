@@ -857,7 +857,7 @@ class ListmanService {
         $redir = $t;
       }
     } catch (Exception $e) {
-      $response = new PublicTemplateResponse(Application::APP_ID, 'notfound', ['messge'=>"Can't find list"]);
+      $response = new PublicTemplateResponse(Application::APP_ID, 'notfound', ['message'=>"Can't find list"]);
       \OCP\Util::addStyle(Application::APP_ID, 'pub');
       $response->setHeaderTitle('Not Found');
       $response->setHeaderDetails('Dunno what that list is');
