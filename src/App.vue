@@ -616,6 +616,7 @@ export default {
 				const index = this.lists.findIndex((match) => match.id === this.currentListId)
 				this.$set(this.lists, index, response.data)
 				this.currentListId = response.data.id
+				this.currentListRandId = response.data.randid
 			} catch (e) {
 				console.error(e)
 				showError(t('listman', 'Could not create the list'))

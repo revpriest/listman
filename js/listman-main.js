@@ -17028,6 +17028,7 @@ __webpack_require__.r(__webpack_exports__);
         const index = this.lists.findIndex(match => match.id === this.currentListId);
         this.$set(this.lists, index, response.data);
         this.currentListId = response.data.id;
+        this.currentListRandId = response.data.randid;
       } catch (e) {
         console.error(e);
         Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_6__["showError"])(t('listman', 'Could not create the list'));
@@ -47766,4 +47767,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=ff6982ecba7ed6611611
+//# sourceMappingURL=listman-main.js.map?v=f5cc493b9f80035f2938
