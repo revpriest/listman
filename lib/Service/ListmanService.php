@@ -31,6 +31,7 @@ use OCA\Listman\Db\MessageMapper;
 use OCA\Listman\Db\SendjobMapper;
 use OCA\Listman\Db\ReactMapper;
 use OCA\Listman\Cron\ListmanSend;
+use OCP\ILogger;
 
 class ListmanService {
 
@@ -52,9 +53,11 @@ class ListmanService {
   private $jobList;
   /** @var IFactory */
   private $l10nFactory;
+	/** @var ILogger */
+	private $logger;
 
 
-  public function __construct(MaillistMapper $mapper, SettingsMapper $settingsMapper,  MessageMapper $messageMapper, MemberMapper $memberMapper, ReactMapper $reactMapper,  SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IFactory $l10nFactory, IJobList  $jobList) {
+  public function __construct(MaillistMapper $mapper, SettingsMapper $settingsMapper,  MessageMapper $messageMapper, MemberMapper $memberMapper, ReactMapper $reactMapper,  SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IFactory $l10nFactory, IJobList  $jobList, ILogger $logger) {
     $this->mapper = $mapper;
     $this->settingsMapper = $settingsMapper;
     $this->memberMapper = $memberMapper;
@@ -64,6 +67,7 @@ class ListmanService {
     $this->urlGenerator = $urlGenerator;
     $this->jobList = $jobList;
     $this->l10nFactory = $l10nFactory;
+		$this->logger = $logger;
   }
 
   /**
@@ -842,7 +846,6 @@ class ListmanService {
     $conf  = "";     if(isset($_POST['conf'] )){$conf  = $_POST['conf'] ;}
     $act   = "sub";  if(isset($_POST['act']  )){$act   = $_POST['act']  ;}
     $redir = null;   if(isset($_POST['redir'])){$redir = $_POST['redir'];}
-
     if($redir == "{{Your Return URL}}"){    //They didn't bother to fill it in.
       $redir=null;
     }
@@ -1111,6 +1114,7 @@ class ListmanService {
 					$job->setState($state);
 					$this->sendjobMapper->update($job);
 				}catch(Exception $e){
+					$this->logger->logException($e,['message'=>"Exception during queued mail sending"]);
 					return false;
 				}
 			}
