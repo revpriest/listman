@@ -931,7 +931,7 @@ class ListmanService {
 				'email'=>$email,
 				'name'=>$name,
 				'act'=>$act,
-				'url'=>$act,
+				'url'=>"",
 				'redir'=>$redir,
 				'list'=>$list,
 			]);
@@ -946,7 +946,7 @@ class ListmanService {
       'email'=>$email,
       'name'=>$name,
       'act'=>$act,
-      'url'=>$act,
+      'url'=>"",
       'redir'=>$redir,
       'list'=>$list,
     ]);
