@@ -780,6 +780,7 @@ class ListmanService {
 		$this->memberMapper->update($member);
 
 		require __DIR__.'/../../vendor/autoload.php';
+    $unsub = $this->getConfirmLink($member,$list,"unsub");
 		$settings = $this->getSettings();
 		$mail = new PHPMailer(true);
 		$mail->CharSet = 'UTF-8';

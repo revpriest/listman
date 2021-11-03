@@ -5,7 +5,7 @@
     <name>Listman</name>
     <summary>App for managing email-lists. Sign-up forms, unsubscribe links in the email, all that jazz</summary>
     <description><![CDATA[This is a simple app for managing mail-lists with the Nextcloud System. Each Nextcloud user may create multiple mail-lists, circulate subscribe forms, send messages to the members of the list etc. It has a separate SMTP configuration visible only to nextcloud admin-users.]]></description>
-    <version>20.0.7</version>
+    <version>20.0.8</version>
     <licence>agpl</licence>
     <author mail="pre@dalliance.net" >Pre</author>
     <namespace>Listman</namespace>
@@ -19,7 +19,7 @@
     <screenshot>https://raw.githubusercontent.com/revpriest/listman/main/img/screenshot/interface.png</screenshot>
     <screenshot>https://raw.githubusercontent.com/revpriest/listman/main/img/screenshot/email.png</screenshot>
     <dependencies>
-        <nextcloud min-version="19" max-version="22"/>
+        <nextcloud min-version="19" max-version="24"/>
     </dependencies>
     <navigations>
         <navigation>
