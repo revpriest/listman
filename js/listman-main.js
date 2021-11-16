@@ -16712,6 +16712,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16761,7 +16769,8 @@ __webpack_require__.r(__webpack_exports__);
         user: '',
         pass: '',
         port: '',
-        maxdaily: '50'
+        maxdaily: '50',
+        latestWarn: '-'
       }
     };
   },
@@ -37797,18 +37806,52 @@ var render = function() {
                         })
                       ]),
                       _vm._v(" "),
-                      _c("input", {
-                        staticClass: "primary",
-                        attrs: {
-                          type: "button",
-                          value: _vm.t("listman", "Save Settings")
-                        },
-                        on: {
-                          click: function($event) {
-                            return _vm.updateSettings(true)
+                      _c("li", [
+                        _c("input", {
+                          staticClass: "primary",
+                          attrs: {
+                            type: "button",
+                            value: _vm.t("listman", "Save Settings")
+                          },
+                          on: {
+                            click: function($event) {
+                              return _vm.updateSettings(true)
+                            }
                           }
-                        }
-                      })
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("li", [
+                        _vm._v("\n\t\t\t\t\tLatest Warn:"),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.settings.latestWarn,
+                              expression: "settings.latestWarn"
+                            }
+                          ],
+                          ref: "settings.host",
+                          attrs: {
+                            type: "input",
+                            placeholder: "warnings appear here"
+                          },
+                          domProps: { value: _vm.settings.latestWarn },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.settings,
+                                "latestWarn",
+                                $event.target.value
+                              )
+                            }
+                          }
+                        })
+                      ])
                     ])
                   : _vm._e()
               ])
@@ -47767,4 +47810,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=f5cc493b9f80035f2938
+//# sourceMappingURL=listman-main.js.map?v=3da6c7ba46a7e0cd6f1f

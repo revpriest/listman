@@ -251,6 +251,7 @@ class ListmanService {
 			'pass'=>'',
 			'port'=>'',
 			'maxdaily'=>'50',
+			'latestWarn'=>'-',
 		];
 		$settings = $this->settingsMapper->loadall($settings);
 		return $settings;
@@ -1052,14 +1053,17 @@ class ListmanService {
 			$mail = $this->getMailer($list,$member,$message);
       if($mail==null){
         //Passed sending-limits.
+        $this->settingsMapper->setSettingVal("latestWarn",date('Y-m-d H:i:s').': Not sending to '.$member->getEmail().' today, already passed sending limits. Will do it later');
         return -2; #Paused
       }
-      $mail->addAddress($member->getEmail(),$member->getname());
+      $mail->addAddress($member->getEmail(),$member->getName());
 			$mail->Subject = $message->getSubject()." [".$list->getTitle()."]";
 			$mail->Body    = $content['html'];;
 			$mail->AltBody = $content['plain'];
 			$mail->send();
 		}catch (Exception $e) {
+      $this->settingsMapper->setSettingVal("latestWarn",date('Y-m-d H:i:s').': Error sending to '.$member->getEmail().' - '.$e->getMessage());
+			$this->logger->logException($e, ['message' => 'Error sending to '.$member->getEmail().' - '.$e->getMessage()]);
 			return -1;
 		}
 

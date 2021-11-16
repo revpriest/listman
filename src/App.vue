@@ -66,10 +66,18 @@
 							type="input"
 							placeholder="SMTP port">
 					</li>
-					<input type="button"
-						class="primary"
-						:value="t('listman', 'Save Settings')"
-						@click="updateSettings(true)">
+					<li>
+						<input type="button"
+							class="primary"
+							:value="t('listman', 'Save Settings')"
+							@click="updateSettings(true)">
+					</li>
+					<li>
+						Latest Warn:<input ref="settings.host"
+							v-model="settings.latestWarn"
+							type="input"
+							placeholder="warnings appear here">
+					</li>
 				</ul>
 			</div>
 		</AppNavigation>
@@ -377,6 +385,7 @@ export default {
 				pass: '',
 				port: '',
 				maxdaily: '50',
+				latestWarn: '-',
 			},
 		}
 	},
