@@ -225,11 +225,24 @@
 							</div>
 						</li>
 					</ul>
-					<input type="button"
-						class="primary"
-						:value="t('listman', 'New Member')"
-						:disabled="updating"
-						@click="newMember">
+					<div>
+						<input type="button"
+							class="primary"
+							:value="t('listman', 'New Member')"
+							:disabled="updating"
+							@click="newMember">
+					</div>
+					<div class="groupUI">
+						<input id="csvfile-member"
+							type="file"
+							class="primary"
+							:disabled="updating">
+						<input type="button"
+							class="primary"
+							:value="t('listman', 'Import List')"
+							:disabled="updating"
+							@click="importMember">
+					</div>
 				</div>
 				<!-- Show Message List -->
 				<div v-if="shownPane=='messages'" id="shownPane">
@@ -783,6 +796,36 @@ export default {
 				showError(t('listman', 'Could not create the member'))
 			}
 			this.updating = false
+		},
+		/**
+		* Import new members from CSV file, we read it and add it to the screen
+		* and the DB
+		*/
+		async importMember() {
+			const file = document.querySelector('#csvfile-member').files[0]
+			const reader = new FileReader()
+			const fileName = file.name
+			reader.readAsBinaryString(file)
+			const that = this
+
+			reader.onload = function(e) {
+				const objCsv = e.target.result
+				const allTextLines = objCsv.split(/\r\n|\n/)
+
+				for (let i = 1; i < allTextLines.length - 1; i++) {
+					const data = allTextLines[i].split(',')
+					that.currentListMembers.push({
+						id: -1,
+						list_id: that.currentListId,
+						state: 1,
+						name: data[0],
+						email: data[1],
+					})
+					const member = { id: -1, name: data[0], email: data[1], list_id: that.currentListId, state: 1 }
+					that.createMember(member)
+				}
+			}
+			reader.onerror = function() { alert('Unable to read ' + fileName) }
 		},
 		/**
 		 * Update an existing member on the server

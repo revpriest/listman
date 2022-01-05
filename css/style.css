@@ -181,4 +181,14 @@ textarea {
 	background: linear-gradient(171deg, rgba(96,24,28,1) 0%, rgba(168,141,120,1) 8%, rgba(125,77,41,1) 23%, rgba(116,49,33,1) 52%, rgba(88,28,22,1) 100%);
   color: black;
 }
+.groupUI{
+	border: 2px solid black;
+	border-radius: 1em;
+	text-decoration: none;
+	box-shadow: 2px 2px 0.3em rgba(.0,.0,.0,.8);
+	text-shadow: 2px 2px 0.2em rgba(.0,.0,.0,.8);
+  color: white;
+  padding: 0.1em 1em;
+  display: inline-block;
+}
 

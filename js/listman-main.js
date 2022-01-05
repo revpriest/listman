@@ -16720,6 +16720,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -17220,6 +17233,46 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       this.updating = false;
+    },
+
+    /**
+    * Import new members from CSV file, we read it and add it to the screen
+    * and the DB
+    */
+    async importMember() {
+      const file = document.querySelector('#csvfile-member').files[0];
+      const reader = new FileReader();
+      const fileName = file.name;
+      reader.readAsBinaryString(file);
+      const that = this;
+
+      reader.onload = function (e) {
+        const objCsv = e.target.result;
+        const allTextLines = objCsv.split(/\r\n|\n/);
+
+        for (let i = 1; i < allTextLines.length - 1; i++) {
+          const data = allTextLines[i].split(',');
+          that.currentListMembers.push({
+            id: -1,
+            list_id: that.currentListId,
+            state: 1,
+            name: data[0],
+            email: data[1]
+          });
+          const member = {
+            id: -1,
+            name: data[0],
+            email: data[1],
+            list_id: that.currentListId,
+            state: 1
+          };
+          that.createMember(member);
+        }
+      };
+
+      reader.onerror = function () {
+        alert('Unable to read ' + fileName);
+      };
     },
 
     /**
@@ -38449,15 +38502,38 @@ var render = function() {
                       0
                     ),
                     _vm._v(" "),
-                    _c("input", {
-                      staticClass: "primary",
-                      attrs: {
-                        type: "button",
-                        value: _vm.t("listman", "New Member"),
-                        disabled: _vm.updating
-                      },
-                      on: { click: _vm.newMember }
-                    })
+                    _c("div", [
+                      _c("input", {
+                        staticClass: "primary",
+                        attrs: {
+                          type: "button",
+                          value: _vm.t("listman", "New Member"),
+                          disabled: _vm.updating
+                        },
+                        on: { click: _vm.newMember }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "groupUI" }, [
+                      _c("input", {
+                        staticClass: "primary",
+                        attrs: {
+                          id: "csvfile-member",
+                          type: "file",
+                          disabled: _vm.updating
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c("input", {
+                        staticClass: "primary",
+                        attrs: {
+                          type: "button",
+                          value: _vm.t("listman", "Import List"),
+                          disabled: _vm.updating
+                        },
+                        on: { click: _vm.importMember }
+                      })
+                    ])
                   ])
                 : _vm._e(),
               _vm._v(" "),
@@ -47810,4 +47886,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=3da6c7ba46a7e0cd6f1f
+//# sourceMappingURL=listman-main.js.map?v=a0ff99b7d7a0e511355f
