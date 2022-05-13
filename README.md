@@ -129,6 +129,15 @@ as some confirmation emails get sent.
 Lists the messages sent to the list, and allows composing a new one.
 
 Each message has a "Web View" link to preview how it should look.
+Viewing that link *will* increment the view-counter for the message.
+
+Each message has a "Stats" link, to show (or fetch via api) the number
+if views and reactions to the message.
+
+Each message has a "widget" button, which will show the HTML of
+a widget to embed in a web-page equivalent of the message. Paste
+this into a web-page to make it have react-buttons and view-counters
+similar to the web-view.
 
 It is NOT "what you see is what you get", email never can be really.
 

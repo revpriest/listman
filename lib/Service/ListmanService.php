@@ -86,6 +86,14 @@ class ListmanService {
   }
 
   /**
+  * Get the increment stats URL
+  */
+  public function getIncUrl($messageRandid){
+    $share = $this->getLink("view",$messageRandid);
+    return $share;
+  }
+
+  /**
   * The footer at the bottom of the message
   */
   public function getEmailFooter($message,$list){
@@ -109,11 +117,22 @@ class ListmanService {
   public function getEmailButtons($message,$list){
     $btn = $this->getButtonClass();
     $subscribe = $this->getLink("subscribe",$list->getRandid());
+		if($list->getSuburl){
+      $subscribe = $this->getSuburl();
+		}
     $share = $this->getLink("view",$message->getRandid());
     $reply = $list->getButtonlink();
     if($reply==""){
       "mailto:".$list->getFromemail();
     }
+
+    if($list->getsuburl()){
+      $subscribe = $list->getsuburl();
+    }
+    if($list->getshareurl()){
+      $share = $list->getshareurl();
+    }
+
     $html = "";
     $html.="<div style=\"text-align:center\">";
     $html.="<a $btn href=\"$share?r=❤\">❤</a>";
@@ -123,10 +142,10 @@ class ListmanService {
     $html.="<a $btn href=\"$share?r=😢\">😢</a>";
     $html.="<a $btn href=\"$share?r=😮\">😮</a>";
     $html.="<br clear=\"both\"/>";
-    $html.="<a $btn href=\"$subscribe\">Un/Subscribe</a></li>";
-    $html.="<a $btn href=\"$share\">Share</a></li>";
-    $html.="<a $btn href=\"$reply\">".$list->getButtontext()."</a></li>";
-    $html.="</ul>";
+    $html.="<a $btn href=\"$subscribe\">Un/Subscribe</a>";
+    $html.="<a $btn href=\"$share\">Share</a>";
+    $html.="<a $btn href=\"$reply\">".$list->getButtontext()."</a>";
+    $html.="</div>";
 
     $plain = "";
     $plain.=" * Un/Subscribe: $subscribe\n";
@@ -148,6 +167,7 @@ class ListmanService {
 		//Title
     $html.='<div class="messageHeaders">';
     $html.="<h1>".$message->getSubject()."</h1>";
+    $html.="</div>";
     $html.="<hr/>";
 
     $plain.="# ".$message->getSubject()."\n";
@@ -338,7 +358,8 @@ class ListmanService {
         break;
       case "view":
         $base = $this->urlGenerator->linkToRouteAbsolute('listman.listman.messageview', ['rid'=>$param]);
-      default:
+      case "inc":
+        $base = $this->urlGenerator->linkToRouteAbsolute('listman.listman.messageinc', ['rid'=>$param]);
         break;
     }
     return  $base;
@@ -467,7 +488,7 @@ class ListmanService {
   /**
   * Create a new list
   */
-  public function create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $userId) {
+  public function create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $userId) {
     $randid = $this->randId();
     $list = new Maillist();
     $list->setRandid($randid);
@@ -479,6 +500,8 @@ class ListmanService {
     $list->setButtontext($buttontext);
     $list->setButtonlink($buttonlink);
     $list->setFooter($footer);
+    $list->setSubUrl($suburl);
+    $list->setShareUrl($shareurl);
     $list->setUserId($userId);
     return $this->mapper->insert($list);
   }
@@ -486,7 +509,7 @@ class ListmanService {
   /**
   * Update existing list
   */
-  public function update($id, $title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $userId) {
+  public function update($id, $title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl,  $userId) {
     try {
       $list = $this->mapper->find($id, $userId);
       $list->setTitle($title);
@@ -497,6 +520,8 @@ class ListmanService {
       $list->setButtontext($buttontext);
       $list->setButtonlink($buttonlink);
       $list->setFooter($footer);
+      $list->setsuburl($suburl);
+      $list->setshareurl($shareurl);
       return $this->mapper->update($list);
     } catch (Exception $e) {
       $this->handleException($e);

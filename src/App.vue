@@ -137,6 +137,18 @@
 						type="text"
 						class="listman_listInput"
 						:disabled="updating">
+					<input ref="shareurl"
+						v-model="currentList.shareurl"
+						placeholder="The url for the share button"
+						type="text"
+						class="listman_listInput"
+						:disabled="updating">
+					<input ref="suburl"
+						v-model="currentList.suburl"
+						placeholder="The url for the subscribe button"
+						type="text"
+						class="listman_listInput"
+						:disabled="updating">
 					<input ref="buttonlink"
 						v-model="currentList.buttonlink"
 						placeholder="The link to use in the optional action button at the end of each email"
@@ -298,7 +310,21 @@
 									class="primary"
 									:value="t('listman', 'Web View')"
 									:disabled="updating || !savePossible"
-									@click="webView(message)">
+									@click="webView(message,'view')">
+								<input
+									id="listman_stat"
+									type="button"
+									class="primary"
+									:value="t('listman', 'Stats')"
+									:disabled="updating || !savePossible"
+									@click="webView(message,'stats')">
+								<input
+									id="listman_widget"
+									type="button"
+									class="primary"
+									:value="t('listman', 'Widget')"
+									:disabled="updating || !savePossible"
+									@click="webView(message,'widget')">
 								<input
 									id="listman_sendtoall"
 									type="button"
@@ -520,13 +546,14 @@ export default {
 		/**
 		* Open a new window/tab with the web-view of the message.
 		* @param {Object} message Message object
+		* @param {String} method String View or stats or something
 		*/
-		async webView(message) {
+		async webView(message, method = 'view') {
 			if (message.id === -1) {
 				alert('Save it first')
 			} else {
 				try {
-					const url = generateUrl(`/apps/listman/message-view/${message.randid}`)
+					const url = generateUrl('/apps/listman/message-' + method + '/' + message.randid)
 					window.open(url, '_blank')
 				} catch (e) {
 					console.error(e)
@@ -610,6 +637,8 @@ export default {
 					fromname: '',
 					fromemail: '',
 					buttontext: 'more',
+					shareurl: '',
+					suburl: '',
 					buttonlink: '',
 					footer: '',
 				})

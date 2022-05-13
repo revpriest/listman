@@ -56,16 +56,16 @@ class ListmanController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function create(string $title, string $desc, string $redir, string $fromname, string $fromemail, string $buttontext, string $buttonlink, string $footer): DataResponse {
-		return new DataResponse($this->service->create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $this->userId));
+	public function create(string $title, string $desc, string $redir, string $fromname, string $fromemail, string $buttontext, string $buttonlink, string $footer, string $suburl, string $shareurl): DataResponse {
+		return new DataResponse($this->service->create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $this->userId));
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
-	public function update(int $id, string $title, string $desc, string $redir, string $fromname, string $fromemail, string $buttontext, string $buttonlink, string $footer): DataResponse {
-		return $this->handleNotFound(function () use ($id, $title, $desc,$redir,$fromname,$fromemail,$buttontext,$buttonlink,$footer) {
-			return $this->service->update($id, $title, $desc, $redir, $fromname,$fromemail,$buttontext,$buttonlink,$footer,$this->userId);
+	public function update(int $id, string $title, string $desc, string $redir, string $fromname, string $fromemail, string $buttontext, string $buttonlink, string $footer, string $suburl, string $shareurl): DataResponse {
+		return $this->handleNotFound(function () use ($id, $title, $desc,$redir,$fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl) {
+			return $this->service->update($id, $title, $desc, $redir, $fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$this->userId);
 		});
 	}
 
@@ -132,6 +132,37 @@ class ListmanController extends Controller {
   }
 
 	/**
+   * Stats view of the message. What response did it get?
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function messagestat(string $rid) {
+    return $this->messageview($rid,"stat");
+  }
+
+	/**
+   * Just show the HTML of the react-widget for pasting into a copy 
+	 * of the message in a blog page
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function messagewidget(string $rid) {
+    return $this->messageview($rid,"widget");
+  }
+
+	/**
+   * Just increment the view-count on a a blank image
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function messageinc(string $rid) {
+    return $this->messageview($rid,"increment");
+  }
+
+	/**
    * Load/Save settings.
 	 */
 	public function settings($settings) {
@@ -151,12 +182,18 @@ class ListmanController extends Controller {
 		$message = 	$this->service->getMessageEntityByRandId($rid);
 		$list = $this->service->getListEntity(intval($message->getListId()),"");
     $subscribe = $this->urlGenerator->linkToRouteAbsolute('listman.listman.subscribe', ['lid'=>$list->getRandid()]);
+		if($list->getsuburl()){
+      $subscribe = $list->getsuburl();
+		}
 
     $r = "📃";
     if(isset($_REQUEST['r'])){
       $r = $_REQUEST['r'];
     }
-    $this->service->registerReaction($message,$r);
+
+		if(($ttype!="widget")&&($ttype!="stat")&&($ttype!="inc")){
+      $this->service->registerReaction($message,$r);
+		}
 
     $body = $this->service->messageRender($message,$list);
 		$url = $this->service->getShareUrl($message->getRandid()); 
@@ -165,6 +202,24 @@ class ListmanController extends Controller {
     if($ttype=="plain"){
       $body['plain'] = "<pre>".$body['plain']."</pre>";
     }
+
+    if($ttype=="widget"){
+			//Special copy-pastable version of just the widget, to put into a blog copy or whatever.
+		  $buttons = $this->service->getEmailButtons($message,$list); 
+			print htmlspecialchars($counter.$buttons['html']);exit;
+    }
+
+    if($ttype=="increment"){
+      $ttype="html";
+    }
+
+		if($ttype=="stat"){
+			//Special machine-readable view of just the stats on who pressed like etc.
+      foreach($reacts as $r){
+        print($r->getSymbol().":".$r->getCount()."\n");
+			}
+		  exit;
+		}
 
     $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"url"=>$url,"react"=>$reacts,"body"=>$body[$ttype]]);
     $response->setHeaderTitle($message->getSubject()." [".$list->getTitle()."]");

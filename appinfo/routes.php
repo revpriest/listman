@@ -9,6 +9,9 @@ return [
 	'routes' => [
 		['name' => 'listman#settings',      'url' => '/settings',           'verb' => 'POST'],
 		['name' => 'listman#messageview',   'url' => '/message-view/{rid}', 'verb' => 'GET' ],
+		['name' => 'listman#messageinc',    'url' => '/message-inc/{rid}', 'verb' => 'GET' ],
+		['name' => 'listman#messagewidget', 'url' => '/message-widget/{rid}',  'verb' => 'GET' ],
+		['name' => 'listman#messagestat',   'url' => '/message-stats/{rid}',  'verb' => 'GET' ],
 		['name' => 'listman#messagetext',   'url' => '/message-text/{rid}', 'verb' => 'GET' ],
 		['name' => 'listman#messagesent',   'url' => '/message-sent/{mid}', 'verb' => 'POST'],
 		['name' => 'listman#messagesend',   'url' => '/message-send/{mid}', 'verb' => 'POST'],

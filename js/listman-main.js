@@ -16733,6 +16733,32 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16920,13 +16946,14 @@ __webpack_require__.r(__webpack_exports__);
     /**
     * Open a new window/tab with the web-view of the message.
     * @param {Object} message Message object
+    * @param {String} method String View or stats or something
     */
-    async webView(message) {
+    async webView(message, method = 'view') {
       if (message.id === -1) {
         alert('Save it first');
       } else {
         try {
-          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])("/apps/listman/message-view/".concat(message.randid));
+          const url = Object(_nextcloud_router__WEBPACK_IMPORTED_MODULE_7__["generateUrl"])('/apps/listman/message-' + method + '/' + message.randid);
           window.open(url, '_blank');
         } catch (e) {
           console.error(e);
@@ -17018,6 +17045,8 @@ __webpack_require__.r(__webpack_exports__);
           fromname: '',
           fromemail: '',
           buttontext: 'more',
+          shareurl: '',
+          suburl: '',
           buttonlink: '',
           footer: ''
         });
@@ -38142,6 +38171,68 @@ var render = function() {
                         {
                           name: "model",
                           rawName: "v-model",
+                          value: _vm.currentList.shareurl,
+                          expression: "currentList.shareurl"
+                        }
+                      ],
+                      ref: "shareurl",
+                      staticClass: "listman_listInput",
+                      attrs: {
+                        placeholder: "The url for the share button",
+                        type: "text",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.shareurl },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.currentList,
+                            "shareurl",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.currentList.suburl,
+                          expression: "currentList.suburl"
+                        }
+                      ],
+                      ref: "suburl",
+                      staticClass: "listman_listInput",
+                      attrs: {
+                        placeholder: "The url for the subscribe button",
+                        type: "text",
+                        disabled: _vm.updating
+                      },
+                      domProps: { value: _vm.currentList.suburl },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(
+                            _vm.currentList,
+                            "suburl",
+                            $event.target.value
+                          )
+                        }
+                      }
+                    }),
+                    _vm._v(" "),
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
                           value: _vm.currentList.buttonlink,
                           expression: "currentList.buttonlink"
                         }
@@ -38706,7 +38797,39 @@ var render = function() {
                                       },
                                       on: {
                                         click: function($event) {
-                                          return _vm.webView(message)
+                                          return _vm.webView(message, "view")
+                                        }
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("input", {
+                                      staticClass: "primary",
+                                      attrs: {
+                                        id: "listman_stat",
+                                        type: "button",
+                                        value: _vm.t("listman", "Stats"),
+                                        disabled:
+                                          _vm.updating || !_vm.savePossible
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.webView(message, "stats")
+                                        }
+                                      }
+                                    }),
+                                    _vm._v(" "),
+                                    _c("input", {
+                                      staticClass: "primary",
+                                      attrs: {
+                                        id: "listman_widget",
+                                        type: "button",
+                                        value: _vm.t("listman", "Widget"),
+                                        disabled:
+                                          _vm.updating || !_vm.savePossible
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.webView(message, "widget")
                                         }
                                       }
                                     }),
@@ -47886,4 +48009,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=a0ff99b7d7a0e511355f
+//# sourceMappingURL=listman-main.js.map?v=098d9f3919c18aa9f878

@@ -12,6 +12,8 @@ class Maillist extends Entity implements JsonSerializable {
   protected $fromname;
   protected $fromemail;
   protected $buttontext;
+  protected $shareurl;
+  protected $suburl;
   protected $buttonlink;
   protected $footer;
 	protected $randid;
@@ -28,6 +30,8 @@ class Maillist extends Entity implements JsonSerializable {
       'buttontext' => $this->buttontext,
       'buttonlink' => $this->buttonlink,
       'footer' => $this->footer,
+      'shareurl' => $this->shareurl,
+      'suburl' => $this->suburl,
 			'randid' => $this->randid,
 			'redir' => $this->redir,
 			'userId' => $this->userId,
