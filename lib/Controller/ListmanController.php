@@ -206,7 +206,14 @@ class ListmanController extends Controller {
     if($ttype=="widget"){
 			//Special copy-pastable version of just the widget, to put into a blog copy or whatever.
 		  $buttons = $this->service->getEmailButtons($message,$list); 
-			print htmlspecialchars($counter.$buttons['html']);exit;
+      print "<h1 style=\"text-align:center\">Widget Code</h1>";
+      print "<p style=\"text-align:center\">Copy this into a HTML page to make it show the react-buttons for this message</p>";
+      print "<div style=\"padding: 2em;width: 50%; margin-left: 25%; border: 2px solid black;\">";
+			print htmlspecialchars($counter.$buttons['html']);
+      print "</div>";
+      print "<h2 style=\"text-align:center\">Eg</h2>";
+			print $counter.$buttons['html'];
+      exit;
     }
 
     if($ttype=="increment"){

@@ -272,6 +272,7 @@ class ListmanService {
 			'port'=>'',
 			'maxdaily'=>'50',
 			'latestWarn'=>'-',
+			'smtpSecure'=>'ssl',
 		];
 		$settings = $this->settingsMapper->loadall($settings);
 		return $settings;
@@ -818,6 +819,9 @@ class ListmanService {
 		$mail->SMTPAuth   = true;
 		$mail->isHTML(true);
 		$mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+		if((isset($settings['smtpSecure']) && ($settings['smtpSecure'] != "ssl"))){
+		  $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+		}
 		$mail->addCustomHeader('List-Unsubscribe','<'.$unsub.'>');
 		$mail->addCustomHeader('List-Unsubscribe-Post','List-Unsubscribe=One-Click');
 		$mail->setFrom($list->getFromemail(), $list->getFromname());

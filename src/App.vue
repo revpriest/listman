@@ -67,6 +67,12 @@
 							placeholder="SMTP port">
 					</li>
 					<li>
+						SMTP Secure (ssl/tls):<input ref="settings.smtpSecure"
+							v-model="settings.smtpSecure"
+							type="input"
+							placeholder="ssl">
+					</li>
+					<li>
 						<input type="button"
 							class="primary"
 							:value="t('listman', 'Save Settings')"

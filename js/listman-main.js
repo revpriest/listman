@@ -16759,6 +16759,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 
 
@@ -37889,6 +37895,35 @@ var render = function() {
                       ]),
                       _vm._v(" "),
                       _c("li", [
+                        _vm._v("\n\t\t\t\t\tSMTP Secure (ssl/tls):"),
+                        _c("input", {
+                          directives: [
+                            {
+                              name: "model",
+                              rawName: "v-model",
+                              value: _vm.settings.smtpSecure,
+                              expression: "settings.smtpSecure"
+                            }
+                          ],
+                          ref: "settings.smtpSecure",
+                          attrs: { type: "input", placeholder: "ssl" },
+                          domProps: { value: _vm.settings.smtpSecure },
+                          on: {
+                            input: function($event) {
+                              if ($event.target.composing) {
+                                return
+                              }
+                              _vm.$set(
+                                _vm.settings,
+                                "smtpSecure",
+                                $event.target.value
+                              )
+                            }
+                          }
+                        })
+                      ]),
+                      _vm._v(" "),
+                      _c("li", [
                         _c("input", {
                           staticClass: "primary",
                           attrs: {
@@ -48009,4 +48044,4 @@ vue__WEBPACK_IMPORTED_MODULE_0__["default"].mixin({
 /***/ })
 
 /******/ });
-//# sourceMappingURL=listman-main.js.map?v=098d9f3919c18aa9f878
+//# sourceMappingURL=listman-main.js.map?v=635ace17269e6722b2b2
