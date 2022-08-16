@@ -126,8 +126,8 @@ class ListmanService {
       "mailto:".$list->getFromemail();
     }
 
-    if($list->getsuburl()){
-      $subscribe = $list->getsuburl();
+    if($list->getSuburl()){
+      $subscribe = $list->getSuburl();
     }
     if($list->getshareurl()){
       $share = $list->getshareurl();
@@ -501,8 +501,8 @@ class ListmanService {
     $list->setButtontext($buttontext);
     $list->setButtonlink($buttonlink);
     $list->setFooter($footer);
-    $list->setSubUrl($suburl);
-    $list->setShareUrl($shareurl);
+    $list->setSuburl($suburl);
+    $list->setShareurl($shareurl);
     $list->setUserId($userId);
     return $this->mapper->insert($list);
   }
@@ -521,8 +521,8 @@ class ListmanService {
       $list->setButtontext($buttontext);
       $list->setButtonlink($buttonlink);
       $list->setFooter($footer);
-      $list->setsuburl($suburl);
-      $list->setshareurl($shareurl);
+      $list->setSuburl($suburl);
+      $list->setShareurl($shareurl);
       return $this->mapper->update($list);
     } catch (Exception $e) {
       $this->handleException($e);
