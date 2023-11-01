@@ -46,6 +46,8 @@
 #app-content-vue {
   padding-left: 3em;
   padding-top: 1em;
+  overflow: scroll;
+  max-height: 99%;
 }
 
 #app-content > div {
