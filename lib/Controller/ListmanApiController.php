@@ -50,7 +50,7 @@ class ListmanApiController extends ApiController {
 	 * @NoCSRFRequired
 	 * @NoAdminRequired
 	 */
-	public function create(string $title, string $desc): DataResponse {
+	public function create(?string $title, ?string $desc): DataResponse {
 		return new DataResponse($this->service->create($title, $desc,
 			$this->userId));
 	}
@@ -60,8 +60,7 @@ class ListmanApiController extends ApiController {
 	 * @NoCSRFRequired
 	 * @NoAdminRequired
 	 */
-	public function update(int $id, string $title,
-						   string $desc): DataResponse {
+	public function update(int $id, ?string $title, ?string $desc): DataResponse {
 		return $this->handleNotFound(function () use ($id, $title, $desc) {
 			return $this->service->update($id, $title, $desc, $this->userId);
 		});

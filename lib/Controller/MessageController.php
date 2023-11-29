@@ -42,14 +42,14 @@ class MessageController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function create(string $subject, string $body, int $list_id): DataResponse {
+	public function create(?string $subject, ?string $body, int $list_id): DataResponse {
 		return new DataResponse($this->service->createMessage($subject, $body, $list_id, $this->userId));
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
-	public function update(int $id, string $subject, string $body, int $list_id): DataResponse {
+	public function update(int $id, ?string $subject, ?string $body, int $list_id): DataResponse {
 		return $this->handleNotFound(function () use ($id, $subject, $body, $list_id) {
 			return $this->service->updateMessage($id, $subject, $body, $list_id, $this->userId);
 		});

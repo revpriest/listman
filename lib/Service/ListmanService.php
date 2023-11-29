@@ -117,8 +117,8 @@ class ListmanService {
   public function getEmailButtons($message,$list){
     $btn = $this->getButtonClass();
     $subscribe = $this->getLink("subscribe",$list->getRandid());
-		if($list->getSuburl){
-      $subscribe = $this->getSuburl();
+		if($list->getSuburl()){
+      $subscribe = $list->getSuburl();
 		}
     $share = $this->getLink("view",$message->getRandid());
     $reply = $list->getButtonlink();

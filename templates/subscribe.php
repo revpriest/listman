@@ -1,5 +1,5 @@
 <div class="row">
-<div class="messageForm">
+<div class="messageForm" style="background:black;color:white;padding:1em">
 <h1><?php echo $list->getTitle(); ?></h1>
 <p><?php echo $list->getDesc(); ?></p>
 <form method="post" action="<?php echo $url; ?>">

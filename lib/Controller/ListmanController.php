@@ -56,14 +56,14 @@ class ListmanController extends Controller {
 	/**
 	 * @NoAdminRequired
 	 */
-	public function create(string $title, string $desc, string $redir, string $fromname, string $fromemail, string $buttontext, string $buttonlink, string $footer, string $suburl, string $shareurl): DataResponse {
+	public function create(?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl): DataResponse {
 		return new DataResponse($this->service->create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $this->userId));
 	}
 
 	/**
 	 * @NoAdminRequired
 	 */
-	public function update(int $id, string $title, string $desc, string $redir, string $fromname, string $fromemail, string $buttontext, string $buttonlink, string $footer, string $suburl, string $shareurl): DataResponse {
+	public function update(int $id, ?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl): DataResponse {
 		return $this->handleNotFound(function () use ($id, $title, $desc,$redir,$fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl) {
 			return $this->service->update($id, $title, $desc, $redir, $fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$this->userId);
 		});
@@ -182,8 +182,9 @@ class ListmanController extends Controller {
 		$message = 	$this->service->getMessageEntityByRandId($rid);
 		$list = $this->service->getListEntity(intval($message->getListId()),"");
     $subscribe = $this->urlGenerator->linkToRouteAbsolute('listman.listman.subscribe', ['lid'=>$list->getRandid()]);
-		if($list->getsuburl()){
-      $subscribe = $list->getsuburl();
+    
+		if($list->getSuburl()){
+      $subscribe = $list->getSuburl();
 		}
 
     $r = "📃";
@@ -209,10 +210,10 @@ class ListmanController extends Controller {
       print "<h1 style=\"text-align:center\">Widget Code</h1>";
       print "<p style=\"text-align:center\">Copy this into a HTML page to make it show the react-buttons for this message</p>";
       print "<div style=\"padding: 2em;width: 50%; margin-left: 25%; border: 2px solid black;\">";
-			print htmlspecialchars($counter.$buttons['html']);
+			print htmlspecialchars($buttons['html']);
       print "</div>";
       print "<h2 style=\"text-align:center\">Eg</h2>";
-			print $counter.$buttons['html'];
+			print $buttons['html'];
       exit;
     }
 
