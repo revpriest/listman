@@ -163,6 +163,7 @@ class ListmanService {
   function messageRender($message,$list){
     $html="";
     $plain="";
+    $isBlockquote = false;
 
 		//Title
     $html.='<div class="messageHeaders">';
@@ -171,7 +172,7 @@ class ListmanService {
     $html.="<hr/>";
 
     $plain.="# ".$message->getSubject()."\n";
-    $plain.="---\n";
+    $plain.="-----------\n\n";
 
     //Render the actual text of the message body.
     $pstyle = "style=\"margin-bottom:1em;\"";
@@ -184,7 +185,18 @@ class ListmanService {
       if($p==""){
         $html.="</p><p $pstyle>";
         $plain.="\n\n";
+      }elseif(trim($p)=='"'){
+        if($isBlockquote){
+          $html.="</blockquote>\n";
+        }else{
+          $html.="<blockquote style=\"border:1px solid black;background:rgba(0,0,0,0.05);font-weight:italic;margin-left:2em;padding:1em;padding-left:1em;margin-bottom:2em;\">\n";
+          $plain.="\n";
+        }
+        $isBlockquote=!$isBlockquote;
       }else{
+        if($isBlockquote){
+          $plain.="\n > ";
+        }
         $params = [""];
         if($p[0]=="/"){
           $params = explode(" ",$p);
@@ -204,7 +216,10 @@ class ListmanService {
                 for($n=0;$n<intval($num);$n++){
                   $indent.="#";
                 }
-                $plain.="\n$indent $dat";
+                $tt ="$indent $dat";
+                $ul = "-";
+                for($nn=0;$nn<strlen($tt)+4;$nn++){$ul.="-";}
+                $plain.="\n$tt\n$ul";
               }
               break;
 
@@ -214,7 +229,11 @@ class ListmanService {
               $alt = implode(" ",$params);
               $alt_h = htmlspecialchars($alt);
               $html.="</p><p style=\"text-align:center\"><a href=\"$img\"><img style=\"width: 30em;\" class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a></p>\n<p $pstyle>";
-              $plain.="\n * $img ($alt)\n";
+              if($alt!=""){
+                $plain.="\n * $img ($alt)\n";
+              }else{
+                $plain.="$img\n";
+              }
               break;
 
             case "/*link":
@@ -223,7 +242,7 @@ class ListmanService {
               $dsc = implode(" ",$params);
               if($dsc==""){$dsc = "Link";}
               $dsc_h = htmlspecialchars($dsc);
-              $html.=" <p style=\"margin-left:1em\">* <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a></p> ";
+              $html.=" <p style=\"margin-left:1em\">• <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a></p> ";
               $plain.=" * ($dsc)[ $lnk ]\n";
               break;
 
@@ -234,7 +253,7 @@ class ListmanService {
               if($dsc==""){$dsc = "Link";}
               $dsc_h = htmlspecialchars($dsc);
               $html.=" <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a> ";
-              $plain.=" ($dsc)[ $lnk ]";
+              $plain.=" ($dsc)[ $lnk ] ";
               break;
 
             default:

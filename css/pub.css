@@ -21,6 +21,10 @@
   margin-top: 1em;
   width: 90%;
   max-width: 80em;
+} 
+.messageText pre{
+  white-space: pre-wrap;       /* Since CSS 2.1 */
+  word-wrap: break-word;       /* Since CSS 3.0 */
 }
 
 .shareIcons{
