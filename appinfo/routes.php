@@ -13,6 +13,7 @@ return [
 		['name' => 'listman#messagewidget', 'url' => '/message-widget/{rid}',  'verb' => 'GET' ],
 		['name' => 'listman#messagestat',   'url' => '/message-stats/{rid}',  'verb' => 'GET' ],
 		['name' => 'listman#messagetext',   'url' => '/message-text/{rid}', 'verb' => 'GET' ],
+		['name' => 'listman#messagemd'  ,   'url' => '/message-md/{rid}', 'verb' => 'GET' ],
 		['name' => 'listman#messagesent',   'url' => '/message-sent/{mid}', 'verb' => 'POST'],
 		['name' => 'listman#messagesend',   'url' => '/message-send/{mid}', 'verb' => 'POST'],
 		['name' => 'listman#listdetails',   'url' => '/listdetails/{lid}',  'verb' => 'GET' ],

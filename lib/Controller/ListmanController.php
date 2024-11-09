@@ -132,6 +132,16 @@ class ListmanController extends Controller {
   }
 
 	/**
+   * Web view of the message as Markdown.
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function messagemd(string $rid) {
+    return $this->messageview($rid,"md");
+  }
+
+	/**
    * Stats view of the message. What response did it get?
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -202,6 +212,9 @@ class ListmanController extends Controller {
 
     if($ttype=="plain"){
       $body['plain'] = "<pre>".$body['plain']."</pre>";
+    }
+    if($ttype=="md"){
+      $body['md'] = "<pre>".$body['md']."</pre>";
     }
 
     if($ttype=="widget"){

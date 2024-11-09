@@ -100,11 +100,13 @@ class ListmanService {
     $footer = $list->getFooter();
     $html = "";
     $plain= "";
+    $md   = "";
     if(($footer!=null)&&($footer!="")){
       $html.="<p class=\"footer\">".$footer."</p>";
       $plain.="\n$footer\n";
+      $md   .="\n$footer\n";
     }
-    return ['html'=>$html,'plain'=>$plain]; 
+    return ['html'=>$html,'plain'=>$plain,'md'=>$md]; 
   }
 
 	public function getButtonClass(){
@@ -152,7 +154,14 @@ class ListmanService {
     $plain.=" * Share: $share\n";
     $plain.=" * ".$list->getButtontext().": $reply\n";
     $plain.="---\n\n";
-    return ['html'=>$html,'plain'=>$plain]; 
+
+    $md = "";
+    $md.=" * Un/Subscribe: $subscribe\n";
+    $md.=" * Share: $share\n";
+    $md.=" * ".$list->getButtontext().": $reply\n";
+    $md.="---\n\n";
+
+    return ['html'=>$html,'plain'=>$plain,'md'=>$md]; 
   }
 
 
@@ -163,6 +172,7 @@ class ListmanService {
   function messageRender($message,$list){
     $html="";
     $plain="";
+    $md   ="";
     $isBlockquote = false;
 
 		//Title
@@ -173,6 +183,9 @@ class ListmanService {
 
     $plain.="# ".$message->getSubject()."\n";
     $plain.="-----------\n\n";
+
+    $md.="# ".$message->getSubject()."\n";
+    $md.="---\n\n";
 
     //Render the actual text of the message body.
     $pstyle = "style=\"margin-bottom:1em;\"";
@@ -185,17 +198,20 @@ class ListmanService {
       if($p==""){
         $html.="</p><p $pstyle>";
         $plain.="\n\n";
+        $md   .="\n\n";
       }elseif(trim($p)=='"'){
         if($isBlockquote){
           $html.="</blockquote>\n";
         }else{
           $html.="<blockquote style=\"border:1px solid black;background:rgba(0,0,0,0.05);font-weight:italic;margin-left:2em;padding:1em;padding-left:1em;margin-bottom:2em;\">\n";
           $plain.="\n";
+          $md   .="\n";
         }
         $isBlockquote=!$isBlockquote;
       }else{
         if($isBlockquote){
           $plain.="\n > ";
+          $md   .="\n > ";
         }
         $params = [""];
         if($p[0]=="/"){
@@ -220,6 +236,7 @@ class ListmanService {
                 $ul = "-";
                 for($nn=0;$nn<strlen($tt)+4;$nn++){$ul.="-";}
                 $plain.="\n$tt\n$ul";
+                $md   .="\n$tt\n$ul";
               }
               break;
 
@@ -231,8 +248,10 @@ class ListmanService {
               $html.="</p><p style=\"text-align:center\"><a href=\"$img\"><img style=\"width: 30em;\" class=\"inlineimg\" alt=\"$alt\" title=\"$alt\" src=\"$img\"></img></a></p>\n<p $pstyle>";
               if($alt!=""){
                 $plain.="\n * $img ($alt)\n";
+                $md   .="\n [![$alt]($img)]($img)\n";
               }else{
                 $plain.="$img\n";
+                $md   .="\n [![img]($img)]($img)\n";
               }
               break;
 
@@ -244,6 +263,7 @@ class ListmanService {
               $dsc_h = htmlspecialchars($dsc);
               $html.=" <p style=\"margin-left:1em\">• <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a></p> ";
               $plain.=" * ($dsc)[ $lnk ]\n";
+              $md   .=" * [$dsc]($lnk)\n";
               break;
 
             case "/link":
@@ -254,11 +274,13 @@ class ListmanService {
               $dsc_h = htmlspecialchars($dsc);
               $html.=" <a href=\"$lnk\" class=\"inlinelnk\">$dsc_h</a> ";
               $plain.=" ($dsc)[ $lnk ] ";
+              $md   .=" [$dsc]( $lnk ) ";
               break;
 
             default:
               $html.=htmlspecialchars($p." ");
               $plain.=$p;
+              $md   .=$p;
               break;
         }
       }
@@ -267,18 +289,21 @@ class ListmanService {
 
     $html.="<br><hr style=\"clear:both;\"/>";
     $plain.="---\n";
+    $md   .="---\n";
 
 		//Action Buttons
     $both = $this->getEmailButtons($message,$list);
     $html.=$both['html'];
     $plain.=$both['plain'];
+    $md   .=$both['md'];
 
 		//Footer
     $footer = $this->getEmailFooter($message,$list);
     $html.=$footer['html'];
     $plain.=$footer['plain'];
+    $md   .=$footer['md'];
 
-    return ["html"=>$html,"plain"=>$plain];
+    return ["html"=>$html,"plain"=>$plain,"md"=>$md];
   }
 
 

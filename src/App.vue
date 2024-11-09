@@ -1,31 +1,31 @@
 <template>
 	<div id="content" class="app-listman">
-		<AppNavigation>
-			<AppNavigationNew v-if="!loading"
+		<NcAppNavigation>
+			<NcAppNavigationNew v-if="!loading"
 				:text="t('listman', 'New list')"
 				:disabled="false"
 				button-id="new-listman-button"
 				button-class="icon-add"
 				@click="newList" />
 			<ul>
-				<AppNavigationItem v-for="list in lists"
+				<NcAppNavigationItem v-for="list in lists"
 					:key="list.id"
 					:title="list.title ? list.title : t('listman', 'New list')"
 					:class="{active: currentListId === list.id}"
 					@click="openList(list)">
 					<template slot="actions">
-						<ActionButton v-if="list.id === -1"
+						<NcActionButton v-if="list.id === -1"
 							icon="icon-close"
 							@click="cancelNewList(list)">
 							{{ t('listman', 'Cancel list creation') }}
-						</ActionButton>
-						<ActionButton v-else
+						</NcActionButton>
+						<NcActionButton v-else
 							icon="icon-delete"
 							@click="deleteList(list)">
 							{{ t('listman', 'Delete list') }}
-						</ActionButton>
+						</NcActionButton>
 					</template>
-				</AppNavigationItem>
+				</NcAppNavigationItem>
 			</ul>
 			<div v-if="isAdmin" class="settingsSection">
 				<ul id="queueDetails">
@@ -86,8 +86,8 @@
 					</li>
 				</ul>
 			</div>
-		</AppNavigation>
-		<AppContent>
+		</NcAppNavigation>
+		<NcAppContent>
 			<div v-if="currentList">
 				<div id="selectview">
 					<input type="button"
@@ -227,18 +227,18 @@
 									:disabled="updating || !savePossible"
 									@click="saveMember(member)">
 								<div class="listman_memberactions">
-									<ActionButton v-if="member.id === -1"
+									<NcActionButton v-if="member.id === -1"
 										icon="icon-close"
 										class="listman_memberaction"
 										@click="cancelNewMember(member)">
 										{{ t('listman', '') }}
-									</ActionButton>
-									<ActionButton v-else
+									</NcActionButton>
+									<NcActionButton v-else
 										icon="icon-delete"
 										class="listman_memberaction"
 										@click="deleteMember(member)">
 										{{ t('listman', '') }}
-									</ActionButton>
+									</NcActionButton>
 								</div>
 							</div>
 						</li>
@@ -281,11 +281,11 @@
 								{{ message.created_at }} - {{ message.subject }}
 							</p>
 							<div class="listman_messageactions">
-								<ActionButton v-if="message.id === -1"
+								<NcActionButton v-if="message.id === -1"
 									icon="icon-close"
 									class="listman_messageaction"
 									@click="cancelNewMessage(message)" />
-								<ActionButton v-else
+								<NcActionButton v-else
 									icon="icon-delete"
 									class="listman_messageaction"
 									@click="deleteMessage(message)" />
@@ -317,6 +317,13 @@
 									:value="t('listman', 'Web View')"
 									:disabled="updating || !savePossible"
 									@click="webView(message,'view')">
+								<input
+									id="listman_md"
+									type="button"
+									class="primary"
+									:value="t('listman', 'Markdown View')"
+									:disabled="updating || !savePossible"
+									@click="webView(message,'md')">
 								<input
 									id="listman_stat"
 									type="button"
@@ -374,16 +381,16 @@
 					{{ t('listman', 'Select or create a list from the menu on the left') }}
 				</p>
 			</div>
-		</AppContent>
+		</NcAppContent>
 	</div>
 </template>
 
 <script>
-import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
-import AppContent from '@nextcloud/vue/dist/Components/AppContent'
-import AppNavigation from '@nextcloud/vue/dist/Components/AppNavigation'
-import AppNavigationItem from '@nextcloud/vue/dist/Components/AppNavigationItem'
-import AppNavigationNew from '@nextcloud/vue/dist/Components/AppNavigationNew'
+import NcActionButton from '@nextcloud/vue/dist/Components/NcActionButton'
+import NcAppContent from '@nextcloud/vue/dist/Components/NcAppContent'
+import NcAppNavigation from '@nextcloud/vue/dist/Components/NcAppNavigation'
+import NcAppNavigationItem from '@nextcloud/vue/dist/Components/NcAppNavigationItem'
+import NcAppNavigationNew from '@nextcloud/vue/dist/Components/NcAppNavigationNew'
 
 import '@nextcloud/dialogs/styles/toast.scss'
 import { showError, showSuccess } from '@nextcloud/dialogs'
@@ -395,11 +402,11 @@ export default {
 	name: 'App',
 	isAdmin: false,
 	components: {
-		ActionButton,
-		AppContent,
-		AppNavigation,
-		AppNavigationItem,
-		AppNavigationNew,
+		NcActionButton,
+		NcAppContent,
+		NcAppNavigation,
+		NcAppNavigationItem,
+		NcAppNavigationNew,
 	},
 	data() {
 		return {
