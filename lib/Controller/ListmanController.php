@@ -14,6 +14,9 @@ use OCP\AppFramework\Http\Template\PublicTemplateResponse;
 use OCP\AppFramework\Http\Response;
 use OCP\IRequest;
 use OCP\Util;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 
 class ListmanController extends Controller {
 	/** @var ListmanService */
@@ -37,51 +40,40 @@ class ListmanController extends Controller {
 		$this->urlGenerator = $urlGenerator;
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function index(): DataResponse {
 		return new DataResponse($this->service->findAll($this->userId));
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
+  #[NoAdminRequired]
 	public function show(int $id): DataResponse {
 		return $this->handleNotFound(function () use ($id) {
 			return $this->service->find($id, $this->userId);
 		});
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
+	#[NoAdminRequired]
 	public function create(?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl): DataResponse {
 		return new DataResponse($this->service->create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $this->userId));
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
+  #[NoAdminRequired]
 	public function update(int $id, ?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl): DataResponse {
 		return $this->handleNotFound(function () use ($id, $title, $desc,$redir,$fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl) {
 			return $this->service->update($id, $title, $desc, $redir, $fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$this->userId);
 		});
 	}
 
-	/**
-	 * @NoAdminRequired
-	 */
+	#[NoAdminRequired]
 	public function destroy(int $id): DataResponse {
 		return $this->handleNotFound(function () use ($id) {
 			return $this->service->delete($id, $this->userId);
 		});
 	}
 
-	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function listmembers(string $lid): DataResponse {
 		return $this->handleNotFound(function () use ($lid) {
 			return $this->service->listmembers(intval($lid), $this->userId);
@@ -90,9 +82,9 @@ class ListmanController extends Controller {
 
 	/**
    * Want all the members and all the messages too
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
 	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function listdetails(string $lid): DataResponse {
 		return $this->handleNotFound(function () use ($lid) {
 			return $this->service->listdetails(intval($lid), $this->userId);
@@ -102,8 +94,8 @@ class ListmanController extends Controller {
 	/**
    * Want to mark that a message should be sent to everyone
    * currently on the list who hasn't already had it.
-	 * @NoAdminRequired
 	 */
+	#[NoAdminRequired]
 	public function messagesend(string $mid): DataResponse {
 		return $this->handleNotFound(function () use ($mid) {
 			return $this->service->messagesend(intval($mid), $this->userId);
@@ -113,8 +105,8 @@ class ListmanController extends Controller {
 	/**
    * Want to fetch how many users have been sent a message,
    * and how many are still in the queue.
-	 * @NoAdminRequired
 	 */
+	#[NoAdminRequired]
 	public function messagesent(string $mid): DataResponse {
 		return $this->handleNotFound(function () use ($mid) {
 			return $this->service->messagesent(intval($mid), $this->userId);
@@ -123,30 +115,30 @@ class ListmanController extends Controller {
 
 	/**
    * Web view of the message.
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
 	 */
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function messagetext(string $rid) {
     return $this->messageview($rid,"plain");
   }
 
 	/**
    * Web view of the message as Markdown.
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
 	 */
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function messagemd(string $rid) {
     return $this->messageview($rid,"md");
   }
 
 	/**
    * Stats view of the message. What response did it get?
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
 	 */
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function messagestat(string $rid) {
     return $this->messageview($rid,"stat");
   }
@@ -154,20 +146,20 @@ class ListmanController extends Controller {
 	/**
    * Just show the HTML of the react-widget for pasting into a copy 
 	 * of the message in a blog page
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
 	 */
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function messagewidget(string $rid) {
     return $this->messageview($rid,"widget");
   }
 
 	/**
    * Just increment the view-count on a a blank image
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
 	 */
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function messageinc(string $rid) {
     return $this->messageview($rid,"increment");
   }
@@ -175,17 +167,25 @@ class ListmanController extends Controller {
 	/**
    * Load/Save settings.
 	 */
+  public function settings($settings): DataResponse {
+      $post = json_decode(file_get_contents('php://input'), true);
+      $result = $this->service->settings($post);
+      return new DataResponse($result);
+  }
+
+  /**
 	public function settings($settings) {
     $post = json_decode(file_get_contents('php://input'),true);
     return $this->service->settings($post);
   }
+	 */
 
 	/**
    * Web view of the message.
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
 	 */
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function messageview(string $rid,$ttype="html") {
 		Util::addStyle($this->appName, 'pub');
 		Util::addScript($this->appName, 'listman-bonus');
@@ -257,20 +257,16 @@ class ListmanController extends Controller {
     return $response;
 	}
 
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function confirmPost(string $lid): Response {
     return $this->confirm($lid);
   }
 
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function confirm(string $lid): Response {
     $conf = "c";
     $act = "a";
@@ -279,19 +275,16 @@ class ListmanController extends Controller {
 		return $this->service->confirm($lid,$conf,$act);
   }
 
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function subscribePost(string $lid): Response {
 		return $this->subscribe($lid);
 	}
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
+
+	#[PublicPage]
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
 	public function subscribe(string $lid): Response {
 		$response = $this->service->subscribe($lid);
     return $response;

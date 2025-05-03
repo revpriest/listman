@@ -19,7 +19,7 @@ class Message extends Entity implements JsonSerializable {
         $this->sendrate=0;
     }
 
-    public function jsonSerialize() {
+    public function jsonSerialize(): array {
         return [
             'id' => $this->id,
             'list_id' => $this->listId,

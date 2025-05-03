@@ -31,7 +31,7 @@ use OCA\Listman\Db\MessageMapper;
 use OCA\Listman\Db\SendjobMapper;
 use OCA\Listman\Db\ReactMapper;
 use OCA\Listman\Cron\ListmanSend;
-use OCP\ILogger;
+use Psr\Log\LoggerInterface;
 
 class ListmanService {
 
@@ -57,7 +57,7 @@ class ListmanService {
 	private $logger;
 
 
-  public function __construct(MaillistMapper $mapper, SettingsMapper $settingsMapper,  MessageMapper $messageMapper, MemberMapper $memberMapper, ReactMapper $reactMapper,  SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IFactory $l10nFactory, IJobList  $jobList, ILogger $logger) {
+  public function __construct(MaillistMapper $mapper, SettingsMapper $settingsMapper,  MessageMapper $messageMapper, MemberMapper $memberMapper, ReactMapper $reactMapper,  SendjobMapper $sendjobMapper, IURLGenerator $urlGenerator, IFactory $l10nFactory, IJobList  $jobList, LoggerInterface $logger) {
     $this->mapper = $mapper;
     $this->settingsMapper = $settingsMapper;
     $this->memberMapper = $memberMapper;
@@ -1136,7 +1136,7 @@ class ListmanService {
 			$mail->send();
 		}catch (Exception $e) {
       $this->settingsMapper->setSettingVal("latestWarn",date('Y-m-d H:i:s').': Error sending to '.$member->getEmail().' - '.$e->getMessage());
-			$this->logger->logException($e, ['message' => 'Error sending to '.$member->getEmail().' - '.$e->getMessage()]);
+      $this->logger->error("Error sending to ".$member->getEmail()." - ".$e->getMessage(), ['exception' => $e]);
 			return -1;
 		}
 
@@ -1192,7 +1192,7 @@ class ListmanService {
 					$job->setState($state);
 					$this->sendjobMapper->update($job);
 				}catch(Exception $e){
-					$this->logger->logException($e,['message'=>"Exception during queued mail sending"]);
+          $this->logger->error("Exception during queued mail sending", ['exception' => $e]);
 					return false;
 				}
 			}

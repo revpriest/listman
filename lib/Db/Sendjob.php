@@ -19,7 +19,7 @@ class Sendjob extends Entity implements JsonSerializable {
     public function __construct() {
     }
 
-    public function jsonSerialize() {
+    public function jsonSerialize(): array {
         return [
 			      'id' => $this->id,
             'member_id' => $this->memberId,

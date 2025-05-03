@@ -13,7 +13,7 @@ class React extends Entity implements JsonSerializable {
     public function __construct() {
     }
 
-    public function jsonSerialize() {
+    public function jsonSerialize(): array {
         return [
 			      'id' => $this->id,
             'message_id' => $this->messageId,

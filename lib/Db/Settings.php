@@ -11,7 +11,7 @@ class Settings extends Entity implements JsonSerializable {
     public function __construct() {
     }
 
-    public function jsonSerialize() {
+    public function jsonSerialize(): array {
         return [
 			      'id' => $this->id,
             'settingname' => $this->settingname,
