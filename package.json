@@ -17,22 +17,23 @@
 	"homepage": "https://github.com/revpriest/listman",
 	"license": "agpl",
 	"private": true,
-  "scripts": {
-    "build": "webpack --node-env production --progress",
-    "dev": "webpack --node-env development --progress",
-    "watch": "webpack --node-env development --progress --watch",
-    "serve": "webpack --node-env development serve --progress",
-    "lint": "eslint --ext .js,.vue src",
-    "lint:fix": "eslint --ext .js,.vue src --fix",
-    "stylelint": "stylelint css/*.css css/*.scss src/**/*.scss src/**/*.vue",
-    "stylelint:fix": "stylelint css/*.css css/*.scss src/**/*.scss src/**/*.vue --fix"
-  },
+	"scripts": {
+		"build": "webpack --node-env production --progress",
+		"dev": "webpack --node-env development --progress",
+		"watch": "webpack --node-env development --progress --watch",
+		"serve": "webpack --node-env development serve --progress",
+		"lint": "eslint --ext .js,.vue src",
+		"lint:fix": "eslint --ext .js,.vue src --fix",
+		"stylelint": "stylelint css/*.css css/*.scss src/**/*.scss src/**/*.vue",
+		"stylelint:fix": "stylelint css/*.css css/*.scss src/**/*.scss src/**/*.vue --fix"
+	},
 	"dependencies": {
-    "@nextcloud/axios": "^2.3.0",
-    "@nextcloud/dialogs": "^3.2.0",
-    "@nextcloud/router": "^2.1.1",
-    "@nextcloud/vue": "^7.4.0",
-    "vue": "^2.7.14"
+		"@nextcloud/axios": "^2.3.0",
+		"@nextcloud/dialogs": "^3.2.0",
+		"@nextcloud/router": "^2.1.1",
+		"@nextcloud/vue": "^7.4.0",
+		"vue": "^2.7.14",
+		"vue-style-loader": "4.1.3"
 	},
 	"browserslist": [
 		"extends @nextcloud/browserslist-config"
@@ -41,10 +42,18 @@
 		"node": ">=10.0.0"
 	},
 	"devDependencies": {
-    "@nextcloud/babel-config": "^1.0.0",
-    "@nextcloud/browserslist-config": "^2.3.0",
-    "@nextcloud/eslint-config": "^8.2.1",
-    "@nextcloud/stylelint-config": "^2.3.0",
-    "@nextcloud/webpack-vue-config": "^5.4.0"
+		"@nextcloud/babel-config": "^1.0.0",
+		"@nextcloud/browserslist-config": "^2.3.0",
+		"@nextcloud/eslint-config": "^8.2.1",
+		"@nextcloud/stylelint-config": "^2.3.0",
+		"@nextcloud/webpack-vue-config": "^5.5.1",
+		"css-loader": "6.11.0",
+		"sass": "^1.89.1",
+		"sass-loader": "^13.1.0",
+		"style-loader": "^3.3.1",
+		"vue-loader": "^15.10.1",
+		"vue-template-compiler": "^2.7.16",
+		"webpack": "^5.99.9",
+		"webpack-cli": "^5.1.4"
 	}
 }

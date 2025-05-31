@@ -2,7 +2,7 @@
 	<div id="content" class="app-listman">
 		<NcAppNavigation>
 			<NcAppNavigationNew v-if="!loading"
-				:text="t('listman', 'New list')"
+				:text="t('listman', 'New list!')"
 				:disabled="false"
 				button-id="new-listman-button"
 				button-class="icon-add"
@@ -10,7 +10,7 @@
 			<ul>
 				<NcAppNavigationItem v-for="list in lists"
 					:key="list.id"
-					:title="list.title ? list.title : t('listman', 'New list')"
+					:title="list.title ? list.title : t('listman', 'New list!')"
 					:class="{active: currentListId === list.id}"
 					@click="openList(list)">
 					<template slot="actions">
@@ -503,7 +503,7 @@ export default {
 			}
 			this.currentListId = list.id
 			this.$nextTick(() => {
-				this.$refs.desc.focus()
+//				this.$refs.desc.focus()
 			})
 
 			// Fill members-list
@@ -656,7 +656,7 @@ export default {
 					footer: '',
 				})
 				this.$nextTick(() => {
-					this.$refs.title.focus()
+//					this.$refs.title.focus()
 				})
 			}
 			this.updateSubscribeFormText()
@@ -898,7 +898,7 @@ export default {
 					email: '',
 				})
 				this.$nextTick(() => {
-					this.$refs.name.focus()
+//					this.$refs.name.focus()
 				})
 			}
 		},
@@ -916,7 +916,7 @@ export default {
 					list_id: this.currentListId,
 				})
 				this.$nextTick(() => {
-					this.$refs.subject.focus()
+//					this.$refs.subject.focus()
 				})
 			  this.currentMessageId = -1
 			}
