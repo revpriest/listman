@@ -1,4 +1,7 @@
+const path = require('path')
+const config = require('@nextcloud/webpack-vue-config')
 const VueLoaderPlugin = require('vue-loader/lib/plugin') 
+
 
 module.exports = {
   // You need to list out every file you want to bundle in `entry`
@@ -6,13 +9,11 @@ module.exports = {
     main: `${process.cwd()}/src/main.js`  // Primary entry point
   },
   output: {
-    // Write to the '/dist' directory relative to the directory
-    // where `webpack` is running
-    path: `${process.cwd()}/dist`,
-    // Webpack will bundle `src/foo.js` into `dist/foo.min.js`
-    // because of `[name]`.
-    filename: '[name].min.js'
+    path: path.resolve(__dirname, 'js'),
+    filename: '[name].js',
+    publicPath: '/apps/listman/js/' 
   },
+  target: "web",
 
   module: {
     rules: [
@@ -53,5 +54,4 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.vue', '.json'] // Auto-resolve these extensions
   },
-  target: 'node'
 };

@@ -363,6 +363,18 @@
 									</span>
 									{{ t('listman', 'sent') }}
 								</span>
+                <div>
+                  You May Use, on a new line:
+                  <pre style="border: 1px solid red;font-family: monospace;border-radius:.3em">
+/h1 headline
+/img URL alt text
+/link URL link text
+/*link URL link text
+"
+Blockquote
+"
+                  </pre>
+                </div>
 							</div>
 						</li>
 					</ul>
@@ -400,7 +412,6 @@ import axios from '@nextcloud/axios'
 
 export default {
 	name: 'App',
-	isAdmin: false,
 	components: {
 		NcActionButton,
 		NcAppContent,
@@ -410,6 +421,7 @@ export default {
 	},
 	data() {
 		return {
+	    isAdmin: false,
 			lists: [],
 			currentListId: null,
 			currentListRandId: null,
@@ -493,7 +505,7 @@ export default {
 
 	methods: {
 		/**
-		 * Create a new list and focus the list desc field automatically
+		 * Create a new list
 		 * @param {Object} list List object
 		 */
 		async openList(list) {
@@ -502,18 +514,9 @@ export default {
 				return
 			}
 			this.currentListId = list.id
-			this.$nextTick(() => {
-//				this.$refs.desc.focus()
-			})
 
 			// Fill members-list
-			const url = generateUrl('/apps/listman/listdetails/' + this.currentListId)
-			const response = await axios.get(url)
-			this.currentListMembers = response.data.members
-			this.currentListMessages = response.data.messages
-			this.currentListRandId = response.data.list.randid
-			this.currentMessageId = null
-			this.updateSubscribeFormText()
+      this.refreshListDetails()
 		},
 		/**
 		 * Action tiggered when clicking the save button
@@ -598,6 +601,19 @@ export default {
 				this.updating = false
 			}
 		},
+    /**
+    * Reload the list details,
+    * maybe coz we just did a "create"
+    */
+    async refreshListDetails() {
+			const url = generateUrl('/apps/listman/listdetails/' + this.currentListId)
+			const response = await axios.get(url)
+			this.currentListMembers = response.data.members
+			this.currentListMessages = response.data.messages
+			this.currentListRandId = response.data.list.randid
+			this.currentMessageId = null
+			this.updateSubscribeFormText()
+    },
 		/**
 		* Pick which pane to show
 		* @param {String} panename Name of pane to show
@@ -635,7 +651,7 @@ export default {
 			}
 		},
 		/**
-		 * Create a new list and focus the list desc field automatically
+		 * Create a new list 
 		 * The list is not yet saved, therefore an id of -1 is used until it
 		 * has been persisted in the backend
 		 */
@@ -654,9 +670,6 @@ export default {
 					suburl: '',
 					buttonlink: '',
 					footer: '',
-				})
-				this.$nextTick(() => {
-//					this.$refs.title.focus()
 				})
 			}
 			this.updateSubscribeFormText()
@@ -681,6 +694,12 @@ export default {
 				this.$set(this.lists, index, response.data)
 				this.currentListId = response.data.id
 				this.currentListRandId = response.data.randid
+
+        //Update the list of lists since there's a new one.
+        const listresponse = await axios.get(generateUrl('/apps/listman/lists'))
+        this.lists = listresponse.data
+
+        alert("Saved new list:"+this.currentListId);
 			} catch (e) {
 				console.error(e)
 				showError(t('listman', 'Could not create the list'))
@@ -699,12 +718,14 @@ export default {
 				this.$set(this.currentListMessages, index, response.data)
 				this.currentMessageId = response.data.id
 				message.id = response.data.id
+        this.refreshListDetails()
 			} catch (e) {
 				console.error(e)
 				showError(t('listman', 'Could not create the message'))
 			}
 			this.updating = false
 		},
+
 		/**
 		 * Update an existing list on the server
 		 * @param {Object} list List object
@@ -833,6 +854,7 @@ export default {
 				const index = this.currentListMembers.findIndex((match) => match.id === member.id)
 				this.$set(this.currentListMembers, index, response.data)
 				member.id = response.data.id
+        this.refreshListDetails()
 			} catch (e) {
 				console.error(e)
 				showError(t('listman', 'Could not create the member'))
@@ -897,9 +919,6 @@ export default {
 					name: '',
 					email: '',
 				})
-				this.$nextTick(() => {
-//					this.$refs.name.focus()
-				})
 			}
 		},
 		/**
@@ -914,9 +933,6 @@ export default {
 					subject: '',
 					body: '',
 					list_id: this.currentListId,
-				})
-				this.$nextTick(() => {
-//					this.$refs.subject.focus()
 				})
 			  this.currentMessageId = -1
 			}

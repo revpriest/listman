@@ -249,7 +249,7 @@ class ListmanController extends Controller {
         new SimpleMenuAction($subscribe, 'subscribe', 'icon-css-class1', $subscribe, 0),
     ]);
 		$policy = new ContentSecurityPolicy();
-    $policy->addAllowedScriptDomain(['\'unsafe-inline\'','\'unsafe-eval\'','\'script-src\'']);
+    $policy->addAllowedScriptDomain(['\'unsafe-eval\'','\'unsafe-inline\'','\'unsafe-eval\'','\'script-src\'']);
 		$policy->addAllowedImageDomain('*');
 		// Needed for the ES5 compatible build of PDF.js
 		$policy->allowEvalScript(true);
