@@ -9,6 +9,8 @@ will not allow mailing-list type email.
 You will need to use the app as an Admin user to set those
 SMTP settings before a non-admin user may use it.
 
+
+
 Features:
 
 * Multiple mailing-lists
@@ -34,6 +36,7 @@ Features:
   * Links
   * Image-links
   * Bullet-links
+  * Blockquote
 * Sane plain-text version of every email too.
 
 ## Screenshots
@@ -82,6 +85,19 @@ for that.
 EG:
 ```
    /img https://dalliance.net/avatar.jpg My Avatar with alt-text
+```
+
+Add an image in-line by linking to the Image's URL and 
+adding alt-text/title for the rest of the line.
+
+### Blockquote
+EG:
+```
+"
+block
+quote
+text goes between " on their own in a line
+"
 ```
 
 Add an image in-line by linking to the Image's URL and 
@@ -179,3 +195,7 @@ Then install the dependencies using:
 - Run `make dev-setup` to install the frontend dependencies
 - To build the Javascript whenever you make changes, run `make build-js`
 
+
+# Debug
+
+Check the [Wiki Page](https://github.com/revpriest/listman/wiki)
