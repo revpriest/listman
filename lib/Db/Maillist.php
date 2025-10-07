@@ -18,6 +18,7 @@ class Maillist extends Entity implements JsonSerializable {
   protected $footer;
 	protected $randid;
 	protected $redir;
+	protected $sharelinks;
 	protected $userId;
 
 	public function jsonSerialize(): array {
@@ -34,6 +35,7 @@ class Maillist extends Entity implements JsonSerializable {
       'suburl' => $this->suburl,
 			'randid' => $this->randid,
 			'redir' => $this->redir,
+			'sharelinks' => $this->sharelinks,
 			'userId' => $this->userId,
 		];
 	}

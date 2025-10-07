@@ -173,6 +173,11 @@
 						type="text"
 						class="listman_listInput"
 						:disabled="updating">
+					<input ref="sharelinks"
+						v-model="currentList.sharelinks"
+						type="checkbox"
+						class="listman_sharelinks"
+						:disabled="updating"><span style="position:relative;top:-0.8em;">Hide share links</span><br/>
 					<input type="button"
 						class="primary"
 						:value="t('listman', 'Save List Details')"
@@ -670,6 +675,7 @@ export default {
 					suburl: '',
 					buttonlink: '',
 					footer: '',
+					sharelinks: false,
 				})
 			}
 			this.updateSubscribeFormText()

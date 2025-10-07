@@ -15,7 +15,7 @@ Features:
 
 * Multiple mailing-lists
 * Subscribe/Unsubscribe forms
-* A Web-view of each email sent, with "share on X" for
+* A Web-view of each email sent, with optional "share on X" for
   * facebook
   * twitter
   * linked in

@@ -533,7 +533,7 @@ class ListmanService {
   /**
   * Create a new list
   */
-  public function create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $userId) {
+  public function create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $sharelinks, $userId) {
     $randid = $this->randId();
     $list = new Maillist();
     $list->setRandid($randid);
@@ -547,6 +547,7 @@ class ListmanService {
     $list->setFooter($footer);
     $list->setSuburl($suburl);
     $list->setShareurl($shareurl);
+    $list->setSharelinks($sharelinks);
     $list->setUserId($userId);
     return $this->mapper->insert($list);
   }
@@ -554,7 +555,7 @@ class ListmanService {
   /**
   * Update existing list
   */
-  public function update($id, $title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl,  $userId) {
+  public function update($id, $title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $sharelinks, $userId) {
     try {
       $list = $this->mapper->find($id, $userId);
       $list->setTitle($title);
@@ -567,6 +568,7 @@ class ListmanService {
       $list->setFooter($footer);
       $list->setSuburl($suburl);
       $list->setShareurl($shareurl);
+      $list->setSharelinks($sharelinks);
       return $this->mapper->update($list);
     } catch (Exception $e) {
       $this->handleException($e);

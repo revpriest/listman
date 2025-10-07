@@ -54,14 +54,14 @@ class ListmanController extends Controller {
 	}
 
 	#[NoAdminRequired]
-	public function create(?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl): DataResponse {
-		return new DataResponse($this->service->create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $this->userId));
+	public function create(?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl, ?bool $sharelinks): DataResponse {
+		return new DataResponse($this->service->create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $sharelinks, $this->userId));
 	}
 
   #[NoAdminRequired]
-	public function update(int $id, ?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl): DataResponse {
-		return $this->handleNotFound(function () use ($id, $title, $desc,$redir,$fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl) {
-			return $this->service->update($id, $title, $desc, $redir, $fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$this->userId);
+	public function update(int $id, ?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl, ?bool $sharelinks): DataResponse {
+		return $this->handleNotFound(function () use ($id, $title, $desc,$redir,$fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$sharelinks) {
+			return $this->service->update($id, $title, $desc, $redir, $fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$sharelinks,$this->userId);
 		});
 	}
 
