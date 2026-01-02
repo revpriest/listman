@@ -242,7 +242,9 @@ class ListmanController extends Controller {
 		  exit;
 		}
 
-    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"url"=>$url,"react"=>$reacts,"body"=>$body[$ttype]]);
+    $sharelinks = $list->getSharelinks();
+
+    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"url"=>$url,"react"=>$reacts,"body"=>$body[$ttype],'sharelinks'=>$sharelinks]);
     $response->setHeaderTitle($message->getSubject()." [".$list->getTitle()."]");
     $response->setHeaderDetails("To all subscribers at ".$message->getCreatedAt());
     $response->setHeaderActions([
