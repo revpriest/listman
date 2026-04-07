@@ -95,7 +95,7 @@ class MessageMapper extends QBMapper {
       $qb->select($qb->func()->sum('sendrate'))
          ->from($this->getTableName())
          ->where($qb->expr()->gt('sendrate',$qb->createNamedParameter(0)));
-			$rate = $qb->execute()->fetchOne();
+			$rate = $qb->executeQuery()->fetchOne();
       return $rate;
     }
 }

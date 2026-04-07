@@ -1,26 +1,26 @@
 {
-    "name": "nextcloud/app-tutorial",
-    "description": "Nextcloud App Tutorial",
+    "name": "nextcloud/listman",
+    "description": "Nextcloud Listman App",
     "type": "project",
     "license": "AGPL",
     "authors": [
         {
-            "name": "Bernhard Posselt",
-            "email": "dev@bernhard-posselt.com"
+            "name": "Adam Priest",
+            "email": "pre@dalliance.net"
         }
     ],
     "require": {
-        "phpmailer/phpmailer": "^6.5"
+        "phpmailer/phpmailer": "^6.9"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.5",
-        "nextcloud/coding-standard": "^0.5.0"
+        "phpunit/phpunit": "^10.5",
+        "nextcloud/coding-standard": "^1.0"
     },
     "config": {
         "optimize-autoloader": true,
         "classmap-authoritative": true,
         "platform": {
-            "php": "7.2"
+            "php": "8.2"
         }
     },
     "scripts": {

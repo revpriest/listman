@@ -110,14 +110,14 @@ class SendjobMapper extends QBMapper {
           ->set("sendrate", $qb->createNamedParameter(1))
           ->where($qb->expr()->eq('sendrate', $qb->createNamedParameter(0)))
 			    ->andWhere($qb->expr()->in('id', $qb->createFunction($qbs->getSQL()), IQueryBuilder::PARAM_INT_ARRAY));
-      $qb->execute();
+      $qb->executeQuery();
 
       //Main query to set all the state=-2 sendjobs to state=0 to rejoin the queue
       $qb = $this->db->getQueryBuilder();
       $qb->update($this->getTableName())
           ->set("state", $qb->createNamedParameter(0))
           ->where($qb->expr()->eq('state', $qb->createNamedParameter(-2)))
-          ->execute();
+          ->executeQuery();
       return;
    }
 
@@ -130,7 +130,7 @@ class SendjobMapper extends QBMapper {
       $qb->select($qb->func()->count('*'))
          ->from($this->getTableName())
          ->where($qb->expr()->eq('state',$qb->createNamedParameter(0)));
-			$queued = $qb->execute()->fetchOne();
+			$queued = $qb->executeQuery()->fetchOne();
       return $queued;
     }
 
@@ -145,14 +145,14 @@ class SendjobMapper extends QBMapper {
          ->from($this->getTableName())
          ->where($qb->expr()->eq('message_id', $qb->createNamedParameter($id)))
          ->andWhere($qb->expr()->eq('state',$qb->createNamedParameter(0)));
-			$unsent = $qb->execute()->fetchOne();
+			$unsent = $qb->executeQuery()->fetchOne();
 
       $qb = $this->db->getQueryBuilder();
       $qb->select($qb->func()->count('*'))
          ->from($this->getTableName())
          ->where($qb->expr()->eq('message_id', $qb->createNamedParameter($id)))
          ->andWhere($qb->expr()->neq('state',$qb->createNamedParameter(0)));
-			$sent = $qb->execute()->fetchOne();
+			$sent = $qb->executeQuery()->fetchOne();
 
       return ['sent'=>$sent,'queued'=>$unsent];
     }
