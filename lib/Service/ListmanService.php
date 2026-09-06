@@ -279,8 +279,8 @@ class ListmanService {
 
             default:
               $html.=htmlspecialchars($p." ");
-              $plain.=$p;
-              $md   .=$p;
+              $plain.=$p." ";
+              $md   .=$p." ";
               break;
         }
       }
