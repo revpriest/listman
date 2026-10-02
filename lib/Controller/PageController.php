@@ -37,7 +37,7 @@ class PageController extends OCSController {
     $policy->addAllowedMediaDomain('self');
     $policy->addAllowedMediaDomain('https://array'); // Add any other needed domains
 		// Needed for the ES5 compatible build of PDF.js
-		$policy->allowEvalScript(true);
+		// $policy->allowEvalScript(true);
 		$response->setContentSecurityPolicy($policy);
     return $response;
 	}

@@ -254,7 +254,7 @@ class ListmanController extends Controller {
     $policy->addAllowedScriptDomain(['\'unsafe-eval\'','\'unsafe-inline\'','\'unsafe-eval\'','\'script-src\'']);
 		$policy->addAllowedImageDomain('*');
 		// Needed for the ES5 compatible build of PDF.js
-		$policy->allowEvalScript(true);
+		//$policy->allowEvalScript(true);
 		$response->setContentSecurityPolicy($policy);
     return $response;
 	}

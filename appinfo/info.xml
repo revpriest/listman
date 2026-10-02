@@ -19,7 +19,7 @@
     <screenshot>https://raw.githubusercontent.com/revpriest/listman/main/img/screenshot/interface.png</screenshot>
     <screenshot>https://raw.githubusercontent.com/revpriest/listman/main/img/screenshot/email.png</screenshot>
     <dependencies>
-        <nextcloud min-version="31" max-version="33"/>
+        <nextcloud min-version="31" max-version="35"/>
     </dependencies>
     <navigations>
         <navigation>
