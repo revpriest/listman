@@ -54,14 +54,14 @@ class ListmanController extends Controller {
 	}
 
 	#[NoAdminRequired]
-	public function create(?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl, ?bool $sharelinks): DataResponse {
-		return new DataResponse($this->service->create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $sharelinks, $this->userId));
+	public function create(?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl, ?bool $sharelinks, ?bool $hidereacts): DataResponse {
+		return new DataResponse($this->service->create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $sharelinks, $hidereacts, $this->userId));
 	}
 
   #[NoAdminRequired]
-	public function update(int $id, ?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl, ?bool $sharelinks): DataResponse {
-		return $this->handleNotFound(function () use ($id, $title, $desc,$redir,$fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$sharelinks) {
-			return $this->service->update($id, $title, $desc, $redir, $fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$sharelinks,$this->userId);
+	public function update(int $id, ?string $title, ?string $desc, ?string $redir, ?string $fromname, ?string $fromemail, ?string $buttontext, ?string $buttonlink, ?string $footer, ?string $suburl, ?string $shareurl, ?bool $sharelinks, ?bool $hidereacts): DataResponse {
+		return $this->handleNotFound(function () use ($id, $title, $desc,$redir,$fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$sharelinks, $hidereacts) {
+			return $this->service->update($id, $title, $desc, $redir, $fromname,$fromemail,$buttontext,$buttonlink,$footer,$suburl,$shareurl,$sharelinks, $hidereacts, $this->userId);
 		});
 	}
 
@@ -243,8 +243,9 @@ class ListmanController extends Controller {
 		}
 
     $sharelinks = $list->getSharelinks();
+    $hidereacts = $list->getHidereacts();
 
-    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"url"=>$url,"react"=>$reacts,"body"=>$body[$ttype],'sharelinks'=>$sharelinks]);
+    $response = new PublicTemplateResponse($this->appName, 'view', ['list'=>$list,'message'=>$message,'subscribe'=>$subscribe,"url"=>$url,"react"=>$reacts,"body"=>$body[$ttype],'sharelinks'=>$sharelinks,'hidereacts'=>$hidereacts]);
     $response->setHeaderTitle($message->getSubject()." [".$list->getTitle()."]");
     $response->setHeaderDetails("To all subscribers at ".$message->getCreatedAt());
     $response->setHeaderActions([

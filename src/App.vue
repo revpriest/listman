@@ -178,6 +178,11 @@
 						type="checkbox"
 						class="listman_sharelinks"
 						:disabled="updating"><span style="position:relative;top:-0.8em;">Hide share links</span><br/>
+					<input ref="hidereacts"
+						v-model="currentList.hidereacts"
+						type="checkbox"
+						class="listman_hidereacts"
+						:disabled="updating"><span style="position:relative;top:-0.8em;">Hide react links</span><br/>
 					<input type="button"
 						class="primary"
 						:value="t('listman', 'Save List Details')"
@@ -676,6 +681,7 @@ export default {
 					buttonlink: '',
 					footer: '',
 					sharelinks: false,
+					hidereacts: false,
 				})
 			}
 			this.updateSubscribeFormText()

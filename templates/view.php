@@ -20,13 +20,15 @@
 		</div>
 	</div>
 
-  <div class="react">
-    <ul>
-      <?php foreach($react as $r): ?>
-        <li><?php echo $r->getSymbol().$r->getCount(); ?></li>
-      <?php endforeach; ?>
-    </ul>
-  </div>
+  <?php if($hidereacts!="1"): ?>
+    <div class="react">
+      <ul>
+        <?php foreach($react as $r): ?>
+          <li><?php echo $r->getSymbol().$r->getCount(); ?></li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  <?php endif; ?>
 
 </div>
 

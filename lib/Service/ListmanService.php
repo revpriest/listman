@@ -135,21 +135,23 @@ class ListmanService {
       $share = $list->getshareurl();
     }
 
-    $html = "";
-    $html.="<div style=\"text-align:center\">";
-    $html.="<a $btn href=\"$share?r=❤\">❤</a>";
-    $html.="<a $btn href=\"$share?r=👍\">👍</a>";
-    $html.="<a $btn href=\"$share?r=👎\">👎</a>";
-    $html.="<a $btn href=\"$share?r=😆\">😆</a>";
-    $html.="<a $btn href=\"$share?r=😢\">😢</a>";
-    $html.="<a $btn href=\"$share?r=😮\">😮</a>";
-    $html.="<br clear=\"both\"/>";
-    $html.="<a $btn href=\"$subscribe\">Un/Subscribe</a>";
-    $html.="<a $btn href=\"$share\">Share</a>";
-    $html.="<a $btn href=\"$reply\">".$list->getButtontext()."</a>";
-    $html.="</div>";
+    if($list->getHidereacts()!="1"){
+      $html = "";
+      $html.="<div style=\"text-align:center\">";
+      $html.="<a $btn href=\"$share?r=❤\">❤</a>";
+      $html.="<a $btn href=\"$share?r=👍\">👍</a>";
+      $html.="<a $btn href=\"$share?r=👎\">👎</a>";
+      $html.="<a $btn href=\"$share?r=😆\">😆</a>";
+      $html.="<a $btn href=\"$share?r=😢\">😢</a>";
+      $html.="<a $btn href=\"$share?r=😮\">😮</a>";
+      $html.="<br clear=\"both\"/>";
+      $html.="<a $btn href=\"$subscribe\">Un/Subscribe</a>";
+      $html.="<a $btn href=\"$share\">Share</a>";
+      $html.="<a $btn href=\"$reply\">".$list->getButtontext()."</a>";
+      $html.="</div>";
+    }
 
-    $plain = "";
+    $plain = "\n";
     $plain.=" * Un/Subscribe: $subscribe\n";
     $plain.=" * Share: $share\n";
     $plain.=" * ".$list->getButtontext().": $reply\n";
@@ -533,7 +535,7 @@ class ListmanService {
   /**
   * Create a new list
   */
-  public function create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $sharelinks, $userId) {
+  public function create($title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $sharelinks, $hidereacts, $userId) {
     $randid = $this->randId();
     $list = new Maillist();
     $list->setRandid($randid);
@@ -548,6 +550,7 @@ class ListmanService {
     $list->setSuburl($suburl);
     $list->setShareurl($shareurl);
     $list->setSharelinks($sharelinks);
+    $list->setHidereacts($hidereacts);
     $list->setUserId($userId);
     return $this->mapper->insert($list);
   }
@@ -555,7 +558,7 @@ class ListmanService {
   /**
   * Update existing list
   */
-  public function update($id, $title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $sharelinks, $userId) {
+  public function update($id, $title, $desc, $redir, $fromname, $fromemail, $buttontext, $buttonlink, $footer, $suburl, $shareurl, $sharelinks, $hidereacts, $userId) {
     try {
       $list = $this->mapper->find($id, $userId);
       $list->setTitle($title);
@@ -569,6 +572,7 @@ class ListmanService {
       $list->setSuburl($suburl);
       $list->setShareurl($shareurl);
       $list->setSharelinks($sharelinks);
+      $list->setHidereacts($hidereacts);
       return $this->mapper->update($list);
     } catch (Exception $e) {
       $this->handleException($e);

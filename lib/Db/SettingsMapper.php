@@ -29,7 +29,7 @@ class SettingsMapper extends QBMapper {
 	* @param string $default
 	* @return string|value
 	*/
-  public function getSettingVal(string $name,string $default=null) {
+  public function getSettingVal(string $name, ?string $default=null) {
 	  try{
        $qb = $this->db->getQueryBuilder();
        $qb->select('*')
@@ -51,7 +51,7 @@ class SettingsMapper extends QBMapper {
 	* @param string $value
 	* @return string|value
 	*/
-  public function setSettingVal(string $name,string $value=null) {
+  public function setSettingVal(string $name, ?string $value=null) {
 	  try{
        $qb = $this->db->getQueryBuilder();
        $qb->select('*')
