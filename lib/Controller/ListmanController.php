@@ -188,7 +188,6 @@ class ListmanController extends Controller {
 	#[NoCSRFRequired]
 	public function messageview(string $rid,$ttype="html") {
 		Util::addStyle($this->appName, 'pub');
-		Util::addScript($this->appName, 'listman-bonus');
 		$message = 	$this->service->getMessageEntityByRandId($rid);
 		$list = $this->service->getListEntity(intval($message->getListId()),"");
     $subscribe = $this->urlGenerator->linkToRouteAbsolute('listman.listman.subscribe', ['lid'=>$list->getRandid()]);
